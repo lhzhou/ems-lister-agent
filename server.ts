@@ -3,6 +3,7 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import os from 'node:os';
 
 // Layered environment loading: base .env first, then mode-specific overrides
 const envDir = path.join(process.cwd(), 'env');
@@ -118,6 +119,7 @@ async function startServer() {
       // env directory used by vite.config.ts so import.meta.env contains
       // agent/env/.env and mode-specific overrides.
       envDir,
+      mode: currentMode,
       server: { middlewareMode: true },
       appType: 'spa',
     });
@@ -130,10 +132,40 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, HOST, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
-    console.log(`Corporation proxy target: ${process.env.VITE_API_BASE_URL || BACKEND_TARGET}`);
-  });
+  const strictPort = process.env.VITE_STRICT_PORT === 'true';
+  const maxPortAttempts = 20;
+  let portAttempt = 0;
+
+  const listen = (port: number) => {
+    const server = app.listen(port, HOST, () => {
+      const addresses = [`http://localhost:${port}/`];
+      for (const entries of Object.values(os.networkInterfaces())) {
+        for (const entry of entries ?? []) {
+          if (entry.family === 'IPv4' && !entry.internal) {
+            addresses.push(`http://${entry.address}:${port}/`);
+          }
+        }
+      }
+
+      console.log(`\n➜  Local:   ${addresses[0]}`);
+      for (const address of [...new Set(addresses.slice(1))]) {
+        console.log(`➜  Network: ${address}`);
+      }
+      console.log(`API 地址: ${process.env.VITE_API_BASE_URL || BACKEND_TARGET}`);
+    });
+
+    server.once('error', (error: NodeJS.ErrnoException) => {
+      if (error.code !== 'EADDRINUSE' || strictPort || portAttempt >= maxPortAttempts) {
+        throw error;
+      }
+      portAttempt += 1;
+      const nextPort = port + 1;
+      console.warn(`端口 ${port} 已被占用，尝试端口 ${nextPort}`);
+      listen(nextPort);
+    });
+  };
+
+  listen(PORT);
 }
 
 startServer();

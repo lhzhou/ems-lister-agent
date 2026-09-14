@@ -26,8 +26,8 @@ interface LoginPageProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   // 表单输入
-  const [account, setAccount] = useState<string>('customer_admin');
-  const [password, setPassword] = useState<string>('Post@2026');
+  const [account, setAccount] = useState<string>('商丘-虞城县');
+  const [password, setPassword] = useState<string>('123123123');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   
   // UI 状态
