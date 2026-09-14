@@ -4,12 +4,29 @@ import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import fs from 'fs';
 
-// Load environment variables
-const envFilePath = path.join(process.cwd(), 'env', '.env');
-if (fs.existsSync(envFilePath)) {
-  dotenv.config({ path: envFilePath });
+// Layered environment loading: base .env first, then mode-specific overrides
+const envDir = path.join(process.cwd(), 'env');
+const currentMode = process.env.NODE_ENV || 'development';
+const envFilesToLoad = [
+  path.join(envDir, '.env'),
+  path.join(envDir, '.env.local'),
+  path.join(envDir, `.env.${currentMode}`),
+  path.join(envDir, `env.${currentMode}`),
+  path.join(envDir, `.env.${currentMode}.local`),
+];
+
+for (const envFile of envFilesToLoad) {
+  if (fs.existsSync(envFile) && fs.statSync(envFile).isFile()) {
+    try {
+      const parsed = dotenv.parse(fs.readFileSync(envFile, 'utf-8'));
+      for (const [k, v] of Object.entries(parsed)) {
+        process.env[k] = v; // 后读取的配置直接覆盖基础配置中的同名字段
+      }
+    } catch (e: any) {
+      console.warn(`[Server Env] 解析 ${envFile} 异常:`, e.message);
+    }
+  }
 }
-dotenv.config();
 
 const args = process.argv.slice(2);
 const portIndex = args.indexOf('--port');
