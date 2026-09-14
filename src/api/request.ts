@@ -89,8 +89,14 @@ export async function request<T = any>(endpoint: string, config: RequestConfig =
   if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
     fullUrl = endpoint;
   } else if (endpoint.startsWith('/v1') || endpoint.startsWith('v1/')) {
-    // 公司端 /v1 接口：统一走同源相对路径代理，避免浏览器跨域与 Mixed Content (HTTPS -> HTTP) 拦截
-    fullUrl = `/${endpoint.replace(/^\/+/, '')}`;
+    // Keep relative `/api`/empty configuration on the same-origin proxy, but
+    // honor an explicitly configured absolute API base URL in the browser.
+    // This is important when the frontend and corporation API are hosted on
+    // different addresses and the operator configures VITE_API_BASE_URL.
+    const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
+    fullUrl = /^https?:\/\//i.test(normalizedBaseUrl)
+      ? `${normalizedBaseUrl}/${endpoint.replace(/^\/+/, '')}`
+      : `/${endpoint.replace(/^\/+/, '')}`;
   } else {
     fullUrl = `${baseUrl.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
   }

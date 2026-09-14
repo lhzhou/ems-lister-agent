@@ -114,6 +114,10 @@ async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
+      // server.ts is the entrypoint in `pnpm dev:server`; pass the same
+      // env directory used by vite.config.ts so import.meta.env contains
+      // agent/env/.env and mode-specific overrides.
+      envDir,
       server: { middlewareMode: true },
       appType: 'spa',
     });
