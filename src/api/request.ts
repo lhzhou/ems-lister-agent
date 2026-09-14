@@ -89,16 +89,19 @@ export async function request<T = any>(endpoint: string, config: RequestConfig =
   if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
     fullUrl = endpoint;
   } else if (endpoint.startsWith('/v1') || endpoint.startsWith('v1/')) {
-    // Keep relative `/api`/empty configuration on the same-origin proxy, but
-    // honor an explicitly configured absolute API base URL in the browser.
-    // This is important when the frontend and corporation API are hosted on
-    // different addresses and the operator configures VITE_API_BASE_URL.
-    const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
-    fullUrl = /^https?:\/\//i.test(normalizedBaseUrl)
-      ? `${normalizedBaseUrl}/${endpoint.replace(/^\/+/, '')}`
-      : `/${endpoint.replace(/^\/+/, '')}`;
+    // In browser environment, always use the same-origin proxy path (`/v1/...`).
+    // Express server.ts handles proxying to VITE_API_BASE_URL (http://192.168.31.100:8082, etc.).
+    // This strictly prevents browser "Failed to fetch" caused by Mixed Content (HTTPS -> HTTP)
+    // and private network access restrictions.
+    fullUrl = `/${endpoint.replace(/^\/+/, '')}`;
   } else {
-    fullUrl = `${baseUrl.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+    // For other endpoints, if running in browser on HTTPS and baseUrl is HTTP,
+    // use relative path to prevent mixed content blocking
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && baseUrl.startsWith('http://')) {
+      fullUrl = `/${endpoint.replace(/^\/+/, '')}`;
+    } else {
+      fullUrl = `${baseUrl.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+    }
   }
 
   const queryString = buildQueryString(params);

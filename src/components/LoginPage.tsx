@@ -115,7 +115,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       }, 400);
 
     } catch (err: any) {
-      console.error('公司端登录接口失败:', err);
+      console.error('登录认证接口调用异常:', err);
       // 登录失败：绝不调用 onLogin，并立即清除本地可能存在的旧 Token
       removeStoredToken();
       
@@ -125,16 +125,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       // 503/502: 依赖服务不可用或后端服务未启动
       let msg = err.message || '登录失败，请核对账号与密码';
       
-      if (err.status === 401 || err.code === 'UNAUTHORIZED' || err.code === 401) {
+      if (err.message === 'Failed to fetch') {
+        msg = `网络连接异常 (Failed to fetch)，请确认服务地址 (${backendUrl}) 是否可连通`;
+      } else if (err.status === 401 || err.code === 'UNAUTHORIZED' || err.code === 401) {
         msg = err.data?.message || err.message || '账号或密码错误，或该账号不属于客户平台 (仅限 customer / customer_admin / customer_member)';
       } else if (err.status === 400) {
         msg = err.data?.message || '请求字段缺失或格式不正确，请检查账号与密码输入';
       } else if (err.status === 502 || err.status === 503) {
-        msg = `公司端服务 (${backendUrl}) 连接失败: ${err.message || '后端服务异常，请确认后端已启动'}`;
+        msg = `后端服务 (${backendUrl}) 连接失败: ${err.message || '服务异常，请确认后端已启动'}`;
       } else if (err.status === 504) {
-        msg = `连接公司端服务超时 (8秒)，请确认服务地址 (${backendUrl}) 是否可连通`;
+        msg = `连接服务超时 (8秒)，请确认服务地址 (${backendUrl}) 是否可连通`;
       } else if (err.status === 404) {
-        msg = `公司端登录接口路由不存在 (404 Not Found)，请确认服务地址配置: ${backendUrl}`;
+        msg = `登录接口路由不存在 (404 Not Found)，请确认服务地址配置: ${backendUrl}`;
       }
 
       setErrorMessage(msg);
@@ -273,11 +275,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 {isLoading ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>正在进行公司端身份认证...</span>
+                    <span>正在验证登录身份...</span>
                   </>
                 ) : (
                   <>
-                    <span>登录公司端平台</span>
+                    <span>登录邮件监控系统</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
