@@ -8,9 +8,7 @@ import {
   AlertCircle, 
   RefreshCw,
   Truck,
-  ShieldCheck,
   Shield,
-  Building2,
   Server,
   ChevronDown,
   ChevronUp,
@@ -44,7 +42,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setSuccessMessage('');
 
     if (!account.trim()) {
-      setErrorMessage('请输入公司登录账号');
+      setErrorMessage('请输入登录账号');
       return;
     }
     if (!password) {
@@ -156,14 +154,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       {/* Top Navbar */}
       <header className="w-full px-6 py-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg border border-emerald-300/40">
-            <span className="text-xl font-black text-[#00703C] tracking-tighter">EMS</span>
-          </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-extrabold text-white tracking-wide drop-shadow-sm">中国邮政</span>
-              <span className="text-xs bg-[#F9B200] text-stone-900 font-bold px-1.5 py-0.5 rounded shadow-xs flex items-center gap-1">
-                <Building2 className="w-3 h-3" />
+              <span className="text-xs bg-[#F9B200] text-stone-900 font-bold px-2 py-0.5 rounded-md shadow-xs">
                 公司端
               </span>
             </div>
@@ -171,13 +165,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 text-xs text-emerald-100/90 font-medium">
-          <span className="flex items-center gap-1">
-            <ShieldCheck className="w-4 h-4 text-emerald-300" />
-            <span>Profile: corporation (8902)</span>
+        <div className="hidden sm:flex items-center text-xs text-emerald-100/90 font-medium">
+          <span className="text-emerald-100/90 whitespace-nowrap">
+            客服热线: 11183
           </span>
-          <span className="text-emerald-500">|</span>
-          <span>客服热线: 11183</span>
         </div>
       </header>
 
@@ -189,10 +180,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-3 shadow-inner">
               <Truck className="w-6 h-6 text-[#F9B200]" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight">重点特快查询系统 · 公司端</h2>
-            <p className="text-xs text-emerald-100/90 mt-1">
-              客户平台专属通道 (customer / customer_admin / customer_member)
-            </p>
+            <h2 className="text-xl font-bold tracking-tight">邮件监控系统</h2>
           </div>
 
           {/* Form Content */}
@@ -220,8 +208,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               {/* Account / Work ID */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-stone-700 flex items-center justify-between">
-                  <span>公司登录账号 (login)</span>
-                  <span className="text-[11px] text-stone-400 font-normal">客户平台账号</span>
+                  <span>登录账号 (login)</span>
+                  <span className="text-[11px] text-stone-400 font-normal">系统账号</span>
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -229,7 +217,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     type="text"
                     value={account}
                     onChange={(e) => setAccount(e.target.value)}
-                    placeholder="请输入公司端客户账号 (如 customer_admin)"
+                    placeholder="请输入登录账号"
                     required
                     className="w-full pl-10 pr-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#00703C] focus:bg-white transition-all font-mono"
                   />
@@ -248,7 +236,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="请输入公司端登录密码"
+                    placeholder="请输入登录密码"
                     required
                     className="w-full pl-10 pr-10 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#00703C] focus:bg-white transition-all"
                   />
@@ -274,7 +262,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   />
                   <span>记住账号并保持登录 (Bearer Token)</span>
                 </label>
-                <span className="text-emerald-700 text-[11px] font-medium">Profile: corporation</span>
               </div>
 
               {/* Login Button */}

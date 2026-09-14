@@ -2,5 +2,7 @@
   "name": "邮政重点快递查询系统",
   "description": "中国邮政重点快递与特快邮件综合管理系统，配备左侧功能导航侧边栏菜单，集成实时物流动态路由追踪、节点可视化、VIP重点邮件监控、多渠道签收提醒及电子签单凭单功能。",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
