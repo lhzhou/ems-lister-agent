@@ -55,7 +55,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      // 1. 调用公司端真实认证接口 POST /v1/corporation/auth/login
+      // 1. 调用公司端真实认证接口 POST /v1/auth/login
       const loginData = await authApi.login({
         login: account.trim(),
         password: password
@@ -68,7 +68,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
       const token = loginData.access_token.trim();
 
-      // 2. 尝试获取公司当前身份信息 GET /v1/corporation/auth/me
+      // 2. 尝试获取公司当前身份信息 GET /v1/auth/me
       let identity: any = loginData.user || loginData.account || {};
       try {
         const meRes = await authApi.getMe();
@@ -306,7 +306,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               >
                 <span className="flex items-center gap-1.5 font-mono">
                   <Server className="w-3.5 h-3.5 text-[#00703C]" />
-                  <span>接口服务监听: POST /v1/corporation/auth/login</span>
+                  <span>接口服务监听: POST /v1/auth/login</span>
                 </span>
                 {showServerConfig ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>

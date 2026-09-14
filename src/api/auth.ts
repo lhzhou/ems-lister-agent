@@ -83,7 +83,7 @@ export interface CorporationTenantListResult {
 export const authApi = {
   /**
    * 公司端登录
-   * POST /v1/corporation/auth/login
+   * POST /v1/auth/login
    * Body: {"login":"公司登录账号","password":"登录密码"}
    */
   async login(params: CorporationLoginParams): Promise<CorporationLoginData> {
@@ -93,7 +93,7 @@ export const authApi = {
     };
 
     // 发起登录请求（跳过旧 token 注入）
-    const res = await http.post<any>('/v1/corporation/auth/login', payload, {
+    const res = await http.post<any>('/v1/auth/login', payload, {
       skipAuth: true
     });
 
@@ -112,22 +112,22 @@ export const authApi = {
 
   /**
    * 获取当前身份
-   * GET /v1/corporation/auth/me
+   * GET /v1/auth/me
    * Authorization: Bearer <access_token>
    */
   async getMe(): Promise<CorporationIdentity> {
-    const res = await http.get<any>('/v1/corporation/auth/me');
+    const res = await http.get<any>('/v1/auth/me');
     return (res?.data !== undefined ? res.data : res) as CorporationIdentity;
   },
 
   /**
    * 退出登录
-   * POST /v1/corporation/auth/logout
+   * POST /v1/auth/logout
    * Authorization: Bearer <access_token>
    */
   async logout(): Promise<{ success: boolean; message?: string }> {
     try {
-      const res = await http.post<any>('/v1/corporation/auth/logout');
+      const res = await http.post<any>('/v1/auth/logout');
       return res?.data !== undefined ? res.data : res;
     } finally {
       removeStoredToken();
