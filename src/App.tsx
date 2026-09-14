@@ -38,7 +38,26 @@ import { VipServiceView } from './components/VipServiceView';
 import { LogisticsStatsView } from './components/LogisticsStatsView';
 import { DashboardView } from './components/DashboardView';
 import { LoginPage } from './components/LoginPage';
-import { Sparkles, ShieldCheck, HelpCircle, PhoneCall, RefreshCw } from 'lucide-react';
+import { MultiTabBar } from './components/MultiTabBar';
+import { AppTab, DEFAULT_TABS, TabType, TabColorTheme } from './types/tabs';
+import { 
+  getStoredTabs, 
+  saveStoredTabs, 
+  getStoredActiveTabId, 
+  saveStoredActiveTabId 
+} from './utils/storage';
+import { 
+  Sparkles, 
+  ShieldCheck, 
+  HelpCircle, 
+  PhoneCall, 
+  RefreshCw, 
+  ArrowLeft, 
+  X, 
+  ExternalLink, 
+  BellRing, 
+  FileCheck 
+} from 'lucide-react';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<UserInfo | null>(() => getStoredUser());
@@ -51,10 +70,35 @@ export default function App() {
   const [phoneQuery, setPhoneQuery] = useState<string>('');
   const [audioOn, setAudioOn] = useState<boolean>(() => isAudioEnabled());
 
-  // Left Sidebar State - default to dashboard as requested by user
-  const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>('dashboard');
+  // Multi-Tab / Multi-Window Management State
+  const [tabs, setTabs] = useState<AppTab[]>(() => getStoredTabs<AppTab>(DEFAULT_TABS));
+  const [activeTabId, setActiveTabId] = useState<string>(() => getStoredActiveTabId(DEFAULT_TABS[0]?.id || 'tab-dashboard'));
+
+  // Left Sidebar State
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+
+  // Auto-sync tabs to storage
+  useEffect(() => {
+    saveStoredTabs(tabs);
+  }, [tabs]);
+
+  useEffect(() => {
+    saveStoredActiveTabId(activeTabId);
+  }, [activeTabId]);
+
+  // Current active tab object
+  const currentTab = useMemo(() => {
+    return tabs.find(t => t.id === activeTabId) || tabs[0] || DEFAULT_TABS[0];
+  }, [tabs, activeTabId]);
+
+  // Left Sidebar active tab reflects current active tab
+  const activeSidebarTab: SidebarTab = useMemo(() => {
+    if (['dashboard', 'tracking', 'reminders', 'pod', 'vip', 'statistics'].includes(currentTab.tabType)) {
+      return currentTab.tabType as SidebarTab;
+    }
+    return 'tracking';
+  }, [currentTab.tabType]);
 
   // Modals state
   const [reminderModalPkg, setReminderModalPkg] = useState<ExpressPackage | null>(null);
@@ -345,10 +389,137 @@ export default function App() {
     }
   };
 
+  // Multi-Tab & Window Management Handlers
+  const handleSelectSidebarTab = (tabType: SidebarTab) => {
+    const existing = tabs.find(t => t.tabType === tabType);
+    if (existing) {
+      setActiveTabId(existing.id);
+    } else {
+      const titleMap: Record<SidebarTab, string> = {
+        dashboard: '监控数据看板',
+        tracking: '重点快递查询',
+        reminders: '签收提醒中心',
+        pod: '电子回单存根',
+        vip: 'VIP保障专区',
+        statistics: '时效监控大屏'
+      };
+      const colorMap: Record<SidebarTab, TabColorTheme> = {
+        dashboard: 'emerald',
+        tracking: 'blue',
+        reminders: 'amber',
+        pod: 'teal',
+        vip: 'rose',
+        statistics: 'purple'
+      };
+      const newTab: AppTab = {
+        id: `tab-${tabType}-${Date.now()}`,
+        title: titleMap[tabType] || '业务窗口',
+        tabType,
+        closable: tabType !== 'dashboard',
+        colorTheme: colorMap[tabType] || 'emerald'
+      };
+      setTabs(prev => [...prev, newTab]);
+      setActiveTabId(newTab.id);
+    }
+  };
+
+  const handleOpenNewTab = (type: TabType, data?: any) => {
+    if (type === 'batch_query') {
+      setIsBatchModalOpen(true);
+      return;
+    }
+    if (type === 'new_package') {
+      setIsNewPackageModalOpen(true);
+      return;
+    }
+    handleSelectSidebarTab(type as SidebarTab);
+  };
+
+  const handleOpenPackageTab = (pkg: ExpressPackage) => {
+    const tabId = `tab-mail-${pkg.trackingNumber}`;
+    const existing = tabs.find(t => t.id === tabId);
+    if (existing) {
+      setActiveTabId(existing.id);
+    } else {
+      const colorTheme: TabColorTheme = 
+        pkg.status === 'delivered' ? 'emerald' : 
+        pkg.status === 'delivering' ? 'amber' : 
+        pkg.status === 'exception' ? 'rose' : 'blue';
+
+      const newTab: AppTab = {
+        id: tabId,
+        title: `邮件 · ${pkg.trackingNumber.slice(-6)}`,
+        tabType: 'mail_detail',
+        closable: true,
+        colorTheme,
+        badge: pkg.statusText,
+        data: { packageId: pkg.id, mailNo: pkg.trackingNumber }
+      };
+      setTabs(prev => [...prev, newTab]);
+      setActiveTabId(newTab.id);
+    }
+    setSelectedId(pkg.id);
+  };
+
+  const handleCloseTab = (tabIdToClose: string) => {
+    const targetTab = tabs.find(t => t.id === tabIdToClose);
+    if (!targetTab || !targetTab.closable) return;
+
+    const newTabs = tabs.filter(t => t.id !== tabIdToClose);
+    setTabs(newTabs);
+
+    if (activeTabId === tabIdToClose) {
+      const closedIndex = tabs.findIndex(t => t.id === tabIdToClose);
+      const nextTab = newTabs[Math.max(0, closedIndex - 1)] || newTabs[0];
+      if (nextTab) {
+        setActiveTabId(nextTab.id);
+      }
+    }
+  };
+
+  const handleCloseOtherTabs = (tabIdToKeep: string) => {
+    const newTabs = tabs.filter(t => t.id === tabIdToKeep || !t.closable);
+    setTabs(newTabs);
+    setActiveTabId(tabIdToKeep);
+  };
+
+  const handleCloseAllTabs = () => {
+    const newTabs = tabs.filter(t => !t.closable);
+    const fallback = newTabs.length > 0 ? newTabs : [DEFAULT_TABS[0]];
+    setTabs(fallback);
+    setActiveTabId(fallback[0].id);
+  };
+
+  const handleCloseRightTabs = (targetTabId: string) => {
+    const targetIndex = tabs.findIndex(t => t.id === targetTabId);
+    if (targetIndex === -1) return;
+    const newTabs = tabs.filter((t, index) => index <= targetIndex || !t.closable);
+    setTabs(newTabs);
+    if (!newTabs.some(t => t.id === activeTabId)) {
+      setActiveTabId(targetTabId);
+    }
+  };
+
+  const handleRefreshTab = (tabId: string) => {
+    setPackages(getStoredPackages());
+    setNotifications(getStoredNotifications());
+    setActiveToast({
+      id: `refresh-${Date.now()}`,
+      packageId: '',
+      trackingNumber: '',
+      title: '窗口已重新加载',
+      message: '当前标签页物流数据与监控状态已同步更新至最新状态。',
+      time: new Date().toLocaleTimeString('zh-CN', { hour12: false }),
+      channel: 'BROWSER',
+      status: 'delivered',
+      eventType: 'outForDelivery'
+    });
+  };
+
   // Jump from other views to package detail in tracking tab
   const handleSelectPackageFromOtherView = (pkgId: string) => {
     setSelectedId(pkgId);
-    setActiveSidebarTab('tracking');
+    handleSelectSidebarTab('tracking');
   };
 
   const handleLogin = (user: UserInfo, token: string) => {
@@ -384,7 +555,7 @@ export default function App() {
           const target = packages.find(p => p.trackingNumber === num);
           if (target) {
             setSelectedId(target.id);
-            setActiveSidebarTab('tracking');
+            handleSelectSidebarTab('tracking');
           }
         }}
       />
@@ -412,7 +583,7 @@ export default function App() {
         {/* Left Sidebar Menu */}
         <Sidebar
           activeTab={activeSidebarTab}
-          onSelectTab={(tab) => setActiveSidebarTab(tab)}
+          onSelectTab={(tab) => handleSelectSidebarTab(tab)}
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={setIsSidebarCollapsed}
           isMobileOpen={isMobileSidebarOpen}
@@ -425,14 +596,24 @@ export default function App() {
           onLogout={handleLogout}
         />
 
+        {/* Content Area - 100% adaptive width right next to sidebar */}
+        <div className="flex-1 flex flex-col min-w-0 w-full">
+          {/* Multi-Tab & Window Navigation Bar */}
+          <MultiTabBar
+            tabs={tabs}
+            activeTabId={activeTabId}
+            onSelectTab={(id) => setActiveTabId(id)}
+            onCloseTab={handleCloseTab}
+            onCloseOtherTabs={handleCloseOtherTabs}
+            onCloseAllTabs={handleCloseAllTabs}
+            onCloseRightTabs={handleCloseRightTabs}
+            onOpenNewTab={handleOpenNewTab}
+            onRefreshTab={handleRefreshTab}
+          />
 
-        {/* Content Area with dynamic margin responding to sidebar width */}
-        <div className={`flex-1 flex flex-col min-w-0 transition-all duration-200 ${
-          isSidebarCollapsed ? 'md:ml-16' : 'md:ml-64'
-        }`}>
-          <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+          <main className="flex-1 w-full px-3 sm:px-5 lg:px-6 py-4 space-y-4">
             {/* 0. Dashboard View (今日订单状态 / 最新订阅信息 / 最新异常信息 / 当日走势) */}
-            {activeSidebarTab === 'dashboard' && (
+            {currentTab.tabType === 'dashboard' && (
               <DashboardView
                 packages={packages}
                 onSelectPackage={(mailNoOrId) => {
@@ -442,14 +623,14 @@ export default function App() {
                   } else {
                     setSearchQuery(mailNoOrId);
                   }
-                  setActiveSidebarTab('tracking');
+                  handleSelectSidebarTab('tracking');
                 }}
                 onOpenReminderModal={(pkg) => setReminderModalPkg(pkg)}
               />
             )}
 
             {/* 1. Tracking View */}
-            {activeSidebarTab === 'tracking' && (
+            {currentTab.tabType === 'tracking' && (
               <>
                 {/* Metric KPI Overview Banner */}
                 <MetricStats
@@ -508,6 +689,7 @@ export default function App() {
                       onSelect={(pkg) => setSelectedId(pkg.id)}
                       onOpenReminderModal={(pkg) => setReminderModalPkg(pkg)}
                       onOpenPODModal={(pkg) => setPodModalPkg(pkg)}
+                      onOpenInNewTab={handleOpenPackageTab}
                     />
                   </div>
 
@@ -532,8 +714,104 @@ export default function App() {
               </>
             )}
 
-            {/* 2. Reminder Center View */}
-            {activeSidebarTab === 'reminders' && (
+            {/* 2. Dedicated Mail Detail Window */}
+            {currentTab.tabType === 'mail_detail' && (
+              (() => {
+                const mailPkg = packages.find(p => p.id === currentTab.data?.packageId || p.trackingNumber === currentTab.data?.mailNo) || selectedPackage;
+                if (!mailPkg) {
+                  return (
+                    <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center text-stone-400">
+                      <p>该邮件数据未找到或已被归档</p>
+                      <button
+                        type="button"
+                        onClick={() => handleCloseTab(currentTab.id)}
+                        className="mt-4 px-4 py-2 bg-[#00703C] text-white rounded-xl text-xs font-semibold"
+                      >
+                        关闭当前窗口
+                      </button>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="space-y-4">
+                    {/* Window Toolbar Header */}
+                    <div className="bg-white rounded-2xl border border-stone-200 p-4 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleSelectSidebarTab('tracking')}
+                          className="p-1.5 rounded-lg text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors"
+                          title="返回重点快递查询列表"
+                        >
+                          <ArrowLeft className="w-4 h-4" />
+                        </button>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-base font-bold text-stone-900">
+                              邮件独立跟踪窗口 · {mailPkg.trackingNumber}
+                            </h2>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
+                              {mailPkg.statusText}
+                            </span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-mono">
+                              {mailPkg.serviceType}
+                            </span>
+                          </div>
+                          <p className="text-xs text-stone-500 mt-0.5">
+                            寄件：{mailPkg.origin.city}（{mailPkg.origin.sender}） ➔ 收件：{mailPkg.destination.city}（{mailPkg.destination.recipient}）
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setReminderModalPkg(mailPkg)}
+                          className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                        >
+                          <BellRing className="w-3.5 h-3.5 text-amber-600" />
+                          <span>设置签收提醒</span>
+                        </button>
+
+                        {mailPkg.status === 'delivered' && mailPkg.pod && (
+                          <button
+                            type="button"
+                            onClick={() => setPodModalPkg(mailPkg)}
+                            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#00703C] border border-emerald-200 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                          >
+                            <FileCheck className="w-3.5 h-3.5" />
+                            <span>电子签单存根</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleCloseTab(currentTab.id)}
+                          className="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 border border-stone-200 text-xs font-medium flex items-center gap-1 transition-colors"
+                          title="关闭当前独立窗口"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>关闭窗口</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Full width tracking visualizer */}
+                    <TrackingDetail
+                      pkg={mailPkg}
+                      onOpenReminderModal={(pkg) => setReminderModalPkg(pkg)}
+                      onOpenPODModal={(pkg) => setPodModalPkg(pkg)}
+                      onSimulateNextStep={handleSimulateNextStep}
+                      onSimulateSignOff={handleSimulateSignOff}
+                      onResetSimulation={handleResetSimulation}
+                    />
+                  </div>
+                );
+              })()
+            )}
+
+            {/* 3. Reminder Center View */}
+            {currentTab.tabType === 'reminders' && (
               <ReminderCenterView
                 packages={packages}
                 notifications={notifications}
@@ -544,8 +822,8 @@ export default function App() {
               />
             )}
 
-            {/* 3. Electronic POD Receipts Archive View */}
-            {activeSidebarTab === 'pod' && (
+            {/* 4. Electronic POD Receipts Archive View */}
+            {currentTab.tabType === 'pod' && (
               <ElectronicPodView
                 packages={packages}
                 onOpenPODModal={(pkg) => setPodModalPkg(pkg)}
@@ -553,16 +831,16 @@ export default function App() {
               />
             )}
 
-            {/* 4. VIP Guarantee Services View */}
-            {activeSidebarTab === 'vip' && (
+            {/* 5. VIP Guarantee Services View */}
+            {currentTab.tabType === 'vip' && (
               <VipServiceView
                 packages={packages}
                 onSelectPackage={handleSelectPackageFromOtherView}
               />
             )}
 
-            {/* 5. Logistics Statistics & Radar View */}
-            {activeSidebarTab === 'statistics' && (
+            {/* 6. Logistics Statistics & Radar View */}
+            {currentTab.tabType === 'statistics' && (
               <LogisticsStatsView
                 packages={packages}
               />

@@ -12,7 +12,8 @@ import {
   Send,
   Sparkles,
   Smartphone,
-  MessageSquare
+  MessageSquare,
+  ExternalLink
 } from 'lucide-react';
 import { ExpressPackage, VIPLevel } from '../types/express';
 
@@ -22,6 +23,7 @@ interface PackageListProps {
   onSelect: (pkg: ExpressPackage) => void;
   onOpenReminderModal: (pkg: ExpressPackage) => void;
   onOpenPODModal: (pkg: ExpressPackage) => void;
+  onOpenInNewTab?: (pkg: ExpressPackage) => void;
 }
 
 export const PackageList: React.FC<PackageListProps> = ({
@@ -29,7 +31,8 @@ export const PackageList: React.FC<PackageListProps> = ({
   selectedId,
   onSelect,
   onOpenReminderModal,
-  onOpenPODModal
+  onOpenPODModal,
+  onOpenInNewTab
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -275,6 +278,19 @@ export const PackageList: React.FC<PackageListProps> = ({
                     >
                       <FileCheck className="w-3.5 h-3.5 text-[#00703C]" />
                       <span>查看签收存根</span>
+                    </button>
+                  )}
+
+                  {/* Open in Dedicated Window Tab button */}
+                  {onOpenInNewTab && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenInNewTab(pkg)}
+                      title="在独立窗口标签页中打开邮件"
+                      className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-emerald-50 hover:text-[#00703C] hover:border-emerald-300 border border-stone-200 text-xs font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>新窗口</span>
                     </button>
                   )}
 

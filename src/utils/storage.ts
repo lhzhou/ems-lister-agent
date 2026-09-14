@@ -179,3 +179,47 @@ export function setAudioEnabled(enabled: boolean): void {
     // ignore
   }
 }
+
+const TABS_KEY = 'chinapost_tabs_v1';
+const ACTIVE_TAB_KEY = 'chinapost_active_tab_v1';
+
+export function getStoredTabs<T>(fallback: T[]): T[] {
+  try {
+    const data = localStorage.getItem(TABS_KEY);
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load tabs from storage', e);
+  }
+  return fallback;
+}
+
+export function saveStoredTabs<T>(tabs: T[]): void {
+  try {
+    localStorage.setItem(TABS_KEY, JSON.stringify(tabs));
+  } catch (e) {
+    console.error('Failed to save tabs to storage', e);
+  }
+}
+
+export function getStoredActiveTabId(fallback: string): string {
+  try {
+    const val = localStorage.getItem(ACTIVE_TAB_KEY);
+    return val || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function saveStoredActiveTabId(tabId: string): void {
+  try {
+    localStorage.setItem(ACTIVE_TAB_KEY, tabId);
+  } catch {
+    // ignore
+  }
+}
+
