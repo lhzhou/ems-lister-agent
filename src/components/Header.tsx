@@ -101,13 +101,6 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          <div className="w-10 h-10 rounded-lg bg-white p-1.5 flex items-center justify-center shadow-inner text-[#00703C] flex-shrink-0">
-            {/* China Post stylistic postal emblem / express badge */}
-            <div className="w-full h-full rounded border-2 border-[#00703C] flex flex-col items-center justify-center font-bold">
-              <span className="text-[11px] leading-none tracking-tight">EMS</span>
-              <span className="text-[7px] leading-tight text-[#005f32]">中国邮政</span>
-            </div>
-          </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-bold tracking-wide text-white flex items-center gap-1.5">
