@@ -11,7 +11,14 @@ if (fs.existsSync(envFilePath)) {
 }
 dotenv.config();
 
-const PORT = 3000;
+const args = process.argv.slice(2);
+const portIndex = args.indexOf('--port');
+const cliPort = portIndex !== -1 ? parseInt(args[portIndex + 1]) : null;
+const hostIndex = args.indexOf('--host');
+const cliHost = hostIndex !== -1 ? args[hostIndex + 1] : null;
+
+const PORT = cliPort || (process.env.PORT ? parseInt(process.env.PORT) : (process.env.VITE_PORT ? parseInt(process.env.VITE_PORT) : 3000));
+const HOST = cliHost || process.env.VITE_HOST || '0.0.0.0';
 // Corporation service target (default to http://39.107.75.132:8902 per doc)
 const BACKEND_TARGET = process.env.VITE_API_BASE_URL || 'http://39.107.75.132:8902';
 
@@ -102,8 +109,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
     console.log(`Corporation proxy target: ${process.env.VITE_API_BASE_URL || BACKEND_TARGET}`);
   });
 }
