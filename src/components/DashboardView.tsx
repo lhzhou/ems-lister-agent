@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Package, 
   Truck, 
@@ -19,6 +19,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { ExpressPackage } from '../types/express';
+import { DashboardAlert, DashboardMetrics, logisticsApi } from '../api/logistics';
 
 interface DashboardViewProps {
   packages: ExpressPackage[];
@@ -217,6 +218,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [subscriptionFilter, setSubscriptionFilter] = useState<string>('全部');
   const [showAllExceptions, setShowAllExceptions] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [alerts, setAlerts] = useState<ExceptionAlertItem[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    logisticsApi.getDashboardMetrics().then((next) => { if (active) setMetrics(next); }).catch(() => undefined);
+    logisticsApi.getDashboardAlerts().then((items) => {
+      if (!active) return;
+      setAlerts(items.map((item: DashboardAlert) => ({
+        id: String(item.id), riskLevel: item.severity === 'P0' ? '高风险' : item.severity === 'P1' ? '中风险' : '一般',
+        customer: item.customer_name ?? '未关联客户', mailNo: item.waybill_no,
+        description: item.reason ?? item.summary ?? '异常订单', currentNode: '-', occurTime: item.detected_at ?? '-',
+      })));
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
+  const metricValue = (value: number, fallback: string) => metrics ? value.toLocaleString('zh-CN') : fallback;
+  const apiTrend = metrics?.intervalStats?.map((item) => ({
+    time: item.hour.slice(11, 16), orderCount: Number(item.new_orders), exceptionCount: Number(item.anomaly_count),
+    subscribeCount: Number(item.subscription_count), stagnantCount: Number(item.stagnant_orders),
+  }));
+  const trendData = apiTrend && apiTrend.length > 0 ? apiTrend : TREND_DATA;
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -229,9 +253,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     ? INITIAL_SUBSCRIPTIONS 
     : INITIAL_SUBSCRIPTIONS.filter(s => s.channel === subscriptionFilter);
 
-  const displayedExceptions = showAllExceptions 
-    ? INITIAL_EXCEPTIONS 
-    : INITIAL_EXCEPTIONS.slice(0, 5);
+  const exceptionRows = alerts.length > 0 ? alerts : INITIAL_EXCEPTIONS;
+  const displayedExceptions = showAllExceptions ? exceptionRows : exceptionRows.slice(0, 5);
 
   // SVG dimensions for trend chart
   const svgWidth = 1000;
@@ -242,16 +265,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const paddingBottom = 35;
   const chartW = svgWidth - paddingLeft - paddingRight;
   const chartH = svgHeight - paddingTop - paddingBottom;
-  const maxVal = 900; // max value on y axis
+  const maxVal = Math.max(900, ...trendData.flatMap((p) => [p.orderCount, p.subscribeCount, p.exceptionCount * 30, p.stagnantCount * 3]));
 
-  const getX = (index: number) => paddingLeft + (index / (TREND_DATA.length - 1)) * chartW;
+  const getX = (index: number) => paddingLeft + (index / Math.max(1, trendData.length - 1)) * chartW;
   const getY = (val: number) => paddingTop + chartH - (val / maxVal) * chartH;
 
   // Build SVG path strings
-  const orderPath = TREND_DATA.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.orderCount)}`).join(' ');
-  const subscribePath = TREND_DATA.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.subscribeCount)}`).join(' ');
-  const exceptionPath = TREND_DATA.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.exceptionCount * 30)}`).join(' ');
-  const stagnantPath = TREND_DATA.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.stagnantCount * 3)}`).join(' ');
+  const orderPath = trendData.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.orderCount)}`).join(' ');
+  const subscribePath = trendData.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.subscribeCount)}`).join(' ');
+  const exceptionPath = trendData.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.exceptionCount * 30)}`).join(' ');
+  const stagnantPath = trendData.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(p.stagnantCount * 3)}`).join(' ');
 
   return (
     <div className="space-y-5">
@@ -262,7 +285,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <span className="text-sm font-medium text-stone-600">今日新增订单</span>
-              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">2,612</div>
+              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">{metricValue(metrics?.totalOrders ?? 2612, '—')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
               <Package className="w-5 h-5" />
@@ -279,7 +302,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <span className="text-sm font-medium text-stone-600">今日订阅次数</span>
-              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">40,885</div>
+              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">{metricValue(metrics ? trendData.reduce((sum, point) => sum + point.subscribeCount, 0) : 40885, '—')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
               <Truck className="w-5 h-5" />
@@ -296,7 +319,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <span className="text-sm font-medium text-stone-600">今日活动异常</span>
-              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">4</div>
+              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">{metricValue(metrics?.exceptions ?? 4, '—')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5" />
@@ -313,7 +336,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <span className="text-sm font-medium text-stone-600">当前滞留</span>
-              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">89</div>
+              <div className="text-3xl font-extrabold text-stone-900 tracking-tight">{metricValue(metrics ? (trendData[trendData.length - 1]?.stagnantCount ?? 0) : 89, '—')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
               <Clock className="w-5 h-5" />
@@ -439,7 +462,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               />
 
               {/* Interactive invisible hover bars */}
-              {TREND_DATA.map((p, i) => {
+              {trendData.map((p, i) => {
                 const x = getX(i);
                 return (
                   <rect
@@ -460,7 +483,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {hoveredPoint && (
                 <g>
                   {(() => {
-                    const idx = TREND_DATA.findIndex(d => d.time === hoveredPoint.time);
+                    const idx = trendData.findIndex(d => d.time === hoveredPoint.time);
                     if (idx === -1) return null;
                     const x = getX(idx);
                     return (
@@ -533,7 +556,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </span>
                   <span className="text-sm font-medium text-stone-700">运输中</span>
                 </div>
-                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">2,071</span>
+                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">{metrics ? (metrics.statusCounts?.find((item) => item.current_status === 'in_transit')?.total ?? 0).toLocaleString('zh-CN') : '—'}</span>
               </div>
 
               {/* 2. 已揽收 */}
@@ -544,7 +567,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </span>
                   <span className="text-sm font-medium text-stone-700">已揽收</span>
                 </div>
-                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">436</span>
+                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">{metrics ? (metrics.statusCounts?.find((item) => item.current_status === 'picked_up')?.total ?? 0).toLocaleString('zh-CN') : '—'}</span>
               </div>
 
               {/* 3. 到达目的地 */}
@@ -555,7 +578,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </span>
                   <span className="text-sm font-medium text-stone-700">到达目的地</span>
                 </div>
-                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">87</span>
+                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">{metrics ? (metrics.statusCounts?.find((item) => item.current_status === 'arrived_destination')?.total ?? 0).toLocaleString('zh-CN') : '—'}</span>
               </div>
 
               {/* 4. 已签收 */}
@@ -566,7 +589,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </span>
                   <span className="text-sm font-medium text-stone-700">已签收</span>
                 </div>
-                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">14</span>
+                <span className="text-sm font-semibold text-stone-900 font-mono tracking-tight">{metrics ? metrics.delivered.toLocaleString('zh-CN') : '—'}</span>
               </div>
 
               {/* 5. 撤单 */}
