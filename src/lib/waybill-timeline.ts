@@ -59,7 +59,28 @@ export type WaybillTimelineView = {
 };
 
 export function waybillStatusLabel(status: string) {
-  return WAYBILL_STATUS_LABELS[status] ?? status;
+  return WAYBILL_STATUS_LABELS[status] ?? status ?? "—";
+}
+
+export function coarseStatusClass(status: string) {
+  switch (status) {
+    case "pending_pickup":
+      return "bg-stone-100 text-stone-600";
+    case "delivered":
+      return "bg-emerald-50 text-emerald-700 border border-emerald-200";
+    case "returned":
+    case "rejected":
+      return "bg-amber-50 text-amber-700 border border-amber-200";
+    case "cancelled":
+      return "bg-stone-100 text-stone-500";
+    case "in_transit":
+    case "picked_up":
+    case "arrived_destination":
+    case "out_for_delivery":
+      return "bg-sky-50 text-sky-700 border border-sky-200";
+    default:
+      return "bg-stone-100 text-stone-600";
+  }
 }
 
 export function latestWaybillOpName(detail: WaybillTimelineSource) {

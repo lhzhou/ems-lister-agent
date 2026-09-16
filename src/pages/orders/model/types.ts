@@ -21,9 +21,7 @@ export const SEVERITY_OPTIONS = [
   { value: "NONE", label: "无异常" },
 ];
 
-export function statusLabel(status: string, substatus?: string, opName?: string) {
-  const name = opName?.trim();
-  if (name) return name;
+export function statusLabel(status: string, substatus?: string) {
   const label = WAYBILL_STATUS_LABELS[status] || status || "—";
   return substatus ? `${label} / ${substatus}` : label;
 }

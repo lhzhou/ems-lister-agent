@@ -2,12 +2,12 @@ import { Button, Typography } from "antd";
 import { ChevronRight, Clock, ExternalLink, RefreshCw } from "lucide-react";
 import { Table, type ColumnsType } from "@/src/components/Form";
 import { formatElapsedHours } from "@/src/lib/elapsed-hours";
+import { coarseStatusClass, waybillStatusLabel } from "@/src/lib/waybill-timeline";
 import {
   PAGE_SIZES,
   formatOpTime,
   severityClass,
   severityText,
-  statusLabel,
   type WaybillIndexItem,
 } from "../model/types";
 
@@ -65,8 +65,13 @@ export function OrdersTable({
     {
       title: "运输状态",
       key: "status",
-      render: (_value, item) =>
-        statusLabel(item.current_status, item.current_substatus, item.last_op_name),
+      render: (_value, item) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${coarseStatusClass(item.current_status)}`}
+        >
+          {waybillStatusLabel(item.current_status)}
+        </span>
+      ),
     },
     {
       title: "当前节点",

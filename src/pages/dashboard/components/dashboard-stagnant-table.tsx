@@ -3,7 +3,7 @@ import { ChevronRight, ExternalLink } from "lucide-react";
 import type { StagnantWaybill } from "@/src/api";
 import { Table, type ColumnsType } from "@/src/components/Form";
 import { formatElapsedHours } from "@/src/lib/elapsed-hours";
-import { WAYBILL_STATUS_LABELS } from "@/src/lib/waybill-timeline";
+import { coarseStatusClass, waybillStatusLabel } from "@/src/lib/waybill-timeline";
 
 export function DashboardStagnantTable({
   items,
@@ -47,8 +47,13 @@ export function DashboardStagnantTable({
       title: "当前状态",
       dataIndex: "current_status",
       key: "status",
-      render: (_value: string, item) =>
-        item.last_op_name?.trim() || WAYBILL_STATUS_LABELS[item.current_status] || item.current_status,
+      render: (value: string) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${coarseStatusClass(value)}`}
+        >
+          {waybillStatusLabel(value)}
+        </span>
+      ),
     },
     {
       title: "订单开始时间",

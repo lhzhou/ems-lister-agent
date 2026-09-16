@@ -32,6 +32,12 @@ describe("waybillStatusLabel", () => {
   test("maps in_transit to Chinese", () => {
     expect(waybillStatusLabel("in_transit")).toBe("运输中");
   });
+
+  test("collapses legacy statuses into coarse labels", () => {
+    expect(waybillStatusLabel("arrived_destination")).toBe("运输中");
+    expect(waybillStatusLabel("picked_up")).toBe("运输中");
+    expect(waybillStatusLabel("rejected")).toBe("退回");
+  });
 });
 
 describe("buildWaybillTimelineView", () => {
