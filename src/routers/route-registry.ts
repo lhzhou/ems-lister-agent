@@ -17,6 +17,8 @@ export const routeRegistry: readonly RegisteredRoute[] = [
   { pathname: "/dashboard", meta: { title: "看板", tab: { closable: false } } },
   { pathname: "/orders", meta: { title: "订单管理" } },
   { pathname: "/tracking", meta: { title: "订单管理" } },
+  { pathname: "/accounts", meta: { title: "账号管理" } },
+  { pathname: "/groups", meta: { title: "客服组管理" } },
 ];
 
 export function getRegisteredRoute(pathname: string): RegisteredRoute | undefined {

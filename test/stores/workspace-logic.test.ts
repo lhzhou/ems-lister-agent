@@ -31,8 +31,9 @@ const extra: WorkspaceTab = {
 };
 
 describe("workspace logic", () => {
-  test("deduplicates a tab by normalized id", () => {
+  test("deduplicates a tab by pathname and updates search", () => {
     expect(openTab([home, orders], orders)).toEqual([home, orders]);
+    expect(openTab([home, orders], extra)).toEqual([home, extra]);
   });
 
   test("activates the right tab, then the left tab after close", () => {

@@ -2,7 +2,7 @@ import { Button, Typography } from "antd";
 import { ChevronRight, ExternalLink } from "lucide-react";
 import type { StagnantWaybill } from "@/src/api";
 import { Table, type ColumnsType } from "@/src/components/Form";
-import { formatElapsedHours } from "@/src/lib/elapsed-hours";
+import { formatDuration } from "@/src/lib/duration";
 import { coarseStatusClass, waybillStatusLabel } from "@/src/lib/waybill-timeline";
 
 export function DashboardStagnantTable({
@@ -67,14 +67,14 @@ export function DashboardStagnantTable({
       dataIndex: "elapsed_hours",
       key: "elapsed",
       className: "font-medium text-stone-700",
-      render: (value: number | undefined) => formatElapsedHours(value),
+      render: (value: number | undefined) => formatDuration(value),
     },
     {
       title: "滞留时长",
       dataIndex: "stagnant_hours",
       key: "stagnant",
       className: "font-medium text-amber-700",
-      render: (value: number) => `${value}小时`,
+      render: (value: number) => formatDuration(value),
     },
     {
       title: "操作",

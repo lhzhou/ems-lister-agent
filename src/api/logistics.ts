@@ -146,6 +146,10 @@ export const logisticsApi = {
     return http.get<WaybillDetail>(`/v1/waybills/${id}/detail`);
   },
 
+  rearchiveWaybill(id: number): Promise<WaybillDetail> {
+    return http.post<WaybillDetail>(`/v1/waybills/${id}/rearchive`);
+  },
+
   getWaybills(
     params: {
       page?: number;

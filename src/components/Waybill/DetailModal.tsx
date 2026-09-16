@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Clock, Copy, Download, X } from "lucide-react";
+import { Clock, Copy, Download, RefreshCw, X } from "lucide-react";
 import { logisticsApi, type WaybillDetail } from "@/src/api";
+import { copyText } from "@/src/lib/clipboard";
 import { downloadWaybillTimelinePdf } from "@/src/lib/waybill-timeline-pdf";
 import {
   buildWaybillTimelineNodes,
@@ -24,15 +25,18 @@ export function WaybillDetailModal({
   id,
   open,
   onClose,
+  onRearchived,
 }: {
   id: number | null;
   open: boolean;
   onClose: () => void;
+  onRearchived?: () => void;
 }) {
   const [detail, setDetail] = useState<WaybillDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [rearchiving, setRearchiving] = useState(false);
 
   useEffect(() => {
     if (!open || !id) {
@@ -40,6 +44,7 @@ export function WaybillDetailModal({
       setError("");
       setLoading(false);
       setCopied(false);
+      setRearchiving(false);
       return;
     }
     let cancelled = false;
@@ -66,6 +71,22 @@ export function WaybillDetailModal({
   const nodes = useMemo(() => (detail ? buildWaybillTimelineNodes(detail) : []), [detail]);
   const status = detail ? latestWaybillOpName(detail) : "";
 
+  function rearchive() {
+    if (!id || rearchiving) return;
+    setRearchiving(true);
+    setError("");
+    void logisticsApi
+      .rearchiveWaybill(id)
+      .then((next) => {
+        setDetail(next);
+        onRearchived?.();
+      })
+      .catch((e: unknown) => {
+        setError(e instanceof Error ? e.message : "重新归档失败");
+      })
+      .finally(() => setRearchiving(false));
+  }
+
   if (!open) return null;
 
   return (
@@ -80,14 +101,25 @@ export function WaybillDetailModal({
                 实时更新
               </span>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              title="关闭"
-              className="-mr-1 rounded-full p-1 text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={rearchive}
+                disabled={loading || rearchiving || !id}
+                className="inline-flex items-center gap-1 rounded-lg border border-stone-200 px-2 py-1 text-[11px] font-medium text-stone-600 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${rearchiving ? "animate-spin" : ""}`} />
+                重新归档
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                title="关闭"
+                className="-mr-1 rounded-full p-1 text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -112,7 +144,12 @@ export function WaybillDetailModal({
                     <button
                       type="button"
                       onClick={() => {
-                        void navigator.clipboard.writeText(detail.waybill.waybill_no).then(() => {
+                        void copyText(detail.waybill.waybill_no).then((ok) => {
+                          if (!ok) {
+                            setError("复制失败，请手动选择单号");
+                            return;
+                          }
+                          setError("");
                           setCopied(true);
                           window.setTimeout(() => setCopied(false), 1500);
                         });

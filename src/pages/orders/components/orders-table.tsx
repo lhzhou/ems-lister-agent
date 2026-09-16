@@ -1,7 +1,7 @@
 import { Button, Typography } from "antd";
-import { ChevronRight, Clock, ExternalLink, RefreshCw } from "lucide-react";
+import { Clock, ExternalLink, RefreshCw } from "lucide-react";
 import { Table, type ColumnsType } from "@/src/components/Form";
-import { formatElapsedHours } from "@/src/lib/elapsed-hours";
+import { formatDuration } from "@/src/lib/duration";
 import { coarseStatusClass, waybillStatusLabel } from "@/src/lib/waybill-timeline";
 import {
   PAGE_SIZES,
@@ -22,6 +22,8 @@ export function OrdersTable({
   onPageChange,
   onSizeChange,
   onOpenDetail,
+  onRearchive,
+  rearchivingId,
 }: {
   items: WaybillIndexItem[];
   total: number;
@@ -33,6 +35,8 @@ export function OrdersTable({
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
   onOpenDetail: (id: number) => void;
+  onRearchive: (id: number) => void;
+  rearchivingId: number | null;
 }) {
   const columns: ColumnsType<WaybillIndexItem> = [
     {
@@ -40,6 +44,17 @@ export function OrdersTable({
       dataIndex: "id",
       key: "id",
       className: "font-mono text-stone-400",
+    },
+    {
+      title: "订单状态",
+      key: "status",
+      render: (_value, item) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${coarseStatusClass(item.current_status)}`}
+        >
+          {waybillStatusLabel(item.current_status)}
+        </span>
+      ),
     },
     {
       title: "运单号",
@@ -64,15 +79,11 @@ export function OrdersTable({
     },
     {
       title: "运输状态",
-      key: "status",
-      render: (_value, item) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${coarseStatusClass(item.current_status)}`}
-        >
-          {waybillStatusLabel(item.current_status)}
-        </span>
-      ),
+      key: "last_op_name",
+      dataIndex: "last_op_name",
+      render: (value: string | undefined) => value || "—",
     },
+
     {
       title: "当前节点",
       dataIndex: "current_node",
@@ -126,21 +137,30 @@ export function OrdersTable({
       title: "运时",
       dataIndex: "elapsed_hours",
       key: "elapsed",
-      width: 96,
+      width: 120,
       className: "font-medium text-stone-700",
-      render: (value: number | undefined) => formatElapsedHours(value),
+      render: (value: number | undefined) => formatDuration(value),
     },
     {
       title: "操作",
       key: "action",
       align: "right",
       render: (_value, item) => (
-        <Typography.Link
-          onClick={() => onOpenDetail(item.id)}
-          className="inline-flex items-center gap-0.5"
-        >
-          查看轨迹
-        </Typography.Link>
+        <span className="inline-flex items-center gap-3">
+          <Typography.Link
+            onClick={() => onOpenDetail(item.id)}
+            className="inline-flex items-center gap-0.5"
+          >
+            查看轨迹
+          </Typography.Link>
+          <Typography.Link
+            disabled={rearchivingId === item.id}
+            onClick={() => onRearchive(item.id)}
+            className="inline-flex items-center gap-0.5"
+          >
+            {rearchivingId === item.id ? "归档中" : "重新归档"}
+          </Typography.Link>
+        </span>
       ),
     },
   ];
@@ -171,7 +191,6 @@ export function OrdersTable({
           total,
           showSizeChanger: true,
           pageSizeOptions: PAGE_SIZES.map(String),
-          showTotal: (count) => `共 ${count} 条`,
           onChange: (nextPage, nextSize) => {
             if (nextSize !== size) {
               onSizeChange(nextSize);

@@ -9,6 +9,8 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ConfigProvider
       locale={zhCN}
+      input={{ allowClear: true }}
+      select={{ allowClear: true }}
       theme={{
         token: {
           colorPrimary: "#00703C",

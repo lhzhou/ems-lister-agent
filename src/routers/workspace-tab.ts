@@ -13,6 +13,8 @@ export function workspaceTabFromHref(href: string): WorkspaceTab | null {
   const tab = portalTabFromRoute(path);
   if (tab === "orders") return { ...ORDERS_TAB, id, href: id };
   if (tab === "dashboard") return { ...HOME_TAB, id, href: id };
+  if (tab === "accounts") return { id, href: id, title: "账号管理", closable: true, keepAlive: false };
+  if (tab === "groups") return { id, href: id, title: "客服组管理", closable: true, keepAlive: false };
   return {
     id,
     href: id,

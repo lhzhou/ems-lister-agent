@@ -18,18 +18,9 @@ export default function OrdersPage() {
         waybillNo={orders.waybillNo}
         status={orders.status}
         severity={orders.severity}
-        onWaybillNoChange={(value) => {
-          orders.setWaybillNo(value);
-          orders.setPage(1);
-        }}
-        onStatusChange={(value) => {
-          orders.setStatus(value);
-          orders.setPage(1);
-        }}
-        onSeverityChange={(value) => {
-          orders.setSeverity(value);
-          orders.setPage(1);
-        }}
+        onWaybillNoChange={orders.setWaybillNo}
+        onStatusChange={orders.setStatus}
+        onSeverityChange={orders.setSeverity}
         onReset={orders.resetFilters}
       />
       <OrdersTable
@@ -41,16 +32,16 @@ export default function OrdersPage() {
         error={orders.error}
         onReload={orders.reload}
         onPageChange={orders.setPage}
-        onSizeChange={(size) => {
-          orders.setSize(size);
-          orders.setPage(1);
-        }}
+        onSizeChange={(size) => orders.setSize(size)}
         onOpenDetail={orders.setDetailId}
+        onRearchive={orders.rearchive}
+        rearchivingId={orders.rearchivingId}
       />
       <WaybillDetailModal
         id={orders.detailId}
         open={orders.detailId !== null}
         onClose={() => orders.setDetailId(null)}
+        onRearchived={orders.reload}
       />
     </div>
   );

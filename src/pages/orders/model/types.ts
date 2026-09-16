@@ -1,5 +1,4 @@
 import type { WaybillIndexItem } from "@/src/api";
-import { WAYBILL_STATUS_LABELS } from "@/src/lib/waybill-timeline";
 
 export const PAGE_SIZES = [20, 50, 100];
 
@@ -20,11 +19,6 @@ export const SEVERITY_OPTIONS = [
   { value: "P3", label: "P3（低）" },
   { value: "NONE", label: "无异常" },
 ];
-
-export function statusLabel(status: string, substatus?: string) {
-  const label = WAYBILL_STATUS_LABELS[status] || status || "—";
-  return substatus ? `${label} / ${substatus}` : label;
-}
 
 export function severityClass(severity?: string) {
   if (severity === "P0" || severity === "P1") {

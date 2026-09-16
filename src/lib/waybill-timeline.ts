@@ -1,4 +1,4 @@
-import { formatElapsedHours } from "./elapsed-hours";
+import { formatDuration } from "./duration";
 
 export const WAYBILL_STATUS_LABELS: Record<string, string> = {
   pending_pickup: "待揽收",
@@ -111,7 +111,7 @@ export function formatNodeDuration(ms: number) {
 
 export function formatStayDuration(ms: number) {
   const hours = Math.max(0, Math.floor(ms / 3_600_000));
-  return formatElapsedHours(hours);
+  return formatDuration(hours);
 }
 
 export function isDeliveredWaybillStatus(status: string) {

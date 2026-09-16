@@ -30,7 +30,7 @@ src/
   assets/
   components/
     Layout/       顶栏、侧栏、标签栏、页面壳
-    Form/         全局表单控件（Table 等）
+    Form/         全局表单控件（Input、Select、Table、Pagination 等）
     Waybill/      跨页运单详情
   constants/
   hooks/

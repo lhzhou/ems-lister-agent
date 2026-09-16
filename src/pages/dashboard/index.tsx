@@ -359,6 +359,7 @@ export default function DashboardPage({ onViewMoreStagnant }: DashboardPageProps
         id={detailId}
         open={detailId !== null}
         onClose={() => setDetailId(null)}
+        onRearchived={() => void loadDashboard()}
       />
     </div>
   );

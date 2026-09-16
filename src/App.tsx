@@ -6,14 +6,22 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { authApi, menusApi } from "@/src/api";
 import { DashboardShell, Header, PageContainer, PageTabs, Sidebar, type SidebarTab } from "@/src/components/Layout";
-import { HOME_TAB, ORDERS_TAB } from "@/src/constants/workspace";
+import { HOME_TAB } from "@/src/constants/workspace";
+import {
+  replaceBrowserHref,
+  syncWindowFromWorkspace,
+  useWorkspaceLocation,
+} from "@/src/hooks/use-workspace-location";
 import { useWorkspaceScope } from "@/src/hooks/use-workspace-scope";
 import { AUTH_UNAUTHORIZED_EVENT } from "@/src/interceptors/auth";
 import { visiblePortalMenus, type PortalMenu } from "@/src/lib/portal-menu";
 import DashboardPage from "@/src/pages/dashboard";
 import LoginPage from "@/src/pages/login";
 import OrdersPage from "@/src/pages/orders";
-import { appTabFromWorkspace } from "@/src/routers/workspace-tab";
+import AccountsPage from "@/src/pages/accounts";
+import GroupsPage from "@/src/pages/groups";
+import { appTabFromWorkspace, workspaceTabFromHref } from "@/src/routers/workspace-tab";
+import { tabPathname } from "@/src/stores/workspace-logic";
 import { useWorkspaceStore } from "@/src/stores/workspace-store";
 import type { UserInfo } from "@/src/types/express";
 import type { AppTab } from "@/src/types/tabs";
@@ -33,6 +41,7 @@ export default function App() {
   const activeTabId = workspaceActiveId || tabs[0]?.id || HOME_TAB.id;
 
   useWorkspaceScope(currentUser ? currentUser.empId : null);
+  useWorkspaceLocation(Boolean(currentUser));
 
   const currentTab = useMemo(
     () => tabs.find((tab) => tab.id === activeTabId) || tabs[0],
@@ -41,6 +50,8 @@ export default function App() {
 
   const activeSidebarTab: SidebarTab = useMemo(() => {
     if (currentTab?.tabType === "orders" || currentTab?.tabType === "tracking") return "orders";
+    if (currentTab?.tabType === "accounts") return "accounts";
+    if (currentTab?.tabType === "groups") return "groups";
     return "dashboard";
   }, [currentTab?.tabType]);
 
@@ -74,7 +85,27 @@ export default function App() {
   }, []);
 
   const handleSelectSidebarTab = (tabType: SidebarTab) => {
-    useWorkspaceStore.getState().open(tabType === "orders" ? ORDERS_TAB : HOME_TAB);
+    const href =
+      tabType === "orders"
+        ? "/orders"
+        : tabType === "accounts"
+          ? "/accounts"
+          : tabType === "groups"
+            ? "/groups"
+            : "/dashboard";
+    const existing = useWorkspaceStore
+      .getState()
+      .tabs.find((item) => tabPathname(item.id) === href);
+    if (existing) {
+      useWorkspaceStore.getState().activate(existing.id);
+      replaceBrowserHref(existing.href);
+      return;
+    }
+    const tab = workspaceTabFromHref(href);
+    if (tab) {
+      useWorkspaceStore.getState().open(tab);
+      replaceBrowserHref(tab.href);
+    }
   };
 
   const handleLogin = (user: UserInfo, token: string) => {
@@ -131,11 +162,26 @@ export default function App() {
         <PageTabs
           tabs={tabs}
           activeTabId={activeTabId}
-          onSelectTab={(id) => useWorkspaceStore.getState().activate(id)}
-          onCloseTab={(id) => useWorkspaceStore.getState().close(id)}
-          onCloseOtherTabs={(id) => useWorkspaceStore.getState().closeOthers(id)}
-          onCloseAllTabs={() => useWorkspaceStore.getState().closeAll()}
-          onCloseRightTabs={(id) => useWorkspaceStore.getState().closeRight(id)}
+          onSelectTab={(id) => {
+            useWorkspaceStore.getState().activate(id);
+            syncWindowFromWorkspace();
+          }}
+          onCloseTab={(id) => {
+            useWorkspaceStore.getState().close(id);
+            syncWindowFromWorkspace();
+          }}
+          onCloseOtherTabs={(id) => {
+            useWorkspaceStore.getState().closeOthers(id);
+            syncWindowFromWorkspace();
+          }}
+          onCloseAllTabs={() => {
+            useWorkspaceStore.getState().closeAll();
+            syncWindowFromWorkspace();
+          }}
+          onCloseRightTabs={(id) => {
+            useWorkspaceStore.getState().closeRight(id);
+            syncWindowFromWorkspace();
+          }}
           onRefreshTab={(id) => useWorkspaceStore.getState().refresh(id)}
         />
       }
@@ -145,6 +191,8 @@ export default function App() {
           <DashboardPage onViewMoreStagnant={() => handleSelectSidebarTab("orders")} />
         )}
         {(currentTab?.tabType === "orders" || currentTab?.tabType === "tracking") && <OrdersPage />}
+        {currentTab?.tabType === "accounts" && <AccountsPage />}
+        {currentTab?.tabType === "groups" && <GroupsPage />}
       </PageContainer>
       <footer className="mt-auto border-t border-stone-200 bg-white py-5 text-center text-xs text-stone-500">
         <div className="flex w-full flex-col items-center justify-between gap-3 px-4 sm:flex-row sm:px-6 lg:px-8">

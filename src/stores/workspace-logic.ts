@@ -1,7 +1,16 @@
 import type { WorkspaceTab } from "@/types/workspace";
 
+export function tabPathname(id: string): string {
+  return id.split("?")[0] || "/";
+}
+
 export function openTab(tabs: WorkspaceTab[], tab: WorkspaceTab): WorkspaceTab[] {
-  return tabs.some((item) => item.id === tab.id) ? tabs : [...tabs, tab];
+  const path = tabPathname(tab.id);
+  const index = tabs.findIndex((item) => tabPathname(item.id) === path);
+  if (index < 0) return [...tabs, tab];
+  const next = [...tabs];
+  next[index] = { ...next[index], ...tab };
+  return next;
 }
 
 export function getNextTabIdAfterClose(tabs: WorkspaceTab[], id: string): string | null {

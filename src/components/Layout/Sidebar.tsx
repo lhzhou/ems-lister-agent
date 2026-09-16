@@ -8,6 +8,8 @@ import {
   LayoutDashboard,
   CircleGauge,
   PackageSearch,
+  Users,
+  UsersRound,
 } from "lucide-react";
 import type { PortalMenu, PortalTab } from "@/src/lib/portal-menu";
 import { portalTabFromRoute } from "@/src/lib/portal-menu";
@@ -19,6 +21,8 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
   PackageSearch,
   Package,
+  Users,
+  UsersRound,
 };
 
 function iconFor(item: PortalMenu) {
