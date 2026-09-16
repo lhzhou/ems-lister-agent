@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
-import { 
-  X, 
-  BellRing, 
-  Smartphone, 
-  MessageSquare, 
-  Send, 
-  Check, 
-  ShieldCheck, 
-  Volume2, 
-  Clock, 
+import React, { useState } from "react";
+import {
+  X,
+  BellRing,
+  Smartphone,
+  MessageSquare,
+  Send,
+  Check,
+  ShieldCheck,
+  Volume2,
+  Clock,
   Sparkles,
   PhoneCall,
-  Laptop
-} from 'lucide-react';
-import { ExpressPackage, ReminderConfig } from '../types/express';
-import { playNotificationChime } from '../utils/sound';
+  Laptop,
+} from "lucide-react";
+import { ExpressPackage, ReminderConfig } from "../types/express";
+import { playNotificationChime } from "../utils/sound";
 
 interface ReminderModalProps {
   pkg: ExpressPackage;
   isOpen: boolean;
   onClose: () => void;
   onSave: (pkgId: string, config: ReminderConfig) => void;
-  onSendTestReminder: (pkg: ExpressPackage, channel: 'SMS' | 'WECHAT' | 'BROWSER') => void;
+  onSendTestReminder: (pkg: ExpressPackage, channel: "SMS" | "WECHAT" | "BROWSER") => void;
 }
 
 export const ReminderModal: React.FC<ReminderModalProps> = ({
@@ -29,22 +29,22 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  onSendTestReminder
+  onSendTestReminder,
 }) => {
   const [config, setConfig] = useState<ReminderConfig>({
-    ...pkg.reminderConfig
+    ...pkg.reminderConfig,
   });
   const [testSent, setTestSent] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleToggleEvent = (key: keyof ReminderConfig['events']) => {
-    setConfig(prev => ({
+  const handleToggleEvent = (key: keyof ReminderConfig["events"]) => {
+    setConfig((prev) => ({
       ...prev,
       events: {
         ...prev.events,
-        [key]: !prev.events[key]
-      }
+        [key]: !prev.events[key],
+      },
     }));
   };
 
@@ -53,7 +53,7 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
     onClose();
   };
 
-  const triggerTest = (channel: 'SMS' | 'WECHAT' | 'BROWSER') => {
+  const triggerTest = (channel: "SMS" | "WECHAT" | "BROWSER") => {
     onSendTestReminder(pkg, channel);
     setTestSent(channel);
     setTimeout(() => setTestSent(null), 2500);
@@ -92,7 +92,8 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
           <div className="p-3 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex items-start gap-2">
             <Sparkles className="w-4 h-4 text-[#F9B200] flex-shrink-0 mt-0.5" />
             <p className="leading-relaxed">
-              中国邮政 VIP 重点快件享有<strong>零延迟通知特权</strong>。当快件到达末端营业部、投递员揽件派送或签收人签收完成后，系统将自动触发指定渠道提醒。
+              中国邮政 VIP 重点快件享有<strong>零延迟通知特权</strong>
+              。当快件到达末端营业部、投递员揽件派送或签收人签收完成后，系统将自动触发指定渠道提醒。
             </p>
           </div>
 
@@ -118,12 +119,12 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                   </label>
                   <button
                     type="button"
-                    onClick={() => triggerTest('SMS')}
+                    onClick={() => triggerTest("SMS")}
                     disabled={!config.enableSMS}
                     className="text-xs text-[#00703C] hover:text-[#005f32] font-semibold disabled:opacity-40 flex items-center gap-1"
                   >
                     <Send className="w-3 h-3" />
-                    <span>{testSent === 'SMS' ? '已发送模拟短信' : '测试短信'}</span>
+                    <span>{testSent === "SMS" ? "已发送模拟短信" : "测试短信"}</span>
                   </button>
                 </div>
                 {config.enableSMS && (
@@ -137,7 +138,12 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                     />
                     <button
                       type="button"
-                      onClick={() => setConfig({ ...config, smsPhone: pkg.destination.phoneFull || '13900000000' })}
+                      onClick={() =>
+                        setConfig({
+                          ...config,
+                          smsPhone: pkg.destination.phoneFull || "13900000000",
+                        })
+                      }
                       className="text-[11px] text-stone-500 hover:text-stone-800 bg-stone-200/80 px-2 py-1.5 rounded-lg whitespace-nowrap"
                     >
                       填入收件人手机
@@ -160,12 +166,12 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                   </label>
                   <button
                     type="button"
-                    onClick={() => triggerTest('WECHAT')}
+                    onClick={() => triggerTest("WECHAT")}
                     disabled={!config.enableWeChat}
                     className="text-xs text-[#00703C] hover:text-[#005f32] font-semibold disabled:opacity-40 flex items-center gap-1"
                   >
                     <Send className="w-3 h-3" />
-                    <span>{testSent === 'WECHAT' ? '已推送模拟消息' : '测试微信推送'}</span>
+                    <span>{testSent === "WECHAT" ? "已推送模拟消息" : "测试微信推送"}</span>
                   </button>
                 </div>
                 {config.enableWeChat && (
@@ -186,7 +192,9 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                     <input
                       type="checkbox"
                       checked={config.enableBrowserPush}
-                      onChange={(e) => setConfig({ ...config, enableBrowserPush: e.target.checked })}
+                      onChange={(e) =>
+                        setConfig({ ...config, enableBrowserPush: e.target.checked })
+                      }
                       className="w-4 h-4 rounded text-[#00703C] focus:ring-[#00703C]"
                     />
                     <span className="flex items-center gap-1">
@@ -196,12 +204,12 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                   </label>
                   <button
                     type="button"
-                    onClick={() => triggerTest('BROWSER')}
+                    onClick={() => triggerTest("BROWSER")}
                     disabled={!config.enableBrowserPush}
                     className="text-xs text-[#00703C] hover:text-[#005f32] font-semibold disabled:opacity-40 flex items-center gap-1"
                   >
                     <Send className="w-3 h-3" />
-                    <span>{testSent === 'BROWSER' ? '已触发弹窗' : '测试弹窗'}</span>
+                    <span>{testSent === "BROWSER" ? "已触发弹窗" : "测试弹窗"}</span>
                   </button>
                 </div>
               </div>
@@ -241,7 +249,7 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                 <input
                   type="checkbox"
                   checked={config.events.outForDelivery}
-                  onChange={() => handleToggleEvent('outForDelivery')}
+                  onChange={() => handleToggleEvent("outForDelivery")}
                   className="w-4 h-4 rounded text-[#00703C] focus:ring-[#00703C] mt-0.5"
                 />
                 <div>
@@ -254,12 +262,16 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                 <input
                   type="checkbox"
                   checked={config.events.approaching}
-                  onChange={() => handleToggleEvent('approaching')}
+                  onChange={() => handleToggleEvent("approaching")}
                   className="w-4 h-4 rounded text-[#00703C] focus:ring-[#00703C] mt-0.5"
                 />
                 <div>
-                  <span className="font-semibold text-xs block text-stone-800">预计2小时内送达</span>
-                  <span className="text-[11px] text-stone-500">距离收件地址小于2公里时预先提醒</span>
+                  <span className="font-semibold text-xs block text-stone-800">
+                    预计2小时内送达
+                  </span>
+                  <span className="text-[11px] text-stone-500">
+                    距离收件地址小于2公里时预先提醒
+                  </span>
                 </div>
               </label>
 
@@ -267,11 +279,13 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                 <input
                   type="checkbox"
                   checked={config.events.delivered}
-                  onChange={() => handleToggleEvent('delivered')}
+                  onChange={() => handleToggleEvent("delivered")}
                   className="w-4 h-4 rounded text-[#00703C] focus:ring-[#00703C] mt-0.5"
                 />
                 <div>
-                  <span className="font-semibold text-xs block text-[#00703C]">快件签收成功提醒 (核心)</span>
+                  <span className="font-semibold text-xs block text-[#00703C]">
+                    快件签收成功提醒 (核心)
+                  </span>
                   <span className="text-[11px] text-emerald-800">签收完毕立即回传签收人和签单</span>
                 </div>
               </label>
@@ -280,11 +294,13 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                 <input
                   type="checkbox"
                   checked={config.events.exception}
-                  onChange={() => handleToggleEvent('exception')}
+                  onChange={() => handleToggleEvent("exception")}
                   className="w-4 h-4 rounded text-[#00703C] focus:ring-[#00703C] mt-0.5"
                 />
                 <div>
-                  <span className="font-semibold text-xs block text-rose-800">异常滞留与天气预警</span>
+                  <span className="font-semibold text-xs block text-rose-800">
+                    异常滞留与天气预警
+                  </span>
                   <span className="text-[11px] text-stone-500">航班延误或道路管制第一时效通知</span>
                 </div>
               </label>

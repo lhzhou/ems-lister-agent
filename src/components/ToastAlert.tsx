@@ -1,15 +1,15 @@
-import React from 'react';
-import { 
-  Bell, 
-  CheckCircle2, 
-  AlertTriangle, 
-  X, 
-  Smartphone, 
-  MessageSquare, 
+import React from "react";
+import {
+  Bell,
+  CheckCircle2,
+  AlertTriangle,
+  X,
+  Smartphone,
+  MessageSquare,
   Laptop,
-  ArrowRight
-} from 'lucide-react';
-import { NotificationLog } from '../types/express';
+  ArrowRight,
+} from "lucide-react";
+import { NotificationLog } from "../types/express";
 
 interface ToastAlertProps {
   notification: NotificationLog | null;
@@ -17,18 +17,17 @@ interface ToastAlertProps {
   onViewPackage: (trackingNumber: string) => void;
 }
 
-export const ToastAlert: React.FC<ToastAlertProps> = ({
-  notification,
-  onClose,
-  onViewPackage
-}) => {
+export const ToastAlert: React.FC<ToastAlertProps> = ({ notification, onClose, onViewPackage }) => {
   if (!notification) return null;
 
   const getChannelIcon = () => {
     switch (notification.channel) {
-      case 'SMS': return <Smartphone className="w-4 h-4 text-blue-600" />;
-      case 'WECHAT': return <MessageSquare className="w-4 h-4 text-emerald-600" />;
-      default: return <Laptop className="w-4 h-4 text-purple-600" />;
+      case "SMS":
+        return <Smartphone className="w-4 h-4 text-blue-600" />;
+      case "WECHAT":
+        return <MessageSquare className="w-4 h-4 text-emerald-600" />;
+      default:
+        return <Laptop className="w-4 h-4 text-purple-600" />;
     }
   };
 
@@ -38,9 +37,7 @@ export const ToastAlert: React.FC<ToastAlertProps> = ({
         {/* Top ribbon */}
         <div className="flex items-center justify-between gap-2 border-b border-stone-100 pb-2 mb-2.5">
           <div className="flex items-center gap-1.5">
-            <div className="p-1 rounded-md bg-emerald-100 text-[#00703C]">
-              {getChannelIcon()}
-            </div>
+            <div className="p-1 rounded-md bg-emerald-100 text-[#00703C]">{getChannelIcon()}</div>
             <span className="text-xs font-bold text-[#00703C]">
               中国邮政 11183 重点快递签收服务提醒
             </span>
@@ -56,7 +53,7 @@ export const ToastAlert: React.FC<ToastAlertProps> = ({
 
         {/* Content */}
         <h4 className="font-bold text-sm text-stone-900 mb-1 flex items-center gap-1.5">
-          {notification.eventType === 'delivered' ? (
+          {notification.eventType === "delivered" ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
           ) : (
             <Bell className="w-4 h-4 text-[#F9B200] flex-shrink-0" />

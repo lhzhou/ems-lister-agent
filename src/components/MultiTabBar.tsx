@@ -1,27 +1,23 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { 
-  AppTab, 
-  TabType, 
-  TabColorTheme 
-} from '../types/tabs';
-import { 
-  LayoutDashboard, 
-  Package, 
-  BellRing, 
-  FileCheck, 
-  ShieldCheck, 
-  BarChart3, 
-  FileText, 
-  Layers, 
-  X, 
-  ChevronLeft, 
-  ChevronRight, 
-  MoreHorizontal, 
-  RotateCw, 
+import React, { useRef, useEffect, useState } from "react";
+import { AppTab, TabType, TabColorTheme } from "../types/tabs";
+import {
+  LayoutDashboard,
+  Package,
+  BellRing,
+  FileCheck,
+  ShieldCheck,
+  BarChart3,
+  FileText,
+  Layers,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  RotateCw,
   Maximize2,
   FolderMinus,
-  Sparkles
-} from 'lucide-react';
+  Sparkles,
+} from "lucide-react";
 
 interface MultiTabBarProps {
   tabs: AppTab[];
@@ -43,7 +39,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
   onCloseOtherTabs,
   onCloseAllTabs,
   onCloseRightTabs,
-  onRefreshTab
+  onRefreshTab,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showMoreActions, setShowMoreActions] = useState(false);
@@ -52,14 +48,16 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
     x: number;
     y: number;
     tabId: string;
-  }>({ visible: false, x: 0, y: 0, tabId: '' });
+  }>({ visible: false, x: 0, y: 0, tabId: "" });
 
   // Scroll active tab into view when activeTabId changes
   useEffect(() => {
     if (!scrollContainerRef.current) return;
-    const activeEl = scrollContainerRef.current.querySelector(`[data-tab-id="${activeTabId}"]`) as HTMLElement;
+    const activeEl = scrollContainerRef.current.querySelector(
+      `[data-tab-id="${activeTabId}"]`,
+    ) as HTMLElement;
     if (activeEl) {
-      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      activeEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
     }
   }, [activeTabId]);
 
@@ -67,39 +65,40 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
   useEffect(() => {
     const handleGlobalClick = () => {
       setShowMoreActions(false);
-      setContextMenu(prev => ({ ...prev, visible: false }));
+      setContextMenu((prev) => ({ ...prev, visible: false }));
     };
-    window.addEventListener('click', handleGlobalClick);
-    return () => window.removeEventListener('click', handleGlobalClick);
+    window.addEventListener("click", handleGlobalClick);
+    return () => window.removeEventListener("click", handleGlobalClick);
   }, []);
 
   // Horizontal scroll step
-  const handleScroll = (direction: 'left' | 'right') => {
+  const handleScroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
-    const scrollAmount = direction === 'left' ? -200 : 200;
-    scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    const scrollAmount = direction === "left" ? -200 : 200;
+    scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
   // Icon mapping for tabs
   const getTabIcon = (tab: AppTab) => {
     switch (tab.tabType) {
-      case 'dashboard':
+      case "dashboard":
         return <LayoutDashboard className="w-3.5 h-3.5" />;
-      case 'tracking':
+      case "orders":
+      case "tracking":
         return <Package className="w-3.5 h-3.5" />;
-      case 'reminders':
+      case "reminders":
         return <BellRing className="w-3.5 h-3.5" />;
-      case 'pod':
+      case "pod":
         return <FileCheck className="w-3.5 h-3.5" />;
-      case 'vip':
+      case "vip":
         return <ShieldCheck className="w-3.5 h-3.5" />;
-      case 'statistics':
+      case "statistics":
         return <BarChart3 className="w-3.5 h-3.5" />;
-      case 'batch_query':
+      case "batch_query":
         return <Layers className="w-3.5 h-3.5" />;
-      case 'new_package':
+      case "new_package":
         return <FileText className="w-3.5 h-3.5" />;
-      case 'mail_detail':
+      case "mail_detail":
         return <Package className="w-3.5 h-3.5 text-emerald-600" />;
       default:
         return <Package className="w-3.5 h-3.5" />;
@@ -109,25 +108,25 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
   // Color theme styling matching image.png (soft colored borders and subtle tints)
   const getTabStyle = (tab: AppTab, isActive: boolean) => {
     if (isActive) {
-      return 'bg-white text-[#00703C] border-2 border-[#00703C] shadow-sm font-semibold z-10';
+      return "bg-white text-[#00703C] border-2 border-[#00703C] shadow-sm font-semibold z-10";
     }
 
     switch (tab.colorTheme) {
-      case 'blue':
-        return 'bg-blue-50/60 text-stone-700 border border-blue-200/80 hover:bg-blue-100/70 hover:border-blue-300';
-      case 'amber':
-        return 'bg-amber-50/60 text-stone-700 border border-amber-200/80 hover:bg-amber-100/70 hover:border-amber-300';
-      case 'teal':
-        return 'bg-teal-50/60 text-stone-700 border border-teal-200/80 hover:bg-teal-100/70 hover:border-teal-300';
-      case 'rose':
-        return 'bg-rose-50/60 text-stone-700 border border-rose-200/80 hover:bg-rose-100/70 hover:border-rose-300';
-      case 'purple':
-        return 'bg-purple-50/60 text-stone-700 border border-purple-200/80 hover:bg-purple-100/70 hover:border-purple-300';
-      case 'indigo':
-        return 'bg-indigo-50/60 text-stone-700 border border-indigo-200/80 hover:bg-indigo-100/70 hover:border-indigo-300';
-      case 'emerald':
+      case "blue":
+        return "bg-blue-50/60 text-stone-700 border border-blue-200/80 hover:bg-blue-100/70 hover:border-blue-300";
+      case "amber":
+        return "bg-amber-50/60 text-stone-700 border border-amber-200/80 hover:bg-amber-100/70 hover:border-amber-300";
+      case "teal":
+        return "bg-teal-50/60 text-stone-700 border border-teal-200/80 hover:bg-teal-100/70 hover:border-teal-300";
+      case "rose":
+        return "bg-rose-50/60 text-stone-700 border border-rose-200/80 hover:bg-rose-100/70 hover:border-rose-300";
+      case "purple":
+        return "bg-purple-50/60 text-stone-700 border border-purple-200/80 hover:bg-purple-100/70 hover:border-purple-300";
+      case "indigo":
+        return "bg-indigo-50/60 text-stone-700 border border-indigo-200/80 hover:bg-indigo-100/70 hover:border-indigo-300";
+      case "emerald":
       default:
-        return 'bg-emerald-50/60 text-stone-700 border border-emerald-200/80 hover:bg-emerald-100/70 hover:border-emerald-300';
+        return "bg-emerald-50/60 text-stone-700 border border-emerald-200/80 hover:bg-emerald-100/70 hover:border-emerald-300";
     }
   };
 
@@ -138,7 +137,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
       visible: true,
       x: Math.min(e.clientX, window.innerWidth - 180),
       y: e.clientY + 5,
-      tabId
+      tabId,
     });
   };
 
@@ -147,7 +146,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
       {/* Scroll Left Button */}
       <button
         type="button"
-        onClick={() => handleScroll('left')}
+        onClick={() => handleScroll("left")}
         aria-label="向前滚动标签页"
         className="hidden sm:flex items-center justify-center w-7 h-7 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-white border border-transparent hover:border-stone-200 transition-all shrink-0"
       >
@@ -155,10 +154,10 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
       </button>
 
       {/* Tabs Horizontal List */}
-      <div 
+      <div
         ref={scrollContainerRef}
         className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {tabs.map((tab) => {
           const isActive = tab.id === activeTabId;
@@ -171,7 +170,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               className={`group flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs cursor-pointer transition-all duration-150 shrink-0 select-none ${getTabStyle(tab, isActive)}`}
               title={`${tab.title} (右键打开菜单)`}
             >
-              <span className={`shrink-0 ${isActive ? 'text-[#00703C]' : 'text-stone-500 group-hover:text-stone-800'}`}>
+              <span
+                className={`shrink-0 ${isActive ? "text-[#00703C]" : "text-stone-500 group-hover:text-stone-800"}`}
+              >
                 {getTabIcon(tab)}
               </span>
 
@@ -181,11 +182,11 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
 
               {/* Optional tiny badge */}
               {tab.badge && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-medium ${
-                  isActive 
-                    ? 'bg-emerald-100 text-emerald-800' 
-                    : 'bg-stone-200/80 text-stone-600'
-                }`}>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-medium ${
+                    isActive ? "bg-emerald-100 text-emerald-800" : "bg-stone-200/80 text-stone-600"
+                  }`}
+                >
                   {tab.badge}
                 </span>
               )}
@@ -214,7 +215,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
       {/* Scroll Right Button */}
       <button
         type="button"
-        onClick={() => handleScroll('right')}
+        onClick={() => handleScroll("right")}
         aria-label="向后滚动标签页"
         className="hidden sm:flex items-center justify-center w-7 h-7 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-white border border-transparent hover:border-stone-200 transition-all shrink-0"
       >
@@ -248,7 +249,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
           </button>
 
           {showMoreActions && (
-            <div 
+            <div
               onClick={(e) => e.stopPropagation()}
               className="absolute right-0 top-full mt-1.5 w-44 bg-white rounded-2xl shadow-xl border border-stone-200 py-1.5 z-50 text-xs text-stone-700 animate-in fade-in zoom-in-95 duration-100"
             >
@@ -272,7 +273,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
                   onCloseTab(activeTabId);
                   setShowMoreActions(false);
                 }}
-                disabled={!tabs.find(t => t.id === activeTabId)?.closable}
+                disabled={!tabs.find((t) => t.id === activeTabId)?.closable}
                 className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-700 text-left transition-colors disabled:opacity-40"
               >
                 <X className="w-3.5 h-3.5" />
@@ -321,14 +322,14 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
       {contextMenu.visible && (
         <div
           onClick={(e) => e.stopPropagation()}
-          style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y }}
+          style={{ position: "fixed", left: contextMenu.x, top: contextMenu.y }}
           className="w-40 bg-white rounded-xl shadow-2xl border border-stone-200 py-1.5 z-[100] text-xs text-stone-700 animate-in fade-in zoom-in-95 duration-75"
         >
           <button
             type="button"
             onClick={() => {
               onRefreshTab(contextMenu.tabId);
-              setContextMenu(prev => ({ ...prev, visible: false }));
+              setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
             className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-emerald-50 hover:text-[#00703C] text-left transition-colors"
           >
@@ -339,9 +340,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
             type="button"
             onClick={() => {
               onCloseTab(contextMenu.tabId);
-              setContextMenu(prev => ({ ...prev, visible: false }));
+              setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
-            disabled={!tabs.find(t => t.id === contextMenu.tabId)?.closable}
+            disabled={!tabs.find((t) => t.id === contextMenu.tabId)?.closable}
             className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-700 text-left transition-colors disabled:opacity-40"
           >
             <X className="w-3.5 h-3.5" />
@@ -351,7 +352,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
             type="button"
             onClick={() => {
               onCloseOtherTabs(contextMenu.tabId);
-              setContextMenu(prev => ({ ...prev, visible: false }));
+              setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
             className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-50 text-left transition-colors"
           >
@@ -362,7 +363,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
             type="button"
             onClick={() => {
               onCloseRightTabs(contextMenu.tabId);
-              setContextMenu(prev => ({ ...prev, visible: false }));
+              setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
             className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-50 text-left transition-colors"
           >

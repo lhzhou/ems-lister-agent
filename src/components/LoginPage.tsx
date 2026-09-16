@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { 
-  Lock, 
-  User, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  AlertCircle, 
+import React, { useState } from "react";
+import {
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  AlertCircle,
   RefreshCw,
   Truck,
   Shield,
   Server,
   ChevronDown,
   ChevronUp,
-  CheckCircle2
-} from 'lucide-react';
-import { UserInfo } from '../types/express';
-import { authApi } from '../api/auth';
-import { removeStoredToken } from '../utils/storage';
+  CheckCircle2,
+} from "lucide-react";
+import { UserInfo } from "../types/express";
+import { authApi } from "../api/auth";
+import { removeStoredToken } from "../utils/storage";
 
 interface LoginPageProps {
   onLogin: (user: UserInfo, token: string) => void;
@@ -24,29 +24,31 @@ interface LoginPageProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   // 表单输入
-  const [account, setAccount] = useState<string>('商丘-虞城县');
-  const [password, setPassword] = useState<string>('123123123');
+  const [account, setAccount] = useState<string>("商丘-虞城县");
+  const [password, setPassword] = useState<string>("123123123");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  
+
   // UI 状态
   const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const [showServerConfig, setShowServerConfig] = useState<boolean>(false);
-  const [backendUrl, setBackendUrl] = useState<string>((import.meta as any).env?.VITE_API_BASE_URL || 'http://39.107.75.132:8902');
+  const [backendUrl, setBackendUrl] = useState<string>(
+    (import.meta as any).env?.VITE_API_BASE_URL || "http://39.107.75.132:8902",
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     if (!account.trim()) {
-      setErrorMessage('请输入登录账号');
+      setErrorMessage("请输入登录账号");
       return;
     }
     if (!password) {
-      setErrorMessage('请输入登录密码');
+      setErrorMessage("请输入登录密码");
       return;
     }
 
@@ -56,12 +58,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       // 1. 调用公司端真实认证接口 POST /v1/auth/login
       const loginData = await authApi.login({
         login: account.trim(),
-        password: password
+        password: password,
       });
 
       // 严格校验 access_token：必须存在且非空，绝不放行空凭证！
-      if (!loginData || !loginData.access_token || typeof loginData.access_token !== 'string' || !loginData.access_token.trim()) {
-        throw new Error('鉴权未通过：服务端未返回有效授权令牌 (access_token)，拒绝进入系统');
+      if (
+        !loginData ||
+        !loginData.access_token ||
+        typeof loginData.access_token !== "string" ||
+        !loginData.access_token.trim()
+      ) {
+        throw new Error("鉴权未通过：服务端未返回有效授权令牌 (access_token)，拒绝进入系统");
       }
 
       const token = loginData.access_token.trim();
@@ -74,7 +81,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           identity = { ...identity, ...meRes };
         }
       } catch (meErr) {
-        console.warn('获取当前公司端身份信息兜底:', meErr);
+        console.warn("获取当前公司端身份信息兜底:", meErr);
       }
 
       // 3. 尝试拉取名下关联租户 GET /v1/corporation/tenants?page=1&size=20
@@ -83,56 +90,64 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         const tenantsRes = await authApi.getTenants(1, 20);
         tenantItems = tenantsRes.list || tenantsRes.items || [];
       } catch (tenantErr) {
-        console.warn('查询公司名下租户异常:', tenantErr);
+        console.warn("查询公司名下租户异常:", tenantErr);
       }
 
       // 4. 解析角色与账号信息 (仅限 customer, customer_admin, customer_member)
-      const rawRole = identity.role_type || identity.role || 'customer_admin';
-      const roleDisplayName = 
-        rawRole === 'customer_admin' ? '客户管理员' :
-        rawRole === 'customer_member' ? '客户业务专员' :
-        rawRole === 'customer' ? '公司端认证客户' : rawRole;
+      const rawRole = identity.role_type || identity.role || "customer_admin";
+      const roleDisplayName =
+        rawRole === "customer_admin"
+          ? "客户管理员"
+          : rawRole === "customer_member"
+            ? "客户业务专员"
+            : rawRole === "customer"
+              ? "公司端认证客户"
+              : rawRole;
 
       const fullUser: UserInfo = {
         empId: String(identity.login || identity.id || account.trim()),
         name: identity.name || identity.company_name || identity.login || account.trim(),
         role: roleDisplayName,
-        department: identity.company_name || '中国邮政速递物流·企业专席',
-        phone: identity.phone || '11183',
-        avatarUrl: identity.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
+        department: identity.company_name || "中国邮政速递物流·企业专席",
+        phone: identity.phone || "11183",
+        avatarUrl:
+          identity.avatar ||
+          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
         lastLoginTime: new Date().toLocaleString(),
         token: token,
-        tokenExpiresAt: loginData.expires_at || (Date.now() + 7 * 24 * 60 * 60 * 1000),
-        tokenType: loginData.token_type || 'Bearer',
+        tokenExpiresAt: loginData.expires_at || Date.now() + 7 * 24 * 60 * 60 * 1000,
+        tokenType: loginData.token_type || "Bearer",
         serviceAccountId: identity.service_account_id,
         companyName: identity.company_name,
-        tenants: tenantItems
+        tenants: tenantItems,
       };
 
-      setSuccessMessage('公司端身份鉴权成功，正在接入调度控制台...');
+      setSuccessMessage("公司端身份鉴权成功，正在接入调度控制台...");
       setTimeout(() => {
         onLogin(fullUser, token);
       }, 400);
-
     } catch (err: any) {
-      console.error('登录认证接口调用异常:', err);
+      console.error("登录认证接口调用异常:", err);
       // 登录失败：绝不调用 onLogin，并立即清除本地可能存在的旧 Token
       removeStoredToken();
-      
+
       // 依公司端接口规范处理错误状态
       // 400: 请求字段缺失或格式不正确
       // 401: Token 无效、账号状态不可用，或账号不属于客户平台 (customer/customer_admin/customer_member)
       // 503/502: 依赖服务不可用或后端服务未启动
-      let msg = err.message || '登录失败，请核对账号与密码';
-      
-      if (err.message === 'Failed to fetch') {
+      let msg = err.message || "登录失败，请核对账号与密码";
+
+      if (err.message === "Failed to fetch") {
         msg = `网络连接异常 (Failed to fetch)，请确认服务地址 (${backendUrl}) 是否可连通`;
-      } else if (err.status === 401 || err.code === 'UNAUTHORIZED' || err.code === 401) {
-        msg = err.data?.message || err.message || '账号或密码错误，或该账号不属于客户平台 (仅限 customer / customer_admin / customer_member)';
+      } else if (err.status === 401 || err.code === "UNAUTHORIZED" || err.code === 401) {
+        msg =
+          err.data?.message ||
+          err.message ||
+          "账号或密码错误，或该账号不属于客户平台 (仅限 customer / customer_admin / customer_member)";
       } else if (err.status === 400) {
-        msg = err.data?.message || '请求字段缺失或格式不正确，请检查账号与密码输入';
+        msg = err.data?.message || "请求字段缺失或格式不正确，请检查账号与密码输入";
       } else if (err.status === 502 || err.status === 503) {
-        msg = `后端服务 (${backendUrl}) 连接失败: ${err.message || '服务异常，请确认后端已启动'}`;
+        msg = `后端服务 (${backendUrl}) 连接失败: ${err.message || "服务异常，请确认后端已启动"}`;
       } else if (err.status === 504) {
         msg = `连接服务超时 (8秒)，请确认服务地址 (${backendUrl}) 是否可连通`;
       } else if (err.status === 404) {
@@ -158,19 +173,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold text-white tracking-wide drop-shadow-sm">中国邮政</span>
+              <span className="text-lg font-extrabold text-white tracking-wide drop-shadow-sm">
+                中国邮政
+              </span>
               <span className="text-xs bg-[#F9B200] text-stone-900 font-bold px-2 py-0.5 rounded-md shadow-xs">
                 公司端
               </span>
             </div>
-            <p className="text-[11px] text-emerald-200/90 tracking-wider font-mono">CHINA POST EXPRESS & LOGISTICS</p>
+            <p className="text-[11px] text-emerald-200/90 tracking-wider font-mono">
+              CHINA POST EXPRESS & LOGISTICS
+            </p>
           </div>
         </div>
 
         <div className="hidden sm:flex items-center text-xs text-emerald-100/90 font-medium">
-          <span className="text-emerald-100/90 whitespace-nowrap">
-            客服热线: 11183
-          </span>
+          <span className="text-emerald-100/90 whitespace-nowrap">客服热线: 11183</span>
         </div>
       </header>
 
@@ -193,7 +210,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-500 mt-0.5" />
                 <div className="flex-1">
                   <div className="font-semibold text-red-800">登录未通过</div>
-                  <div className="text-[11px] text-red-600 mt-0.5 leading-relaxed">{errorMessage}</div>
+                  <div className="text-[11px] text-red-600 mt-0.5 leading-relaxed">
+                    {errorMessage}
+                  </div>
                 </div>
               </div>
             )}
@@ -235,7 +254,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="请输入登录密码"
@@ -244,9 +263,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(v => !v)}
+                    onClick={() => setShowPassword((v) => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
-                    title={showPassword ? '隐藏密码' : '显示密码'}
+                    title={showPassword ? "隐藏密码" : "显示密码"}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -297,19 +316,29 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   <Server className="w-3.5 h-3.5 text-[#00703C]" />
                   <span>接口服务监听: POST /v1/auth/login</span>
                 </span>
-                {showServerConfig ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {showServerConfig ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )}
               </button>
 
               {showServerConfig && (
                 <div className="mt-2 p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs space-y-2">
                   <div>
-                    <div className="text-[11px] text-stone-500 font-medium">服务监听地址 (server.corporation.address)</div>
+                    <div className="text-[11px] text-stone-500 font-medium">
+                      服务监听地址 (server.corporation.address)
+                    </div>
                     <div className="font-mono text-[11px] text-stone-800 mt-0.5 p-1.5 bg-white border border-stone-200 rounded">
                       {backendUrl}
                     </div>
                   </div>
                   <div className="text-[10px] text-stone-500 leading-relaxed">
-                    说明：根据文档规范，所有受保护接口使用 <code className="bg-stone-200 px-1 rounded text-stone-800">Authorization: Bearer &lt;access_token&gt;</code>；邮政工作平台账号和平台管理员禁止通过公司端登录。
+                    说明：根据文档规范，所有受保护接口使用{" "}
+                    <code className="bg-stone-200 px-1 rounded text-stone-800">
+                      Authorization: Bearer &lt;access_token&gt;
+                    </code>
+                    ；邮政工作平台账号和平台管理员禁止通过公司端登录。
                   </div>
                 </div>
               )}

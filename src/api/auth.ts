@@ -1,14 +1,14 @@
 /**
  * 公司端 API (Corporation API) 客户端实现
- * 
+ *
  * 契约规范：
  * - 服务监听配置: server.corporation.address (8902), 认证 Profile: corporation
  * - 认证方式: Authorization: Bearer <access_token>
  * - 账号限制: 必须是客户平台账号 (customer、customer_admin 或 customer_member)
  */
 
-import { http, ApiError } from './request';
-import { saveStoredToken, removeStoredToken, getStoredToken } from '../utils/storage';
+import { http, ApiError } from "./request";
+import { saveStoredToken, removeStoredToken, getStoredToken } from "../utils/storage";
 
 /** 公司登录请求参数 */
 export interface CorporationLoginParams {
@@ -26,7 +26,7 @@ export interface CorporationLoginData {
     login?: string;
     name?: string;
     role?: string;
-    role_type?: 'customer' | 'customer_admin' | 'customer_member' | string;
+    role_type?: "customer" | "customer_admin" | "customer_member" | string;
     status?: string;
     phone?: string;
     service_account_id?: string;
@@ -50,7 +50,7 @@ export interface CorporationIdentity {
   login?: string;
   name?: string;
   role?: string;
-  role_type?: 'customer' | 'customer_admin' | 'customer_member' | string;
+  role_type?: "customer" | "customer_admin" | "customer_member" | string;
   status?: string;
   service_account_id?: string;
   company_name?: string;
@@ -89,21 +89,29 @@ export const authApi = {
   async login(params: CorporationLoginParams): Promise<CorporationLoginData> {
     const payload = {
       login: params.login.trim(),
-      password: params.password
+      password: params.password,
     };
 
     // 发起登录请求（跳过旧 token 注入）
-    const res = await http.post<any>('/v1/auth/login', payload, {
-      skipAuth: true
+    const res = await http.post<any>("/v1/auth/login", payload, {
+      skipAuth: true,
     });
 
     // 兼容统一响应结构与裸数据结构
     const data: CorporationLoginData = res?.data !== undefined ? res.data : res;
 
     // 严格检查：必须返回有效对象且包含 access_token，若无则抛出异常阻止后续执行
-    if (!data || typeof data !== 'object' || !data.access_token || typeof data.access_token !== 'string' || !data.access_token.trim()) {
-      const errorMsg = (data && (data.message || data.msg || data.error)) || '登录认证失败：服务端未返回有效授权令牌 (access_token)';
-      throw new ApiError(errorMsg, 401, data?.code || 'NO_TOKEN', data);
+    if (
+      !data ||
+      typeof data !== "object" ||
+      !data.access_token ||
+      typeof data.access_token !== "string" ||
+      !data.access_token.trim()
+    ) {
+      const errorMsg =
+        (data && (data.message || data.msg || data.error)) ||
+        "登录认证失败：服务端未返回有效授权令牌 (access_token)";
+      throw new ApiError(errorMsg, 401, data?.code || "NO_TOKEN", data);
     }
 
     saveStoredToken(data.access_token);
@@ -116,7 +124,7 @@ export const authApi = {
    * Authorization: Bearer <access_token>
    */
   async getMe(): Promise<CorporationIdentity> {
-    const res = await http.get<any>('/v1/auth/me');
+    const res = await http.get<any>("/v1/auth/me");
     return (res?.data !== undefined ? res.data : res) as CorporationIdentity;
   },
 
@@ -127,7 +135,7 @@ export const authApi = {
    */
   async logout(): Promise<{ success: boolean; message?: string }> {
     try {
-      const res = await http.post<any>('/v1/auth/logout');
+      const res = await http.post<any>("/v1/auth/logout");
       return res?.data !== undefined ? res.data : res;
     } finally {
       removeStoredToken();
@@ -140,11 +148,28 @@ export const authApi = {
    * Authorization: Bearer <access_token>
    * 接口仅返回 ems_customers.service_account_id 等于当前公司账号 ID 的租户，默认 20 条，最大 100 条
    */
+  async getMenus(): Promise<
+    Array<{
+      id: number;
+      parent_id?: number | null;
+      code: string;
+      name: string;
+      icon?: string;
+      type?: string;
+      route_path: string;
+      sort_order?: number;
+    }>
+  > {
+    const res = await http.get<any>("/v1/menus");
+    const data = res?.data !== undefined ? res.data : res;
+    return Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
+  },
+
   async getTenants(page: number = 1, size: number = 20): Promise<CorporationTenantListResult> {
     const clampedSize = Math.min(Math.max(size, 1), 100);
-    const res = await http.get<any>('/v1/corporation/tenants', {
+    const res = await http.get<any>("/v1/corporation/tenants", {
       page,
-      size: clampedSize
+      size: clampedSize,
     });
     return (res?.data !== undefined ? res.data : res) as CorporationTenantListResult;
   },
@@ -155,5 +180,5 @@ export const authApi = {
   hasValidToken(): boolean {
     const token = getStoredToken();
     return !!token && token.trim().length > 0;
-  }
+  },
 };

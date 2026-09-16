@@ -1,6 +1,11 @@
-export type ExpressStatus = 'pending' | 'in_transit' | 'delivering' | 'delivered' | 'exception';
+export type ExpressStatus = "pending" | "in_transit" | "delivering" | "delivered" | "exception";
 
-export type VIPLevel = 'normal' | 'vip_government' | 'vip_enterprise' | 'vip_confidential' | 'vip_fresh';
+export type VIPLevel =
+  | "normal"
+  | "vip_government"
+  | "vip_enterprise"
+  | "vip_confidential"
+  | "vip_fresh";
 
 export interface LogisticsNode {
   id: string;
@@ -12,7 +17,7 @@ export interface LogisticsNode {
   operator?: string;
   phone?: string;
   vehicleNo?: string;
-  facilityType?: 'hub' | 'airport' | 'branch' | 'courier' | 'locker' | 'recipient';
+  facilityType?: "hub" | "airport" | "branch" | "courier" | "locker" | "recipient";
 }
 
 export interface CourierInfo {
@@ -29,7 +34,7 @@ export interface ElectronicPOD {
   signeeName: string;
   signeePhoneMasked: string;
   signTime: string;
-  signType: '本人签收' | '前台代签' | '家人代收' | '智能快递柜签收' | '单位收发室';
+  signType: "本人签收" | "前台代签" | "家人代收" | "智能快递柜签收" | "单位收发室";
   signatureImageUrl?: string;
   receiptNumber: string;
   courierWorkId: string;
@@ -63,9 +68,9 @@ export interface NotificationLog {
   title: string;
   message: string;
   time: string;
-  channel: 'SMS' | 'WECHAT' | 'BROWSER' | 'VOICE';
-  status: 'sent' | 'delivered' | 'read';
-  eventType: 'outForDelivery' | 'approaching' | 'delivered' | 'exception' | 'lockerDeposit';
+  channel: "SMS" | "WECHAT" | "BROWSER" | "VOICE";
+  status: "sent" | "delivered" | "read";
+  eventType: "outForDelivery" | "approaching" | "delivered" | "exception" | "lockerDeposit";
 }
 
 export interface ExpressPackage {
@@ -73,7 +78,12 @@ export interface ExpressPackage {
   trackingNumber: string;
   vipLevel: VIPLevel;
   vipLabel: string;
-  serviceType: '特快专递(EMS)' | '极速鲜冷链' | '重点政务公文' | '高价值保价速递' | '考录录取通知书';
+  serviceType:
+    | "特快专递(EMS)"
+    | "极速鲜冷链"
+    | "重点政务公文"
+    | "高价值保价速递"
+    | "考录录取通知书";
   itemName: string;
   itemWeight: string;
   declaredValue?: number;
@@ -118,5 +128,3 @@ export interface UserInfo {
   companyName?: string;
   tenants?: any[];
 }
-
-

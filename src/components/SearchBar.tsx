@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { 
-  Search, 
-  Layers, 
-  RotateCcw, 
-  Sparkles, 
-  CheckCheck, 
-  PhoneCall, 
+import React, { useState } from "react";
+import {
+  Search,
+  Layers,
+  RotateCcw,
+  Sparkles,
+  CheckCheck,
+  PhoneCall,
   X,
-  FileText
-} from 'lucide-react';
+  FileText,
+} from "lucide-react";
 
 interface SearchBarProps {
   searchQuery: string;
@@ -27,14 +27,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onPhoneChange,
   onReset,
   onSelectSample,
-  onOpenBatchModal
+  onOpenBatchModal,
 }) => {
   const quickSamples = [
-    { label: '机要政务公文', number: 'EA982345671CN' },
-    { label: '北大录取通知书', number: '1198034789123' },
-    { label: '阳澄湖大闸蟹极速鲜', number: 'EA671829034CN' },
-    { label: '华为5万保价件', number: '9871029384501' },
-    { label: '生物冷链异常预警', number: 'EA551209847CN' }
+    { label: "机要政务公文", number: "EA982345671CN" },
+    { label: "北大录取通知书", number: "1198034789123" },
+    { label: "阳澄湖大闸蟹极速鲜", number: "EA671829034CN" },
+    { label: "华为5万保价件", number: "9871029384501" },
+    { label: "生物冷链异常预警", number: "EA551209847CN" },
   ];
 
   return (
@@ -56,7 +56,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           {searchQuery && (
             <button
               type="button"
-              onClick={() => onSearchChange('')}
+              onClick={() => onSearchChange("")}
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600"
             >
               <X className="w-4 h-4" />
@@ -73,14 +73,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             type="text"
             maxLength={4}
             value={phoneQuery}
-            onChange={(e) => onPhoneChange(e.target.value.replace(/\D/g, ''))}
+            onChange={(e) => onPhoneChange(e.target.value.replace(/\D/g, ""))}
             placeholder="收件人手机尾号4位"
             className="w-full pl-9 pr-3 py-2.5 text-sm bg-stone-50/70 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00703C] focus:bg-white text-stone-800 placeholder-stone-400 font-mono"
           />
           {phoneQuery && (
             <button
               type="button"
-              onClick={() => onPhoneChange('')}
+              onClick={() => onPhoneChange("")}
               className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-stone-400 hover:text-stone-600"
             >
               <X className="w-3.5 h-3.5" />
@@ -126,7 +126,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             className="px-2.5 py-1 rounded-lg bg-emerald-50/80 hover:bg-emerald-100 text-[#00703C] border border-emerald-200/70 transition-colors font-medium text-[11px] flex items-center gap-1"
           >
             <span>{sample.label}</span>
-            <span className="text-emerald-800/60 font-mono text-[10px]">({sample.number.slice(0, 5)}...)</span>
+            <span className="text-emerald-800/60 font-mono text-[10px]">
+              ({sample.number.slice(0, 5)}...)
+            </span>
           </button>
         ))}
       </div>

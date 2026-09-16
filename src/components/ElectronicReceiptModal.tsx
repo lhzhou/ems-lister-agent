@@ -1,16 +1,16 @@
-import React, { useRef } from 'react';
-import { 
-  X, 
-  Printer, 
-  Download, 
-  ShieldCheck, 
-  CheckCircle2, 
+import React, { useRef } from "react";
+import {
+  X,
+  Printer,
+  Download,
+  ShieldCheck,
+  CheckCircle2,
   Stamp,
   Award,
   Calendar,
-  Building
-} from 'lucide-react';
-import { ExpressPackage } from '../types/express';
+  Building,
+} from "lucide-react";
+import { ExpressPackage } from "../types/express";
 
 interface ElectronicReceiptModalProps {
   pkg: ExpressPackage | null;
@@ -21,7 +21,7 @@ interface ElectronicReceiptModalProps {
 export const ElectronicReceiptModal: React.FC<ElectronicReceiptModalProps> = ({
   pkg,
   isOpen,
-  onClose
+  onClose,
 }) => {
   const receiptRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +63,7 @@ export const ElectronicReceiptModal: React.FC<ElectronicReceiptModalProps> = ({
 
         {/* Certificate Paper Sheet */}
         <div className="p-6 overflow-y-auto bg-stone-100 flex justify-center">
-          <div 
+          <div
             ref={receiptRef}
             className="w-full max-w-xl bg-[#fffdfa] border-2 border-stone-400/80 rounded-xl p-6 sm:p-8 shadow-md relative overflow-hidden text-stone-800"
           >
@@ -108,19 +108,27 @@ export const ElectronicReceiptModal: React.FC<ElectronicReceiptModalProps> = ({
             <div className="grid grid-cols-2 gap-4 text-xs border border-stone-200 rounded-lg p-3.5 bg-stone-50/60 mb-5">
               <div>
                 <span className="text-stone-400 block text-[11px]">重点服务类型</span>
-                <span className="font-bold text-stone-800">{pkg.serviceType} ({pkg.vipLabel})</span>
+                <span className="font-bold text-stone-800">
+                  {pkg.serviceType} ({pkg.vipLabel})
+                </span>
               </div>
               <div>
                 <span className="text-stone-400 block text-[11px]">物品名称及重量</span>
-                <span className="font-bold text-stone-800">{pkg.itemName} / {pkg.itemWeight}</span>
+                <span className="font-bold text-stone-800">
+                  {pkg.itemName} / {pkg.itemWeight}
+                </span>
               </div>
               <div>
                 <span className="text-stone-400 block text-[11px]">寄件方信息</span>
-                <span className="text-stone-800 font-medium">{pkg.origin.city} · {pkg.origin.sender}</span>
+                <span className="text-stone-800 font-medium">
+                  {pkg.origin.city} · {pkg.origin.sender}
+                </span>
               </div>
               <div>
                 <span className="text-stone-400 block text-[11px]">收件方与地址</span>
-                <span className="text-stone-800 font-medium">{pkg.destination.city} · {pkg.destination.address}</span>
+                <span className="text-stone-800 font-medium">
+                  {pkg.destination.city} · {pkg.destination.address}
+                </span>
               </div>
             </div>
 
@@ -142,9 +150,15 @@ export const ElectronicReceiptModal: React.FC<ElectronicReceiptModalProps> = ({
                     </span>
                   </div>
                   <div className="mt-2 text-[11px] text-stone-500 space-y-0.5">
-                    <div>签收模式：<strong>{pod.signType}</strong></div>
-                    <div>验证手机：<strong>{pod.signeePhoneMasked}</strong></div>
-                    <div>签收时间：<strong className="font-mono">{pod.signTime}</strong></div>
+                    <div>
+                      签收模式：<strong>{pod.signType}</strong>
+                    </div>
+                    <div>
+                      验证手机：<strong>{pod.signeePhoneMasked}</strong>
+                    </div>
+                    <div>
+                      签收时间：<strong className="font-mono">{pod.signTime}</strong>
+                    </div>
                   </div>
                 </div>
 
@@ -155,11 +169,13 @@ export const ElectronicReceiptModal: React.FC<ElectronicReceiptModalProps> = ({
                       投递员经办与工号:
                     </span>
                     <div className="text-xs text-stone-800 space-y-1">
-                      <p>投递员：<strong>{pod.courierName}</strong></p>
-                      <p className="font-mono">工号：<strong>{pod.courierWorkId}</strong></p>
-                      <p className="text-[11px] text-emerald-800">
-                        ✓ 已核验证件与包装封签完好
+                      <p>
+                        投递员：<strong>{pod.courierName}</strong>
                       </p>
+                      <p className="font-mono">
+                        工号：<strong>{pod.courierWorkId}</strong>
+                      </p>
+                      <p className="text-[11px] text-emerald-800">✓ 已核验证件与包装封签完好</p>
                     </div>
                   </div>
 

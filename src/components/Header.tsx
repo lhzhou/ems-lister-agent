@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Bell, 
-  Volume2, 
-  VolumeX, 
-  PlusCircle, 
-  ShieldCheck, 
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Bell,
+  Volume2,
+  VolumeX,
+  PlusCircle,
+  ShieldCheck,
   Sparkles,
   Truck,
   Menu,
@@ -12,11 +12,11 @@ import {
   User,
   LogOut,
   ChevronDown,
-  Shield
-} from 'lucide-react';
-import { isAudioEnabled, setAudioEnabled } from '../utils/storage';
-import { playNotificationChime } from '../utils/sound';
-import { UserInfo } from '../types/express';
+  Shield,
+} from "lucide-react";
+import { isAudioEnabled, setAudioEnabled } from "../utils/storage";
+import { playNotificationChime } from "../utils/sound";
+import { UserInfo } from "../types/express";
 
 interface HeaderProps {
   unreadCount: number;
@@ -37,9 +37,9 @@ export const Header: React.FC<HeaderProps> = ({
   setAudioOn,
   onToggleSidebar,
   currentUser,
-  onLogout
+  onLogout,
 }) => {
-  const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentTime, setCurrentTime] = useState<string>("");
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -50,21 +50,21 @@ export const Header: React.FC<HeaderProps> = ({
         setUserMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const str = now.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
+      const str = now.toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
       });
       setCurrentTime(str);
     };
@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
     setAudioOn(next);
     setAudioEnabled(next);
     if (next) {
-      playNotificationChime('info');
+      playNotificationChime("info");
     }
   };
 
@@ -132,13 +132,17 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={toggleAudio}
             title={audioOn ? "点击静音提醒声音" : "点击开启签收提示音"}
             className={`p-2 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
-              audioOn 
-                ? 'bg-emerald-800/60 border-emerald-600/50 text-white hover:bg-emerald-700/60' 
-                : 'bg-stone-800/40 border-stone-600/40 text-stone-300 hover:bg-stone-800/70'
+              audioOn
+                ? "bg-emerald-800/60 border-emerald-600/50 text-white hover:bg-emerald-700/60"
+                : "bg-stone-800/40 border-stone-600/40 text-stone-300 hover:bg-stone-800/70"
             }`}
           >
-            {audioOn ? <Volume2 className="w-4 h-4 text-[#F9B200]" /> : <VolumeX className="w-4 h-4 text-stone-400" />}
-            <span className="hidden md:inline text-xs">{audioOn ? '提醒音开' : '静音'}</span>
+            {audioOn ? (
+              <Volume2 className="w-4 h-4 text-[#F9B200]" />
+            ) : (
+              <VolumeX className="w-4 h-4 text-stone-400" />
+            )}
+            <span className="hidden md:inline text-xs">{audioOn ? "提醒音开" : "静音"}</span>
           </button>
 
           {/* Notification Center Trigger */}
@@ -173,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative" ref={userMenuRef}>
               <button
                 type="button"
-                onClick={() => setUserMenuOpen(prev => !prev)}
+                onClick={() => setUserMenuOpen((prev) => !prev)}
                 className="flex items-center gap-2 pl-2 pr-2.5 py-1.5 rounded-lg bg-emerald-800/60 border border-emerald-600/50 hover:bg-emerald-700/60 text-white transition-all text-xs"
                 title="用户信息与账户操作"
               >
@@ -190,9 +194,13 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
                 <div className="hidden sm:flex flex-col text-left">
                   <span className="font-bold text-xs leading-tight">{currentUser.name}</span>
-                  <span className="text-[10px] text-emerald-200/90 leading-tight">{currentUser.role}</span>
+                  <span className="text-[10px] text-emerald-200/90 leading-tight">
+                    {currentUser.role}
+                  </span>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-emerald-200 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-emerald-200 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               {/* Popover Dropdown Menu */}
@@ -212,19 +220,26 @@ export const Header: React.FC<HeaderProps> = ({
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm text-stone-900 truncate">{currentUser.name}</span>
+                        <span className="font-bold text-sm text-stone-900 truncate">
+                          {currentUser.name}
+                        </span>
                         <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
                           {currentUser.role}
                         </span>
                       </div>
-                      <p className="text-[11px] text-stone-500 font-mono mt-0.5">工号: {currentUser.empId}</p>
+                      <p className="text-[11px] text-stone-500 font-mono mt-0.5">
+                        工号: {currentUser.empId}
+                      </p>
                     </div>
                   </div>
 
                   <div className="py-2.5 space-y-1.5 text-xs text-stone-600 border-b border-stone-100">
                     <div className="flex justify-between">
                       <span className="text-stone-400">所属部门:</span>
-                      <span className="font-medium text-stone-800 text-right truncate max-w-[140px]" title={currentUser.department}>
+                      <span
+                        className="font-medium text-stone-800 text-right truncate max-w-[140px]"
+                        title={currentUser.department}
+                      >
                         {currentUser.department}
                       </span>
                     </div>
@@ -237,7 +252,9 @@ export const Header: React.FC<HeaderProps> = ({
                     {currentUser.lastLoginTime && (
                       <div className="flex justify-between">
                         <span className="text-stone-400">本次登录:</span>
-                        <span className="font-mono text-[11px] text-stone-500">{currentUser.lastLoginTime}</span>
+                        <span className="font-mono text-[11px] text-stone-500">
+                          {currentUser.lastLoginTime}
+                        </span>
                       </div>
                     )}
                     <div className="flex justify-between items-center pt-1 border-t border-stone-100/70">
@@ -245,12 +262,16 @@ export const Header: React.FC<HeaderProps> = ({
                         <Shield className="w-3 h-3 text-[#00703C]" />
                         <span>授权凭证:</span>
                       </span>
-                      <span className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded font-mono font-medium" title={currentUser.token || '已颁发长期令牌'}>
-                        {currentUser.token ? `${currentUser.token.slice(0, 10)}...${currentUser.token.slice(-4)}` : '长期有效'}
+                      <span
+                        className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded font-mono font-medium"
+                        title={currentUser.token || "已颁发长期令牌"}
+                      >
+                        {currentUser.token
+                          ? `${currentUser.token.slice(0, 10)}...${currentUser.token.slice(-4)}`
+                          : "长期有效"}
                       </span>
                     </div>
                   </div>
-
 
                   <div className="pt-2">
                     <button

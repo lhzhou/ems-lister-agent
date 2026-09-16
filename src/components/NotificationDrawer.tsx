@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { 
-  X, 
-  Bell, 
-  Trash2, 
-  CheckCheck, 
-  MessageSquare, 
-  Smartphone, 
-  Laptop, 
-  Clock, 
+import React, { useState } from "react";
+import {
+  X,
+  Bell,
+  Trash2,
+  CheckCheck,
+  MessageSquare,
+  Smartphone,
+  Laptop,
+  Clock,
   Filter,
   CheckCircle2,
   AlertTriangle,
-  Send
-} from 'lucide-react';
-import { NotificationLog } from '../types/express';
+  Send,
+} from "lucide-react";
+import { NotificationLog } from "../types/express";
 
 interface NotificationDrawerProps {
   isOpen: boolean;
@@ -28,31 +28,32 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   onClose,
   notifications,
   onClearAll,
-  onSelectPackageByTracking
+  onSelectPackageByTracking,
 }) => {
-  const [channelFilter, setChannelFilter] = useState<'ALL' | 'SMS' | 'WECHAT' | 'BROWSER'>('ALL');
+  const [channelFilter, setChannelFilter] = useState<"ALL" | "SMS" | "WECHAT" | "BROWSER">("ALL");
 
   if (!isOpen) return null;
 
-  const filtered = channelFilter === 'ALL' 
-    ? notifications 
-    : notifications.filter(n => n.channel === channelFilter);
+  const filtered =
+    channelFilter === "ALL"
+      ? notifications
+      : notifications.filter((n) => n.channel === channelFilter);
 
-  const getChannelBadge = (channel: NotificationLog['channel']) => {
+  const getChannelBadge = (channel: NotificationLog["channel"]) => {
     switch (channel) {
-      case 'SMS':
+      case "SMS":
         return (
           <span className="inline-flex items-center gap-1 text-[10px] bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded font-medium">
             <Smartphone className="w-3 h-3" /> 手机短信
           </span>
         );
-      case 'WECHAT':
+      case "WECHAT":
         return (
           <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-medium">
             <MessageSquare className="w-3 h-3" /> 微信通知
           </span>
         );
-      case 'BROWSER':
+      case "BROWSER":
         return (
           <span className="inline-flex items-center gap-1 text-[10px] bg-purple-50 text-purple-700 border border-purple-200 px-1.5 py-0.5 rounded font-medium">
             <Laptop className="w-3 h-3" /> 桌面推送
@@ -63,11 +64,11 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     }
   };
 
-  const getEventIcon = (type: NotificationLog['eventType']) => {
+  const getEventIcon = (type: NotificationLog["eventType"]) => {
     switch (type) {
-      case 'delivered':
+      case "delivered":
         return <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />;
-      case 'exception':
+      case "exception":
         return <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />;
       default:
         return <Bell className="w-4 h-4 text-[#00703C] flex-shrink-0" />;
@@ -83,7 +84,9 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
             <Bell className="w-5 h-5 text-[#F9B200]" />
             <div>
               <h3 className="font-bold text-sm">签收提醒与预警记录中心</h3>
-              <p className="text-[11px] text-emerald-100/80">已触发 {notifications.length} 条通知记录</p>
+              <p className="text-[11px] text-emerald-100/80">
+                已触发 {notifications.length} 条通知记录
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -112,18 +115,18 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         <div className="px-4 py-2 bg-stone-50 border-b border-stone-200 flex items-center justify-between text-xs">
           <span className="text-stone-500 font-medium">通知渠道筛选:</span>
           <div className="flex gap-1">
-            {(['ALL', 'SMS', 'WECHAT', 'BROWSER'] as const).map((ch) => (
+            {(["ALL", "SMS", "WECHAT", "BROWSER"] as const).map((ch) => (
               <button
                 key={ch}
                 type="button"
                 onClick={() => setChannelFilter(ch)}
                 className={`px-2 py-1 rounded text-xs transition-colors ${
                   channelFilter === ch
-                    ? 'bg-[#00703C] text-white font-semibold'
-                    : 'text-stone-600 hover:bg-stone-200'
+                    ? "bg-[#00703C] text-white font-semibold"
+                    : "text-stone-600 hover:bg-stone-200"
                 }`}
               >
-                {ch === 'ALL' ? '全部' : ch === 'SMS' ? '短信' : ch === 'WECHAT' ? '微信' : '推送'}
+                {ch === "ALL" ? "全部" : ch === "SMS" ? "短信" : ch === "WECHAT" ? "微信" : "推送"}
               </button>
             ))}
           </div>
@@ -148,9 +151,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-1.5">
                     {getEventIcon(item.eventType)}
-                    <span className="font-bold text-xs text-stone-800">
-                      {item.title}
-                    </span>
+                    <span className="font-bold text-xs text-stone-800">{item.title}</span>
                   </div>
                   {getChannelBadge(item.channel)}
                 </div>

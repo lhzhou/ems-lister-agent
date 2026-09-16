@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { 
-  Copy, 
-  Check, 
-  MapPin, 
-  ArrowRight, 
-  Clock, 
-  BellRing, 
-  FileCheck, 
-  ShieldAlert, 
+import React, { useState } from "react";
+import {
+  Copy,
+  Check,
+  MapPin,
+  ArrowRight,
+  Clock,
+  BellRing,
+  FileCheck,
+  ShieldAlert,
   ChevronRight,
   Send,
   Sparkles,
   Smartphone,
   MessageSquare,
-  ExternalLink
-} from 'lucide-react';
-import { ExpressPackage, VIPLevel } from '../types/express';
+  ExternalLink,
+} from "lucide-react";
+import { ExpressPackage, VIPLevel } from "../types/express";
 
 interface PackageListProps {
   packages: ExpressPackage[];
@@ -32,7 +32,7 @@ export const PackageList: React.FC<PackageListProps> = ({
   onSelect,
   onOpenReminderModal,
   onOpenPODModal,
-  onOpenInNewTab
+  onOpenInNewTab,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -45,25 +45,25 @@ export const PackageList: React.FC<PackageListProps> = ({
 
   const getVIPBadge = (level: VIPLevel, label: string) => {
     switch (level) {
-      case 'vip_confidential':
+      case "vip_confidential":
         return (
           <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 border border-purple-200 px-2 py-0.5 rounded text-[11px] font-semibold">
             <Sparkles className="w-3 h-3 text-purple-600" /> {label}
           </span>
         );
-      case 'vip_government':
+      case "vip_government":
         return (
           <span className="inline-flex items-center gap-1 bg-red-100 text-red-800 border border-red-200 px-2 py-0.5 rounded text-[11px] font-semibold">
             ★ {label}
           </span>
         );
-      case 'vip_fresh':
+      case "vip_fresh":
         return (
           <span className="inline-flex items-center gap-1 bg-cyan-100 text-cyan-900 border border-cyan-200 px-2 py-0.5 rounded text-[11px] font-semibold">
             ❄ {label}
           </span>
         );
-      case 'vip_enterprise':
+      case "vip_enterprise":
         return (
           <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold">
             💎 {label}
@@ -78,30 +78,30 @@ export const PackageList: React.FC<PackageListProps> = ({
     }
   };
 
-  const getStatusBadge = (status: ExpressPackage['status']) => {
+  const getStatusBadge = (status: ExpressPackage["status"]) => {
     switch (status) {
-      case 'delivering':
+      case "delivering":
         return (
           <span className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
             派送中
           </span>
         );
-      case 'in_transit':
+      case "in_transit":
         return (
           <span className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-full text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
             运输中
           </span>
         );
-      case 'delivered':
+      case "delivered":
         return (
           <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full text-xs font-semibold">
             <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
             已妥投签收
           </span>
         );
-      case 'exception':
+      case "exception":
         return (
           <span className="inline-flex items-center gap-1.5 bg-rose-100 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-full text-xs font-semibold">
             <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
@@ -134,16 +134,19 @@ export const PackageList: React.FC<PackageListProps> = ({
       {packages.map((pkg) => {
         const isSelected = selectedId === pkg.id;
         const latestNode = pkg.nodes[0];
-        const hasReminders = pkg.reminderConfig.enableSMS || pkg.reminderConfig.enableWeChat || pkg.reminderConfig.enableBrowserPush;
+        const hasReminders =
+          pkg.reminderConfig.enableSMS ||
+          pkg.reminderConfig.enableWeChat ||
+          pkg.reminderConfig.enableBrowserPush;
 
         return (
           <div
             key={pkg.id}
             onClick={() => onSelect(pkg)}
             className={`bg-white rounded-xl border transition-all duration-200 cursor-pointer overflow-hidden relative ${
-              isSelected 
-                ? 'border-[#00703C] ring-2 ring-[#00703C]/20 shadow-md bg-emerald-50/20' 
-                : 'border-stone-200/90 hover:border-stone-300 hover:shadow-sm'
+              isSelected
+                ? "border-[#00703C] ring-2 ring-[#00703C]/20 shadow-md bg-emerald-50/20"
+                : "border-stone-200/90 hover:border-stone-300 hover:shadow-sm"
             }`}
           >
             {/* VIP Header Ribbon */}
@@ -189,9 +192,7 @@ export const PackageList: React.FC<PackageListProps> = ({
                     <span className="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
                     <span>寄件地</span>
                   </div>
-                  <h4 className="text-base font-bold text-stone-900 truncate">
-                    {pkg.origin.city}
-                  </h4>
+                  <h4 className="text-base font-bold text-stone-900 truncate">{pkg.origin.city}</h4>
                   <p className="text-xs text-stone-500 truncate">{pkg.origin.sender}</p>
                 </div>
 
@@ -239,7 +240,8 @@ export const PackageList: React.FC<PackageListProps> = ({
                 <div className="mt-2.5 p-2.5 rounded-lg bg-stone-50 border border-stone-200/70 text-xs">
                   <div className="flex items-center justify-between text-stone-500 text-[11px] mb-1">
                     <span className="font-semibold text-emerald-800 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-emerald-600" /> 最新动态: {latestNode.title}
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600" /> 最新动态:{" "}
+                      {latestNode.title}
                     </span>
                     <span className="font-mono text-stone-400">{latestNode.time}</span>
                   </div>
@@ -254,7 +256,10 @@ export const PackageList: React.FC<PackageListProps> = ({
                 <div className="flex items-center gap-1.5 text-xs text-stone-500">
                   <Clock className="w-3.5 h-3.5 text-stone-400" />
                   <span>
-                    预计送达: <strong className="text-stone-800 font-mono">{pkg.estimatedDeliveryTime}</strong>
+                    预计送达:{" "}
+                    <strong className="text-stone-800 font-mono">
+                      {pkg.estimatedDeliveryTime}
+                    </strong>
                   </span>
                 </div>
 
@@ -270,7 +275,7 @@ export const PackageList: React.FC<PackageListProps> = ({
                   </button>
 
                   {/* ePOD electronic receipt button if delivered */}
-                  {pkg.status === 'delivered' && pkg.pod && (
+                  {pkg.status === "delivered" && pkg.pod && (
                     <button
                       type="button"
                       onClick={() => onOpenPODModal(pkg)}
@@ -299,12 +304,12 @@ export const PackageList: React.FC<PackageListProps> = ({
                     type="button"
                     onClick={() => onSelect(pkg)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors ${
-                      isSelected 
-                        ? 'bg-[#00703C] text-white' 
-                        : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
+                      isSelected
+                        ? "bg-[#00703C] text-white"
+                        : "bg-stone-100 hover:bg-stone-200 text-stone-700"
                     }`}
                   >
-                    <span>{isSelected ? '正在查看' : '查看轨迹'}</span>
+                    <span>{isSelected ? "正在查看" : "查看轨迹"}</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

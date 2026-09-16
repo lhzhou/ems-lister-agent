@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, Layers, Search, Check, AlertCircle } from 'lucide-react';
-import { ExpressPackage } from '../types/express';
+import React, { useState } from "react";
+import { X, Layers, Search, Check, AlertCircle } from "lucide-react";
+import { ExpressPackage } from "../types/express";
 
 interface BatchQueryModalProps {
   isOpen: boolean;
@@ -13,14 +13,14 @@ export const BatchQueryModal: React.FC<BatchQueryModalProps> = ({
   isOpen,
   onClose,
   onSearchBatch,
-  availablePackages
+  availablePackages,
 }) => {
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
 
   if (!isOpen) return null;
 
   const handleFillAllExisting = () => {
-    const numbers = availablePackages.map(p => p.trackingNumber).join('\n');
+    const numbers = availablePackages.map((p) => p.trackingNumber).join("\n");
     setInputText(numbers);
   };
 
@@ -28,8 +28,8 @@ export const BatchQueryModal: React.FC<BatchQueryModalProps> = ({
     e.preventDefault();
     const list = inputText
       .split(/[\n,，\s]+/)
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
     onSearchBatch(list);
     onClose();
   };

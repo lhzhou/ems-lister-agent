@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
-import { 
-  BellRing, 
-  MessageSquare, 
-  Smartphone, 
-  Send, 
-  CheckCircle2, 
-  Clock, 
-  ShieldCheck, 
-  AlertTriangle, 
-  PhoneCall, 
-  Volume2, 
-  Filter, 
+import React, { useState } from "react";
+import {
+  BellRing,
+  MessageSquare,
+  Smartphone,
+  Send,
+  CheckCircle2,
+  Clock,
+  ShieldCheck,
+  AlertTriangle,
+  PhoneCall,
+  Volume2,
+  Filter,
   RotateCcw,
   Sparkles,
-  ExternalLink
-} from 'lucide-react';
-import { ExpressPackage, NotificationLog, ReminderConfig } from '../types/express';
+  ExternalLink,
+} from "lucide-react";
+import { ExpressPackage, NotificationLog, ReminderConfig } from "../types/express";
 
 interface ReminderCenterViewProps {
   packages: ExpressPackage[];
   notifications: NotificationLog[];
   onSaveReminderConfig: (pkgId: string, config: ReminderConfig) => void;
-  onSendTestReminder: (pkg: ExpressPackage, channel: 'SMS' | 'WECHAT' | 'BROWSER') => void;
+  onSendTestReminder: (pkg: ExpressPackage, channel: "SMS" | "WECHAT" | "BROWSER") => void;
   onSelectPackage: (pkgId: string) => void;
   onClearNotifications: () => void;
 }
@@ -32,9 +32,9 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
   onSaveReminderConfig,
   onSendTestReminder,
   onSelectPackage,
-  onClearNotifications
+  onClearNotifications,
 }) => {
-  const [selectedChannelFilter, setSelectedChannelFilter] = useState<string>('ALL');
+  const [selectedChannelFilter, setSelectedChannelFilter] = useState<string>("ALL");
   const [successToast, setSuccessToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -42,20 +42,30 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
     setTimeout(() => setSuccessToast(null), 3000);
   };
 
-  const handleToggleChannel = (pkg: ExpressPackage, channel: 'SMS' | 'WECHAT' | 'BROWSER' | 'VOICE') => {
+  const handleToggleChannel = (
+    pkg: ExpressPackage,
+    channel: "SMS" | "WECHAT" | "BROWSER" | "VOICE",
+  ) => {
     const updatedConfig: ReminderConfig = {
       ...pkg.reminderConfig,
-      enableSMS: channel === 'SMS' ? !pkg.reminderConfig.enableSMS : pkg.reminderConfig.enableSMS,
-      enableWeChat: channel === 'WECHAT' ? !pkg.reminderConfig.enableWeChat : pkg.reminderConfig.enableWeChat,
-      enableBrowserPush: channel === 'BROWSER' ? !pkg.reminderConfig.enableBrowserPush : pkg.reminderConfig.enableBrowserPush,
-      enableVoiceCall: channel === 'VOICE' ? !pkg.reminderConfig.enableVoiceCall : pkg.reminderConfig.enableVoiceCall,
+      enableSMS: channel === "SMS" ? !pkg.reminderConfig.enableSMS : pkg.reminderConfig.enableSMS,
+      enableWeChat:
+        channel === "WECHAT" ? !pkg.reminderConfig.enableWeChat : pkg.reminderConfig.enableWeChat,
+      enableBrowserPush:
+        channel === "BROWSER"
+          ? !pkg.reminderConfig.enableBrowserPush
+          : pkg.reminderConfig.enableBrowserPush,
+      enableVoiceCall:
+        channel === "VOICE"
+          ? !pkg.reminderConfig.enableVoiceCall
+          : pkg.reminderConfig.enableVoiceCall,
     };
     onSaveReminderConfig(pkg.id, updatedConfig);
     showToast(`已更新【${pkg.trackingNumber}】的提醒通道配置`);
   };
 
-  const filteredLogs = notifications.filter(n => {
-    if (selectedChannelFilter === 'ALL') return true;
+  const filteredLogs = notifications.filter((n) => {
+    if (selectedChannelFilter === "ALL") return true;
     return n.channel === selectedChannelFilter;
   });
 
@@ -81,7 +91,8 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
             全渠道快件流转与妥投签收提醒中心
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
-            支持 106 官方短信通道、微信模板消息、桌面浮窗与 11183 智能语音外呼。在快件派送、临近到达、本人签收或遇到航路异常时自动触发秒级触达。
+            支持 106 官方短信通道、微信模板消息、桌面浮窗与 11183
+            智能语音外呼。在快件派送、临近到达、本人签收或遇到航路异常时自动触发秒级触达。
           </p>
         </div>
       </div>
@@ -176,7 +187,7 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {packages.map(pkg => (
+              {packages.map((pkg) => (
                 <tr key={pkg.id} className="hover:bg-stone-50/80 transition-colors">
                   {/* Package info */}
                   <td className="p-3.5 pl-5">
@@ -189,7 +200,9 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                         <span>{pkg.trackingNumber}</span>
                         <ExternalLink className="w-3 h-3 text-stone-400" />
                       </div>
-                      <div className="text-[11px] text-stone-600 mt-0.5 font-medium">{pkg.itemName}</div>
+                      <div className="text-[11px] text-stone-600 mt-0.5 font-medium">
+                        {pkg.itemName}
+                      </div>
                       <div className="text-[10px] text-stone-400">{pkg.serviceType}</div>
                     </button>
                   </td>
@@ -197,21 +210,27 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                   {/* Recipient */}
                   <td className="p-3.5">
                     <div className="font-medium text-stone-800">{pkg.destination.recipient}</div>
-                    <div className="font-mono text-stone-500 text-[11px] mt-0.5">{pkg.destination.phoneMasked}</div>
-                    <div className="text-[10px] text-stone-400 truncate max-w-[140px]">{pkg.destination.city}</div>
+                    <div className="font-mono text-stone-500 text-[11px] mt-0.5">
+                      {pkg.destination.phoneMasked}
+                    </div>
+                    <div className="text-[10px] text-stone-400 truncate max-w-[140px]">
+                      {pkg.destination.city}
+                    </div>
                   </td>
 
                   {/* Status */}
                   <td className="p-3.5">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                      pkg.status === 'delivered' 
-                        ? 'bg-emerald-100 text-emerald-800' 
-                        : pkg.status === 'delivering'
-                        ? 'bg-amber-100 text-amber-800'
-                        : pkg.status === 'exception'
-                        ? 'bg-rose-100 text-rose-800'
-                        : 'bg-blue-100 text-blue-800'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                        pkg.status === "delivered"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : pkg.status === "delivering"
+                            ? "bg-amber-100 text-amber-800"
+                            : pkg.status === "exception"
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-blue-100 text-blue-800"
+                      }`}
+                    >
                       {pkg.statusText}
                     </span>
                   </td>
@@ -220,14 +239,14 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                   <td className="p-3.5 text-center">
                     <button
                       type="button"
-                      onClick={() => handleToggleChannel(pkg, 'SMS')}
+                      onClick={() => handleToggleChannel(pkg, "SMS")}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
-                        pkg.reminderConfig.enableSMS 
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200' 
-                          : 'bg-stone-100 text-stone-400 hover:text-stone-600'
+                        pkg.reminderConfig.enableSMS
+                          ? "bg-blue-50 text-blue-700 border border-blue-200"
+                          : "bg-stone-100 text-stone-400 hover:text-stone-600"
                       }`}
                     >
-                      {pkg.reminderConfig.enableSMS ? '✓ 已开通' : '未开启'}
+                      {pkg.reminderConfig.enableSMS ? "✓ 已开通" : "未开启"}
                     </button>
                   </td>
 
@@ -235,14 +254,14 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                   <td className="p-3.5 text-center">
                     <button
                       type="button"
-                      onClick={() => handleToggleChannel(pkg, 'WECHAT')}
+                      onClick={() => handleToggleChannel(pkg, "WECHAT")}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
-                        pkg.reminderConfig.enableWeChat 
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                          : 'bg-stone-100 text-stone-400 hover:text-stone-600'
+                        pkg.reminderConfig.enableWeChat
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-stone-100 text-stone-400 hover:text-stone-600"
                       }`}
                     >
-                      {pkg.reminderConfig.enableWeChat ? '✓ 已开通' : '未开启'}
+                      {pkg.reminderConfig.enableWeChat ? "✓ 已开通" : "未开启"}
                     </button>
                   </td>
 
@@ -250,14 +269,14 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                   <td className="p-3.5 text-center">
                     <button
                       type="button"
-                      onClick={() => handleToggleChannel(pkg, 'VOICE')}
+                      onClick={() => handleToggleChannel(pkg, "VOICE")}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
-                        pkg.reminderConfig.enableVoiceCall 
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200' 
-                          : 'bg-stone-100 text-stone-400 hover:text-stone-600'
+                        pkg.reminderConfig.enableVoiceCall
+                          ? "bg-amber-50 text-amber-700 border border-amber-200"
+                          : "bg-stone-100 text-stone-400 hover:text-stone-600"
                       }`}
                     >
-                      {pkg.reminderConfig.enableVoiceCall ? '✓ 已就绪' : '未开启'}
+                      {pkg.reminderConfig.enableVoiceCall ? "✓ 已就绪" : "未开启"}
                     </button>
                   </td>
 
@@ -267,7 +286,7 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          onSendTestReminder(pkg, 'SMS');
+                          onSendTestReminder(pkg, "SMS");
                           showToast(`已向 ${pkg.destination.phoneMasked} 触发测试短信`);
                         }}
                         className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded text-[11px] font-medium transition-colors"
@@ -278,7 +297,7 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          onSendTestReminder(pkg, 'WECHAT');
+                          onSendTestReminder(pkg, "WECHAT");
                           showToast(`已向微信模板消息通道发送测试数据`);
                         }}
                         className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded text-[11px] font-medium transition-colors"
@@ -311,18 +330,18 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
           <div className="flex items-center gap-2">
             {/* Filter buttons */}
             <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-lg text-xs">
-              {(['ALL', 'SMS', 'WECHAT', 'BROWSER'] as const).map(ch => (
+              {(["ALL", "SMS", "WECHAT", "BROWSER"] as const).map((ch) => (
                 <button
                   key={ch}
                   type="button"
                   onClick={() => setSelectedChannelFilter(ch)}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                    selectedChannelFilter === ch 
-                      ? 'bg-white text-stone-900 shadow-xs' 
-                      : 'text-stone-500 hover:text-stone-800'
+                    selectedChannelFilter === ch
+                      ? "bg-white text-stone-900 shadow-xs"
+                      : "text-stone-500 hover:text-stone-800"
                   }`}
                 >
-                  {ch === 'ALL' ? '全部' : ch}
+                  {ch === "ALL" ? "全部" : ch}
                 </button>
               ))}
             </div>
@@ -345,17 +364,26 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
           </div>
         ) : (
           <div className="divide-y divide-stone-100 max-h-96 overflow-y-auto">
-            {filteredLogs.map(log => (
-              <div key={log.id} className="p-4 hover:bg-stone-50/70 transition-colors flex items-start justify-between gap-3">
+            {filteredLogs.map((log) => (
+              <div
+                key={log.id}
+                className="p-4 hover:bg-stone-50/70 transition-colors flex items-start justify-between gap-3"
+              >
                 <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-xl flex-shrink-0 ${
-                    log.channel === 'SMS' 
-                      ? 'bg-blue-50 text-blue-600' 
-                      : log.channel === 'WECHAT' 
-                      ? 'bg-emerald-50 text-emerald-600' 
-                      : 'bg-purple-50 text-purple-600'
-                  }`}>
-                    {log.channel === 'SMS' ? <Smartphone className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                  <div
+                    className={`p-2 rounded-xl flex-shrink-0 ${
+                      log.channel === "SMS"
+                        ? "bg-blue-50 text-blue-600"
+                        : log.channel === "WECHAT"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : "bg-purple-50 text-purple-600"
+                    }`}
+                  >
+                    {log.channel === "SMS" ? (
+                      <Smartphone className="w-4 h-4" />
+                    ) : (
+                      <MessageSquare className="w-4 h-4" />
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -375,7 +403,7 @@ export const ReminderCenterView: React.FC<ReminderCenterViewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const matched = packages.find(p => p.trackingNumber === log.trackingNumber);
+                    const matched = packages.find((p) => p.trackingNumber === log.trackingNumber);
                     if (matched) onSelectPackage(matched.id);
                   }}
                   className="text-[11px] text-[#00703C] hover:underline flex-shrink-0 font-medium"

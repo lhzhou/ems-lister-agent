@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { 
-  FileCheck, 
-  Printer, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Search, 
-  ExternalLink, 
-  Clock, 
-  User, 
+import React, { useState } from "react";
+import {
+  FileCheck,
+  Printer,
+  ShieldCheck,
+  CheckCircle2,
+  Search,
+  ExternalLink,
+  Clock,
+  User,
   Calendar,
   Download,
-  Eye
-} from 'lucide-react';
-import { ExpressPackage } from '../types/express';
+  Eye,
+} from "lucide-react";
+import { ExpressPackage } from "../types/express";
 
 interface ElectronicPodViewProps {
   packages: ExpressPackage[];
@@ -23,14 +23,14 @@ interface ElectronicPodViewProps {
 export const ElectronicPodView: React.FC<ElectronicPodViewProps> = ({
   packages,
   onOpenPODModal,
-  onSelectPackage
+  onSelectPackage,
 }) => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   // Packages that have POD
-  const deliveredPackages = packages.filter(p => p.status === 'delivered' && p.pod);
+  const deliveredPackages = packages.filter((p) => p.status === "delivered" && p.pod);
 
-  const filteredList = deliveredPackages.filter(p => {
+  const filteredList = deliveredPackages.filter((p) => {
     if (!searchTerm.trim()) return true;
     const q = searchTerm.trim().toLowerCase();
     return (
@@ -73,7 +73,10 @@ export const ElectronicPodView: React.FC<ElectronicPodViewProps> = ({
         </div>
 
         <div className="flex items-center gap-3 text-xs text-stone-500 self-end sm:self-auto">
-          <span>已归档妥投回单: <strong className="text-stone-800 font-bold">{deliveredPackages.length}</strong> 份</span>
+          <span>
+            已归档妥投回单:{" "}
+            <strong className="text-stone-800 font-bold">{deliveredPackages.length}</strong> 份
+          </span>
         </div>
       </div>
 
@@ -88,11 +91,11 @@ export const ElectronicPodView: React.FC<ElectronicPodViewProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredList.map(pkg => {
+          {filteredList.map((pkg) => {
             const pod = pkg.pod!;
             return (
-              <div 
-                key={pkg.id} 
+              <div
+                key={pkg.id}
                 className="bg-white rounded-2xl border border-stone-200 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between"
               >
                 {/* Card Top / Header */}
@@ -113,7 +116,9 @@ export const ElectronicPodView: React.FC<ElectronicPodViewProps> = ({
                   <div>
                     <div className="text-[11px] text-stone-400">邮件托寄品</div>
                     <div className="text-sm font-bold text-stone-900 mt-0.5">{pkg.itemName}</div>
-                    <div className="text-[11px] text-emerald-700 font-medium">{pkg.serviceType}</div>
+                    <div className="text-[11px] text-emerald-700 font-medium">
+                      {pkg.serviceType}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200/60">
@@ -123,7 +128,9 @@ export const ElectronicPodView: React.FC<ElectronicPodViewProps> = ({
                         <User className="w-3 h-3 text-stone-500" />
                         <span>{pod.signeeName}</span>
                       </div>
-                      <div className="text-[10px] text-stone-400 font-mono mt-0.5">{pod.signeePhoneMasked}</div>
+                      <div className="text-[10px] text-stone-400 font-mono mt-0.5">
+                        {pod.signeePhoneMasked}
+                      </div>
                     </div>
                     <div>
                       <div className="text-[10px] text-stone-400">签收方式</div>

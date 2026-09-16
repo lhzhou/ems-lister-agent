@@ -1,69 +1,95 @@
-import React from 'react';
-import { 
-  BarChart3, 
-  Plane, 
-  Truck, 
-  Clock, 
-  ShieldCheck, 
-  CheckCircle2, 
-  TrendingUp, 
-  Radio, 
-  MapPin, 
+import React from "react";
+import {
+  BarChart3,
+  Plane,
+  Truck,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  TrendingUp,
+  Radio,
+  MapPin,
   Activity,
-  Wind
-} from 'lucide-react';
-import { ExpressPackage } from '../types/express';
+  Wind,
+} from "lucide-react";
+import { ExpressPackage } from "../types/express";
 
 interface LogisticsStatsViewProps {
   packages: ExpressPackage[];
 }
 
 export const LogisticsStatsView: React.FC<LogisticsStatsViewProps> = ({ packages }) => {
-  const inTransitCount = packages.filter(p => p.status === 'in_transit' || p.status === 'delivering').length;
-  const deliveredCount = packages.filter(p => p.status === 'delivered').length;
-  const exceptionCount = packages.filter(p => p.status === 'exception').length;
+  const inTransitCount = packages.filter(
+    (p) => p.status === "in_transit" || p.status === "delivering",
+  ).length;
+  const deliveredCount = packages.filter((p) => p.status === "delivered").length;
+  const exceptionCount = packages.filter((p) => p.status === "exception").length;
 
   const postalFlights = [
     {
-      flightNo: 'CF9018',
-      route: '北京大兴 (PKX) ➔ 广州白云 (CAN)',
-      aircraft: '中邮航 B757-200F 全货机',
-      altitude: '10,200 米 (巡航中)',
-      speed: '860 km/h',
-      status: 'AIRBORNE',
-      statusText: '空中巡航',
-      cargo: '华南重点机要与高保价专运包',
-      statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+      flightNo: "CF9018",
+      route: "北京大兴 (PKX) ➔ 广州白云 (CAN)",
+      aircraft: "中邮航 B757-200F 全货机",
+      altitude: "10,200 米 (巡航中)",
+      speed: "860 km/h",
+      status: "AIRBORNE",
+      statusText: "空中巡航",
+      cargo: "华南重点机要与高保价专运包",
+      statusColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
     },
     {
-      flightNo: 'CF9022',
-      route: '上海浦东 (PVG) ➔ 深圳宝安 (SZX)',
-      aircraft: '中邮航 B737-800F 极速鲜包机',
-      altitude: '地面机坪',
-      speed: '0 km/h',
-      status: 'LANDED',
-      statusText: '已平安落地·极速分流',
-      cargo: '华东大闸蟹冷链与生鲜',
-      statusColor: 'bg-blue-100 text-blue-800 border-blue-200'
+      flightNo: "CF9022",
+      route: "上海浦东 (PVG) ➔ 深圳宝安 (SZX)",
+      aircraft: "中邮航 B737-800F 极速鲜包机",
+      altitude: "地面机坪",
+      speed: "0 km/h",
+      status: "LANDED",
+      statusText: "已平安落地·极速分流",
+      cargo: "华东大闸蟹冷链与生鲜",
+      statusColor: "bg-blue-100 text-blue-800 border-blue-200",
     },
     {
-      flightNo: 'CF9035',
-      route: '武汉集散 (WUH) ➔ 成都双流 (CTU)',
-      aircraft: '中邮航 B737-400F 特快专线',
-      altitude: '待命装机',
-      speed: '0 km/h',
-      status: 'PREPARING',
-      statusText: '机坪安检装载完毕',
-      cargo: '川渝高考通知书与特急件',
-      statusColor: 'bg-amber-100 text-amber-800 border-amber-200'
-    }
+      flightNo: "CF9035",
+      route: "武汉集散 (WUH) ➔ 成都双流 (CTU)",
+      aircraft: "中邮航 B737-400F 特快专线",
+      altitude: "待命装机",
+      speed: "0 km/h",
+      status: "PREPARING",
+      statusText: "机坪安检装载完毕",
+      cargo: "川渝高考通知书与特急件",
+      statusColor: "bg-amber-100 text-amber-800 border-amber-200",
+    },
   ];
 
   const hubNodes = [
-    { name: '北京集散中心', load: '82%', status: '正常高效', throughput: '128,400件/时', temp: '22℃' },
-    { name: '上海转运港', load: '88%', status: '波峰运转', throughput: '162,100件/时', temp: '24℃' },
-    { name: '广州特快枢纽', load: '76%', status: '绿色畅通', throughput: '115,300件/时', temp: '28℃' },
-    { name: '武汉航空中心', load: '71%', status: '平稳有序', throughput: '94,800件/时', temp: '23℃' },
+    {
+      name: "北京集散中心",
+      load: "82%",
+      status: "正常高效",
+      throughput: "128,400件/时",
+      temp: "22℃",
+    },
+    {
+      name: "上海转运港",
+      load: "88%",
+      status: "波峰运转",
+      throughput: "162,100件/时",
+      temp: "24℃",
+    },
+    {
+      name: "广州特快枢纽",
+      load: "76%",
+      status: "绿色畅通",
+      throughput: "115,300件/时",
+      temp: "28℃",
+    },
+    {
+      name: "武汉航空中心",
+      load: "71%",
+      status: "平稳有序",
+      throughput: "94,800件/时",
+      temp: "23℃",
+    },
   ];
 
   return (
@@ -104,9 +130,7 @@ export const LogisticsStatsView: React.FC<LogisticsStatsViewProps> = ({ packages
             <Clock className="w-4 h-4 text-blue-600" />
           </div>
           <div className="text-2xl font-bold text-stone-900 mt-2 font-mono">13.8 小时</div>
-          <div className="text-[11px] text-stone-500 mt-1">
-            跨省航空夜航极速达
-          </div>
+          <div className="text-[11px] text-stone-500 mt-1">跨省航空夜航极速达</div>
         </div>
 
         <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-xs">
@@ -115,9 +139,7 @@ export const LogisticsStatsView: React.FC<LogisticsStatsViewProps> = ({ packages
             <Activity className="w-4 h-4 text-amber-600" />
           </div>
           <div className="text-2xl font-bold text-stone-900 mt-2 font-mono">100.0%</div>
-          <div className="text-[11px] text-emerald-700 mt-1">
-            106 专属国资政务通道
-          </div>
+          <div className="text-[11px] text-emerald-700 mt-1">106 专属国资政务通道</div>
         </div>
 
         <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-xs">
@@ -126,9 +148,7 @@ export const LogisticsStatsView: React.FC<LogisticsStatsViewProps> = ({ packages
             <ShieldCheck className="w-4 h-4 text-purple-600" />
           </div>
           <div className="text-2xl font-bold text-stone-900 mt-2 font-mono">100.0%</div>
-          <div className="text-[11px] text-purple-700 mt-1">
-            零破损 · 独立加固集装
-          </div>
+          <div className="text-[11px] text-purple-700 mt-1">零破损 · 独立加固集装</div>
         </div>
       </div>
 
@@ -155,12 +175,19 @@ export const LogisticsStatsView: React.FC<LogisticsStatsViewProps> = ({ packages
 
         <div className="divide-y divide-stone-100">
           {postalFlights.map((flight, idx) => (
-            <div key={idx} className="p-4 sm:p-5 hover:bg-stone-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div
+              key={idx}
+              className="p-4 sm:p-5 hover:bg-stone-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-sm text-stone-900">{flight.flightNo}</span>
+                  <span className="font-mono font-bold text-sm text-stone-900">
+                    {flight.flightNo}
+                  </span>
                   <span className="text-xs font-semibold text-stone-700">{flight.route}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${flight.statusColor}`}>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${flight.statusColor}`}
+                  >
                     {flight.statusText}
                   </span>
                 </div>
@@ -194,33 +221,31 @@ export const LogisticsStatsView: React.FC<LogisticsStatsViewProps> = ({ packages
               <Truck className="w-4 h-4 text-[#00703C]" />
               <span>国家综合枢纽集散港运行负荷</span>
             </h3>
-            <p className="text-xs text-stone-500 mt-0.5">
-              全国自动化矩阵流水线负荷与智能调度状态
-            </p>
+            <p className="text-xs text-stone-500 mt-0.5">全国自动化矩阵流水线负荷与智能调度状态</p>
           </div>
           <span className="text-xs text-stone-400">更新时间：1分钟前</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {hubNodes.map((hub, idx) => (
-            <div key={idx} className="bg-stone-50 rounded-xl p-4 border border-stone-200/80 space-y-2">
+            <div
+              key={idx}
+              className="bg-stone-50 rounded-xl p-4 border border-stone-200/80 space-y-2"
+            >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs text-stone-800">{hub.name}</span>
                 <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-semibold">
                   {hub.status}
                 </span>
               </div>
-              
+
               <div>
                 <div className="flex items-center justify-between text-[11px] text-stone-500 mb-1">
                   <span>实时负荷率</span>
                   <span className="font-mono font-bold text-stone-800">{hub.load}</span>
                 </div>
                 <div className="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
-                  <div 
-                    className="bg-[#00703C] h-1.5 rounded-full" 
-                    style={{ width: hub.load }}
-                  />
+                  <div className="bg-[#00703C] h-1.5 rounded-full" style={{ width: hub.load }} />
                 </div>
               </div>
 
