@@ -8,7 +8,7 @@ import {
   trendDayBounds,
   TREND_SERIES,
   type TrendPoint,
-} from "../lib/dashboard-trend";
+} from "../model/trend";
 
 export function DashboardTrendChart({
   points,
@@ -45,8 +45,8 @@ export function DashboardTrendChart({
       .encode("series", "series")
       .scale("x", {
         type: "time",
-        domainMin: bounds.start,
-        domainMax: bounds.end,
+        domainMin: bounds.start.getTime(),
+        domainMax: bounds.end.getTime(),
         utc: false,
         tickCount: 24,
         tickMethod: () => ticks,

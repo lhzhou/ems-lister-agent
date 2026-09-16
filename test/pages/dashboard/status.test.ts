@@ -1,20 +1,18 @@
 import { describe, expect, test } from "bun:test";
-import { dashboardStatusCoverage, rankedDashboardStatuses } from "./dashboard-status";
+import { dashboardStatusCoverage, rankedDashboardStatuses } from "@/src/pages/dashboard/model/status";
 
 describe("rankedDashboardStatuses", () => {
-  test("keeps display order and includes leftover statuses", () => {
+  test("collapses legacy statuses into five coarse buckets", () => {
     const rows = rankedDashboardStatuses([
       { current_status: "cancelled", total: 19 },
       { current_status: "in_transit", total: 6269 },
       { current_status: "arrived_destination", total: 2465 },
       { current_status: "returned", total: 3 },
+      { current_status: "rejected", total: 4 },
     ]);
-    expect(rows.map((row) => row.status)).toEqual([
-      "in_transit",
-      "arrived_destination",
-      "cancelled",
-      "returned",
-    ]);
+    expect(rows.map((row) => row.status)).toEqual(["in_transit", "returned", "cancelled"]);
+    expect(rows.find((row) => row.status === "in_transit")?.total).toBe(8734);
+    expect(rows.find((row) => row.status === "returned")?.total).toBe(7);
   });
 });
 

@@ -2,14 +2,14 @@ import { formatElapsedHours } from "./elapsed-hours";
 
 export const WAYBILL_STATUS_LABELS: Record<string, string> = {
   pending_pickup: "待揽收",
-  picked_up: "已揽收",
   in_transit: "运输中",
-  arrived_destination: "到达目的地",
-  out_for_delivery: "派送中",
   delivered: "已签收",
-  returned: "已退回",
-  rejected: "拒收",
+  returned: "退回",
   cancelled: "撤单",
+  picked_up: "运输中",
+  arrived_destination: "运输中",
+  out_for_delivery: "运输中",
+  rejected: "退回",
   unknown: "未知",
 };
 
@@ -60,6 +60,16 @@ export type WaybillTimelineView = {
 
 export function waybillStatusLabel(status: string) {
   return WAYBILL_STATUS_LABELS[status] ?? status;
+}
+
+export function latestWaybillOpName(detail: WaybillTimelineSource) {
+  const latest = [...detail.events].sort((a, b) => {
+    const delta = new Date(b.op_time).getTime() - new Date(a.op_time).getTime();
+    if (delta !== 0) return delta;
+    return b.id - a.id;
+  })[0];
+  const name = latest?.op_name?.trim();
+  return name || waybillStatusLabel(detail.waybill.current_status);
 }
 
 export function formatWaybillEventTime(value: string) {
@@ -191,7 +201,7 @@ export function buildWaybillTimelineView(
     waybillNo: detail.waybill.waybill_no,
     customerName: detail.waybill.customer_name?.trim() || "未关联客户",
     sentAt: waybillSentAt(detail),
-    statusLabel: waybillStatusLabel(detail.waybill.current_status),
+    statusLabel: latestWaybillOpName(detail),
     substatus,
     events: buildWaybillTimelineNodes(detail, now).map((node) => ({
       id: node.id,

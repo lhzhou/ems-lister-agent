@@ -1,4 +1,3 @@
 # 拦截器边界
 
-这里仅放请求和响应的横切处理，例如认证失效、取消、网络错误和服务端错误分类。
-当前项目的兼容实现仍在 `src/api/request.ts`；新接口必须从 `src/apis` 与 `src/shared/request` 接入，不在页面中直接请求。
+401 清登录态由 `src/lib/request.ts` 派发 `auth:unauthorized`（见 `auth.ts`）。业务接口从 `src/api` 接入，页面不直接 `fetch`。

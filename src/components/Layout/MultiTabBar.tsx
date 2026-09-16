@@ -1,22 +1,14 @@
 import React, { useRef, useEffect, useState } from "react";
-import { AppTab, TabType, TabColorTheme } from "../types/tabs";
+import { AppTab } from "@/src/types/tabs";
 import {
   LayoutDashboard,
   Package,
-  BellRing,
-  FileCheck,
-  ShieldCheck,
-  BarChart3,
-  FileText,
-  Layers,
   X,
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
   RotateCw,
-  Maximize2,
   FolderMinus,
-  Sparkles,
 } from "lucide-react";
 
 interface MultiTabBarProps {
@@ -27,7 +19,6 @@ interface MultiTabBarProps {
   onCloseOtherTabs: (tabId: string) => void;
   onCloseAllTabs: () => void;
   onCloseRightTabs: (tabId: string) => void;
-  onOpenNewTab?: (type: TabType, data?: any) => void;
   onRefreshTab: (tabId: string) => void;
 }
 
@@ -80,29 +71,8 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
 
   // Icon mapping for tabs
   const getTabIcon = (tab: AppTab) => {
-    switch (tab.tabType) {
-      case "dashboard":
-        return <LayoutDashboard className="w-3.5 h-3.5" />;
-      case "orders":
-      case "tracking":
-        return <Package className="w-3.5 h-3.5" />;
-      case "reminders":
-        return <BellRing className="w-3.5 h-3.5" />;
-      case "pod":
-        return <FileCheck className="w-3.5 h-3.5" />;
-      case "vip":
-        return <ShieldCheck className="w-3.5 h-3.5" />;
-      case "statistics":
-        return <BarChart3 className="w-3.5 h-3.5" />;
-      case "batch_query":
-        return <Layers className="w-3.5 h-3.5" />;
-      case "new_package":
-        return <FileText className="w-3.5 h-3.5" />;
-      case "mail_detail":
-        return <Package className="w-3.5 h-3.5 text-emerald-600" />;
-      default:
-        return <Package className="w-3.5 h-3.5" />;
-    }
+    if (tab.tabType === "dashboard") return <LayoutDashboard className="w-3.5 h-3.5" />;
+    return <Package className="w-3.5 h-3.5" />;
   };
 
   // Color theme styling matching image.png (soft colored borders and subtle tints)
@@ -111,23 +81,10 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
       return "bg-white text-[#00703C] border-2 border-[#00703C] shadow-sm font-semibold z-10";
     }
 
-    switch (tab.colorTheme) {
-      case "blue":
-        return "bg-blue-50/60 text-stone-700 border border-blue-200/80 hover:bg-blue-100/70 hover:border-blue-300";
-      case "amber":
-        return "bg-amber-50/60 text-stone-700 border border-amber-200/80 hover:bg-amber-100/70 hover:border-amber-300";
-      case "teal":
-        return "bg-teal-50/60 text-stone-700 border border-teal-200/80 hover:bg-teal-100/70 hover:border-teal-300";
-      case "rose":
-        return "bg-rose-50/60 text-stone-700 border border-rose-200/80 hover:bg-rose-100/70 hover:border-rose-300";
-      case "purple":
-        return "bg-purple-50/60 text-stone-700 border border-purple-200/80 hover:bg-purple-100/70 hover:border-purple-300";
-      case "indigo":
-        return "bg-indigo-50/60 text-stone-700 border border-indigo-200/80 hover:bg-indigo-100/70 hover:border-indigo-300";
-      case "emerald":
-      default:
-        return "bg-emerald-50/60 text-stone-700 border border-emerald-200/80 hover:bg-emerald-100/70 hover:border-emerald-300";
+    if (tab.colorTheme === "blue") {
+      return "bg-blue-50/60 text-stone-700 border border-blue-200/80 hover:bg-blue-100/70 hover:border-blue-300";
     }
+    return "bg-emerald-50/60 text-stone-700 border border-emerald-200/80 hover:bg-emerald-100/70 hover:border-emerald-300";
   };
 
   const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
@@ -156,6 +113,8 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
       {/* Tabs Horizontal List */}
       <div
         ref={scrollContainerRef}
+        role="tablist"
+        aria-label="已打开页面"
         className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
@@ -165,9 +124,12 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
             <div
               key={tab.id}
               data-tab-id={tab.id}
+              role="tab"
+              aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => onSelectTab(tab.id)}
               onContextMenu={(e) => handleContextMenu(e, tab.id)}
-              className={`group flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs cursor-pointer transition-all duration-150 shrink-0 select-none ${getTabStyle(tab, isActive)}`}
+              className={`group flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs cursor-pointer transition-all duration-150 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00703C] ${getTabStyle(tab, isActive)}`}
               title={`${tab.title} (右键打开菜单)`}
             >
               <span
@@ -179,17 +141,6 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               <span className="font-medium whitespace-nowrap tracking-tight max-w-[150px] truncate">
                 {tab.title}
               </span>
-
-              {/* Optional tiny badge */}
-              {tab.badge && (
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-medium ${
-                    isActive ? "bg-emerald-100 text-emerald-800" : "bg-stone-200/80 text-stone-600"
-                  }`}
-                >
-                  {tab.badge}
-                </span>
-              )}
 
               {/* Close Tab Button */}
               {tab.closable ? (

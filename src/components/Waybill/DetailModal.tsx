@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Clock, Copy, Download, X } from "lucide-react";
-import { logisticsApi, WaybillDetail } from "../api/logistics";
-import { downloadWaybillTimelinePdf } from "../lib/waybill-timeline-pdf";
+import { logisticsApi, type WaybillDetail } from "@/src/api";
+import { downloadWaybillTimelinePdf } from "@/src/lib/waybill-timeline-pdf";
 import {
   buildWaybillTimelineNodes,
+  latestWaybillOpName,
   waybillSentAt,
-  waybillStatusLabel,
-} from "../lib/waybill-timeline";
+} from "@/src/lib/waybill-timeline";
 
 function highlightDesc(desc: string) {
   return desc.split(/(【[^】]+】)/g).map((part, index) =>
@@ -64,7 +64,7 @@ export function WaybillDetailModal({
   }, [open, id]);
 
   const nodes = useMemo(() => (detail ? buildWaybillTimelineNodes(detail) : []), [detail]);
-  const status = detail ? waybillStatusLabel(detail.waybill.current_status) : "";
+  const status = detail ? latestWaybillOpName(detail) : "";
 
   if (!open) return null;
 

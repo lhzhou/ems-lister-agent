@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Bell,
   Volume2,
   VolumeX,
-  PlusCircle,
-  ShieldCheck,
-  Sparkles,
-  Truck,
   Menu,
   Clock,
   User,
@@ -14,14 +9,11 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
-import { isAudioEnabled, setAudioEnabled } from "../utils/storage";
-import { playNotificationChime } from "../utils/sound";
-import { UserInfo } from "../types/express";
+import { setAudioEnabled } from "@/src/lib/storage";
+import { playNotificationChime } from "@/src/lib/sound";
+import { UserInfo } from "@/src/types/express";
 
 interface HeaderProps {
-  unreadCount: number;
-  onOpenNotifications: () => void;
-  onOpenNewPackage: () => void;
   audioOn: boolean;
   setAudioOn: (val: boolean) => void;
   onToggleSidebar?: () => void;
@@ -30,9 +22,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  unreadCount,
-  onOpenNotifications,
-  onOpenNewPackage,
   audioOn,
   setAudioOn,
   onToggleSidebar,
@@ -143,33 +132,6 @@ export const Header: React.FC<HeaderProps> = ({
               <VolumeX className="w-4 h-4 text-stone-400" />
             )}
             <span className="hidden md:inline text-xs">{audioOn ? "提醒音开" : "静音"}</span>
-          </button>
-
-          {/* Notification Center Trigger */}
-          <button
-            type="button"
-            onClick={onOpenNotifications}
-            className="relative p-2 rounded-lg bg-emerald-800/60 border border-emerald-600/50 text-white hover:bg-emerald-700/60 transition-colors flex items-center gap-1.5"
-            title="查看签收提醒与预警日志"
-          >
-            <Bell className="w-4 h-4 text-[#F9B200]" />
-            <span className="hidden md:inline text-xs">提醒中心</span>
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full ring-2 ring-[#005f32] animate-bounce">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          {/* Add VIP Package Button */}
-          <button
-            type="button"
-            onClick={onOpenNewPackage}
-            className="bg-[#F9B200] hover:bg-[#e5a400] text-stone-900 font-semibold text-xs sm:text-sm px-3 py-2 rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">录入重点快件</span>
-            <span className="sm:hidden">录入</span>
           </button>
 
           {/* User Profile & Logout Dropdown */}

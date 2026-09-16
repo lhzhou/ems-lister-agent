@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { portalTabFromRoute, visiblePortalMenus } from "./portal-menu";
+import { portalTabFromRoute, visiblePortalMenus } from "@/src/lib/portal-menu";
 
 describe("portalTabFromRoute", () => {
   test("maps dashboard and orders routes", () => {

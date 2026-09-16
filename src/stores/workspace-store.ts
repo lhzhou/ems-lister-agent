@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { WorkspaceTab } from "../../types/workspace";
+import type { WorkspaceTab } from "@/types/workspace";
 import {
   closeOtherTabs,
   closeRightTabs,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { assembleJpegPagesPdf } from "./waybill-timeline-pdf";
+import { assembleJpegPagesPdf } from "@/src/lib/waybill-timeline-pdf";
 import {
   buildWaybillTimelineNodes,
   buildWaybillTimelineView,
@@ -7,7 +7,7 @@ import {
   waybillHeaderMeta,
   waybillStatusLabel,
   type WaybillTimelineSource,
-} from "./waybill-timeline";
+} from "@/src/lib/waybill-timeline";
 
 const sample: WaybillTimelineSource = {
   waybill: {
@@ -39,8 +39,28 @@ describe("buildWaybillTimelineView", () => {
     const view = buildWaybillTimelineView(sample);
     expect(view.customerName).toBe("虞城电商");
     expect(view.sentAt).toContain("2026");
+    expect(view.statusLabel).toBe("收寄计费信息");
     expect(waybillHeaderMeta(view)).toContain("客户：虞城电商");
     expect(waybillHeaderMeta(view)).toContain("发件日期：");
+    expect(waybillHeaderMeta(view)).toContain("当前状态：收寄计费信息");
+  });
+
+  test("uses latest event op_name instead of mapped current_status", () => {
+    const view = buildWaybillTimelineView({
+      waybill: { ...sample.waybill, current_status: "arrived_destination" },
+      events: [
+        sample.events[0],
+        {
+          id: 6,
+          op_time: "2026-09-16T22:21:55+08:00",
+          op_code: "954",
+          op_name: "邮件到达处理中心",
+          op_desc: "快件到达【郑州港区包件车间】",
+          op_org_name: "郑州港区包件车间",
+        },
+      ],
+    });
+    expect(view.statusLabel).toBe("邮件到达处理中心");
   });
 });
 

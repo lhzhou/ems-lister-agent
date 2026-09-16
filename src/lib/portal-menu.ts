@@ -9,10 +9,13 @@ export type PortalMenu = {
   sort_order?: number;
 };
 
+import { getRegisteredRoute } from "@/src/routers/route-registry";
+
 export type PortalTab = "dashboard" | "orders";
 
 export function portalTabFromRoute(path: string): PortalTab | null {
   const route = path.split("?")[0].replace(/\/+$/, "") || "/";
+  if (!getRegisteredRoute(route)) return null;
   if (route === "/" || route === "/dashboard") return "dashboard";
   if (route === "/orders" || route === "/tracking") return "orders";
   return null;

@@ -7,8 +7,8 @@
  * - 账号限制: 必须是客户平台账号 (customer、customer_admin 或 customer_member)
  */
 
-import { http, ApiError } from "./request";
-import { saveStoredToken, removeStoredToken, getStoredToken } from "../utils/storage";
+import { http, ApiError } from "@/src/lib/request";
+import { saveStoredToken, removeStoredToken, getStoredToken } from "@/src/lib/storage";
 
 /** 公司登录请求参数 */
 export interface CorporationLoginParams {

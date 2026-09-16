@@ -6,7 +6,7 @@ import {
   parseTrendTime,
   toTrendSeriesRows,
   trendDayBounds,
-} from "./dashboard-trend";
+} from "@/src/pages/dashboard/model/trend";
 
 describe("parseTrendTime", () => {
   test("parses HH:mm against the stat date", () => {

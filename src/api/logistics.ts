@@ -1,18 +1,8 @@
 /**
- * 重点物流邮件追踪与签收调度相关 API
+ * 重点物流邮件追踪相关 API
  */
 
-import { http } from "./request";
-import { ExpressPackage, NotificationLog, ReminderConfig } from "../types/express";
-
-export interface TrackingQueryParams {
-  trackingNumber?: string;
-  phone?: string;
-  status?: string;
-  vipLevel?: string;
-  page?: number;
-  pageSize?: number;
-}
+import { http } from "@/src/lib/request";
 
 export interface DashboardMetrics {
   totalOrders: number;
@@ -56,6 +46,10 @@ export interface WaybillIndexItem {
   customer_name?: string;
   current_status: string;
   current_substatus?: string;
+  last_op_name?: string;
+  started_at?: string;
+  elapsed_hours?: number;
+  current_node?: string;
   last_op_time?: string;
   highest_severity?: string;
   active_issue_summary?: string;
@@ -75,6 +69,7 @@ export interface StagnantWaybill {
   customer_name?: string;
   current_status: string;
   current_substatus?: string;
+  last_op_name?: string;
   last_op_time?: string;
   started_at?: string;
   stagnant_hours: number;
@@ -103,48 +98,13 @@ export interface WaybillDetail {
 }
 
 export const logisticsApi = {
-  /** 单号详情/节点全生命周期查询 */
-  getDetail(trackingNumber: string): Promise<ExpressPackage> {
-    return http.get<ExpressPackage>(`/logistics/track/${trackingNumber}`);
-  },
-
-  /** 分页或筛选重点邮件列表 */
-  getList(params?: TrackingQueryParams): Promise<{ list: ExpressPackage[]; total: number }> {
-    return http.get<{ list: ExpressPackage[]; total: number }>("/logistics/packages", params);
-  },
-
-  /** 批量邮件查询 */
-  batchQuery(trackingNumbers: string[]): Promise<ExpressPackage[]> {
-    return http.post<ExpressPackage[]>("/logistics/batch-query", { trackingNumbers });
-  },
-
-  /** 录入新增重点邮件 */
-  createPackage(pkg: Partial<ExpressPackage>): Promise<ExpressPackage> {
-    return http.post<ExpressPackage>("/logistics/packages", pkg);
-  },
-
-  /** 更新多渠道签收提醒配置 */
-  updateReminder(
-    packageId: string,
-    config: Partial<ReminderConfig>,
-  ): Promise<{ success: boolean; config: ReminderConfig }> {
-    return http.put(`/logistics/packages/${packageId}/reminder`, config);
-  },
-
-  /** 手动触发一次投递/签收模拟推送 */
-  triggerTestPush(packageId: string, eventType: string): Promise<NotificationLog> {
-    return http.post<NotificationLog>(`/logistics/packages/${packageId}/push-test`, { eventType });
-  },
-
-  /** 获取大盘今日汇总统计数据 */
   getDashboardMetrics(): Promise<DashboardMetrics> {
     return http.get<any>("/v1/dashboard", { scope: "today" }).then((payload) => {
       const stats = payload?.stats ?? payload ?? {};
       return {
         totalOrders: Number(stats.total_orders ?? 0),
         inTransit: Number(
-          stats.status_counts?.find((item: any) => item.current_status === "in_transit")?.total ??
-            0,
+          stats.status_counts?.find((item: any) => item.current_status === "in_transit")?.total ?? 0,
         ),
         delivering: Number(
           stats.status_counts?.find((item: any) => item.current_status === "out_for_delivery")
@@ -170,26 +130,22 @@ export const logisticsApi = {
     });
   },
 
-  /** 今日异常预警独立接口，避免与看板汇总统计耦合。 */
   getDashboardAlerts(): Promise<DashboardAlert[]> {
     return http
       .get<{ items?: DashboardAlert[] }>("/v1/anomalies", { page: 1, size: 5, scope: "today" })
       .then((payload) => payload.items ?? []);
   },
 
-  /** 最新滞留运单，与总后台滞留列表同一口径。 */
   getStagnantWaybills(): Promise<StagnantWaybill[]> {
     return http
       .get<{ items?: StagnantWaybill[] }>("/v1/stagnant-waybills", { page: 1, size: 5 })
       .then((payload) => payload.items ?? []);
   },
 
-  /** 运单轨迹详情，与总后台 GET /v1/waybills/{id}/detail 同一口径。 */
   getWaybillDetail(id: number): Promise<WaybillDetail> {
     return http.get<WaybillDetail>(`/v1/waybills/${id}/detail`);
   },
 
-  /** 订单索引，与总后台 GET /v1/waybills 同一口径。 */
   getWaybills(
     params: {
       page?: number;
@@ -200,10 +156,5 @@ export const logisticsApi = {
     } = {},
   ): Promise<WaybillIndexPage> {
     return http.get<WaybillIndexPage>("/v1/waybills", params);
-  },
-
-  /** 获取提醒与异常日志流水 */
-  getNotificationLogs(limit: number = 50): Promise<NotificationLog[]> {
-    return http.get<NotificationLog[]>("/logistics/notifications", { limit });
   },
 };

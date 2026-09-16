@@ -3,7 +3,8 @@
  * 包含：基础配置、请求拦截（自动携带 Token）、响应拦截（统一业务状态码过滤）、超时控制与错误捕获
  */
 
-import { getStoredToken, removeStoredToken } from "../utils/storage";
+import { AUTH_UNAUTHORIZED_EVENT } from "@/src/interceptors/auth";
+import { getStoredToken, removeStoredToken } from "./storage";
 
 // 基础接口配置
 const DEFAULT_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || "/api";
@@ -228,7 +229,7 @@ async function sendRequest<T>(fullUrl: string, config: RequestConfig): Promise<T
 
       if (status === 401 && !skipAuth) {
         removeStoredToken();
-        window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+        window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
       }
 
       throw new ApiError(errorMsg, status, errorCode, errorData);
@@ -258,7 +259,7 @@ async function sendRequest<T>(fullUrl: string, config: RequestConfig): Promise<T
             return (payload !== undefined ? payload : resData) as T;
           } else if (code === 401 || String(code).toUpperCase() === "UNAUTHORIZED") {
             removeStoredToken();
-            window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+            window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
             throw new ApiError(message || "身份认证未通过或凭证已过期", 401, code, resData);
           } else {
             throw new ApiError(message || "请求执行失败", 400, code, resData);

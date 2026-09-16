@@ -9,8 +9,8 @@ import {
   CircleGauge,
   PackageSearch,
 } from "lucide-react";
-import type { PortalMenu, PortalTab } from "../lib/portal-menu";
-import { portalTabFromRoute } from "../lib/portal-menu";
+import type { PortalMenu, PortalTab } from "@/src/lib/portal-menu";
+import { portalTabFromRoute } from "@/src/lib/portal-menu";
 
 export type SidebarTab = PortalTab;
 

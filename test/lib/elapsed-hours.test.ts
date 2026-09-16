@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatElapsedHours } from "./elapsed-hours";
+import { formatElapsedHours } from "@/src/lib/elapsed-hours";
 
 describe("formatElapsedHours", () => {
   test("keeps short durations in hours", () => {

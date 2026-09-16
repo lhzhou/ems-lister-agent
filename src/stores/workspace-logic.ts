@@ -1,4 +1,4 @@
-import type { WorkspaceTab } from "../../types/workspace";
+import type { WorkspaceTab } from "@/types/workspace";
 
 export function openTab(tabs: WorkspaceTab[], tab: WorkspaceTab): WorkspaceTab[] {
   return tabs.some((item) => item.id === tab.id) ? tabs : [...tabs, tab];

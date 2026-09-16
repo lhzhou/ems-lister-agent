@@ -6,8 +6,6 @@
     "src/App.tsx",
     "src/components/**",
     "src/api/**",
-    "src/utils/**",
-    "src/data/**",
     "src/types/**"
   ]
 }

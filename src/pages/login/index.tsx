@@ -1,3 +1,9 @@
+/** @route
+meta:
+  layout: auth
+  title: 登录
+*/
+
 import React, { useState } from "react";
 import {
   Lock,
@@ -14,15 +20,15 @@ import {
   ChevronUp,
   CheckCircle2,
 } from "lucide-react";
-import { UserInfo } from "../types/express";
-import { authApi } from "../api/auth";
-import { removeStoredToken } from "../utils/storage";
+import { UserInfo } from "@/src/types/express";
+import { authApi } from "@/src/api";
+import { removeStoredToken } from "@/src/lib/storage";
 
 interface LoginPageProps {
   onLogin: (user: UserInfo, token: string) => void;
 }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+export default function LoginPage({ onLogin }: LoginPageProps) {
   // 表单输入
   const [account, setAccount] = useState<string>("商丘-虞城县");
   const [password, setPassword] = useState<string>("123123123");
@@ -34,7 +40,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [showServerConfig, setShowServerConfig] = useState<boolean>(false);
-  const [backendUrl, setBackendUrl] = useState<string>(
+  const [backendUrl] = useState<string>(
     (import.meta as any).env?.VITE_API_BASE_URL || "http://39.107.75.132:8902",
   );
 
@@ -365,4 +371,4 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       </footer>
     </div>
   );
-};
+}

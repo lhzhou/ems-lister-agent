@@ -1,34 +1,32 @@
+/** @route
+meta:
+  layout: default
+  title: 看板
+  tab:
+    closable: false
+*/
+
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Package,
   Truck,
   AlertTriangle,
   Clock,
-  ExternalLink,
-  ChevronRight,
   RefreshCw,
   Users,
 } from "lucide-react";
-import { ExpressPackage } from "../types/express";
-import { DashboardAlert, DashboardMetrics, StagnantWaybill, logisticsApi } from "../api/logistics";
-import { DashboardTrendChart } from "./DashboardTrendChart";
-import { WaybillDetailModal } from "./WaybillDetailModal";
-import { TREND_DATA, type TrendPoint } from "../lib/dashboard-trend";
-import { dashboardStatusCoverage, rankedDashboardStatuses } from "../lib/dashboard-status";
-import { formatElapsedHours } from "../lib/elapsed-hours";
-
-const STATUS_LABELS: Record<string, string> = {
-  pending_pickup: "待揽收",
-  picked_up: "已揽收",
-  in_transit: "运输中",
-  arrived_destination: "到达目的地",
-  out_for_delivery: "派送中",
-  delivered: "已签收",
-  returned: "已退回",
-  rejected: "拒收",
-  cancelled: "撤单",
-  unknown: "未知",
-};
+import {
+  dashboardApi,
+  type DashboardAlert,
+  type DashboardMetrics,
+  type StagnantWaybill,
+} from "@/src/api";
+import { WaybillDetailModal } from "@/src/components/Waybill/DetailModal";
+import { dashboardStatusCoverage, rankedDashboardStatuses } from "./model/status";
+import { TREND_DATA, type TrendPoint } from "./model/trend";
+import { DashboardAlertsTable, type DashboardAlertItem } from "./components/dashboard-alerts-table";
+import { DashboardStagnantTable } from "./components/dashboard-stagnant-table";
+import { DashboardTrendChart } from "./components/dashboard-trend-chart";
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
 
@@ -48,111 +46,28 @@ function delayUntilNextTenMinutes(now = new Date()): number {
   return wait === 0 ? TEN_MINUTES_MS : wait;
 }
 
-interface DashboardViewProps {
-  packages: ExpressPackage[];
-  onSelectPackage: (trackingNumberOrId: string) => void;
-  onOpenReminderModal?: (pkg: ExpressPackage) => void;
+export interface DashboardPageProps {
   onViewMoreStagnant?: () => void;
 }
 
-interface ExceptionAlertItem {
-  id: string;
-  waybillId?: number;
-  riskLevel: "一般" | "中风险" | "高风险";
-  customer: string;
-  mailNo: string;
-  description: string;
-  currentNode: string;
-  occurTime: string;
-}
 
-// Exception alerts matching image 2
-const INITIAL_EXCEPTIONS: ExceptionAlertItem[] = [
-  {
-    id: "e-1",
-    riskLevel: "一般",
-    customer: "商丘宜洁日用品有限公司",
-    mailNo: "9823169124463",
-    description: "轨迹描述包含门卫、门把手、快递箱或代收点关键词，判定为投递位置风险",
-    currentNode: "-",
-    occurTime: "1分前",
-  },
-  {
-    id: "e-2",
-    riskLevel: "一般",
-    customer: "商丘宜洁日用品有限公司",
-    mailNo: "9819357717574",
-    description: "轨迹描述包含门卫、门把手、快递箱或代收点关键词，判定为投递位置风险",
-    currentNode: "-",
-    occurTime: "34分前",
-  },
-  {
-    id: "e-3",
-    riskLevel: "一般",
-    customer: "商丘宜洁日用品有限公司",
-    mailNo: "9819295757370",
-    description: "轨迹描述包含门卫、门把手、快递箱或代收点关键词，判定为投递位置风险",
-    currentNode: "-",
-    occurTime: "53分前",
-  },
-  {
-    id: "e-4",
-    riskLevel: "一般",
-    customer: "商丘宜洁日用品有限公司",
-    mailNo: "9823169104666",
-    description: "轨迹描述包含门卫、门把手、快递箱或代收点关键词，判定为投递位置风险",
-    currentNode: "-",
-    occurTime: "55分前",
-  },
-  {
-    id: "e-5",
-    riskLevel: "一般",
-    customer: "商丘宜洁日用品有限公司",
-    mailNo: "9823169176414",
-    description: "轨迹描述包含门卫、门把手、快递箱或代收点关键词，判定为投递位置风险",
-    currentNode: "-",
-    occurTime: "64分前",
-  },
-  {
-    id: "e-6",
-    riskLevel: "高风险",
-    customer: "北京机要综合保障办",
-    mailNo: "9823169101238",
-    description: "公文特快转运时效延误，预警超时风险，已启动应急陆空联运备用通道",
-    currentNode: "北京大兴航邮集散中心",
-    occurTime: "72分前",
-  },
-  {
-    id: "e-7",
-    riskLevel: "中风险",
-    customer: "清华大学招生办公室",
-    mailNo: "9819295899120",
-    description: "收件人电话关机且短信未回复，已转入专人11183外呼重试队列",
-    currentNode: "海淀区清华特快揽投部",
-    occurTime: "85分前",
-  },
-];
 
-export const DashboardView: React.FC<DashboardViewProps> = ({
-  packages,
-  onSelectPackage,
-  onViewMoreStagnant,
-}) => {
+export default function DashboardPage({ onViewMoreStagnant }: DashboardPageProps) {
   const [showAllExceptions, setShowAllExceptions] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [alerts, setAlerts] = useState<ExceptionAlertItem[]>([]);
+  const [alerts, setAlerts] = useState<DashboardAlertItem[]>([]);
   const [stagnantItems, setStagnantItems] = useState<StagnantWaybill[]>([]);
   const [detailId, setDetailId] = useState<number | null>(null);
 
   const loadDashboard = useCallback(() => {
     return Promise.all([
-      logisticsApi
-        .getDashboardMetrics()
+      dashboardApi
+        .metrics()
         .then((next) => setMetrics(next))
         .catch(() => undefined),
-      logisticsApi
-        .getDashboardAlerts()
+      dashboardApi
+        .alerts()
         .then((items) => {
           setAlerts(
             items.map((item: DashboardAlert) => ({
@@ -169,8 +84,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           );
         })
         .catch(() => undefined),
-      logisticsApi
-        .getStagnantWaybills()
+      dashboardApi
+        .stagnant()
         .then((items) => setStagnantItems(items))
         .catch(() => undefined),
     ]);
@@ -211,7 +126,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     void loadDashboard().finally(() => setIsRefreshing(false));
   };
 
-  const exceptionRows = alerts.length > 0 ? alerts : INITIAL_EXCEPTIONS;
+  const exceptionRows = alerts;
   const displayedExceptions = showAllExceptions ? exceptionRows : exceptionRows.slice(0, 5);
   const statusRows = rankedDashboardStatuses(metrics?.statusCounts);
   const statusCoverage = dashboardStatusCoverage(statusRows, metrics?.totalOrders ?? 0);
@@ -428,197 +343,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 3. 最新滞留信息 */}
-      <div className="bg-white rounded-2xl border border-stone-200/80 p-5 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-stone-900">最新滞留信息</h3>
-              <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-xs font-medium border border-amber-100">
-                超过24小时未推进
-              </span>
-            </div>
-            <p className="text-xs text-stone-400 mt-0.5">
-              按最近轨迹时间倒序，展示当前账号可见的滞留邮件
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              if (onViewMoreStagnant) {
-                onViewMoreStagnant();
-                return;
-              }
-              onSelectPackage("stagnant");
-            }}
-            className="inline-flex items-center gap-0.5 px-3 py-1 text-xs font-medium text-[#00703C] border border-[#00703C]/20 rounded-md bg-white hover:bg-emerald-50"
-          >
-            <span>查看更多</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-stone-700 border-collapse">
-            <thead>
-              <tr className="border-b border-stone-200 text-stone-500 bg-stone-50/50">
-                <th className="py-2.5 px-3 font-semibold">最近轨迹</th>
-                <th className="py-2.5 px-3 font-semibold">重点客户</th>
-                <th className="py-2.5 px-3 font-semibold">邮件号</th>
-                <th className="py-2.5 px-3 font-semibold">当前状态</th>
-                <th className="py-2.5 px-3 font-semibold">订单开始时间</th>
-                <th className="py-2.5 px-3 font-semibold">当前用时</th>
-                <th className="py-2.5 px-3 font-semibold">滞留时长</th>
-                <th className="py-2.5 px-3 font-semibold text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {stagnantItems.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-stone-400">
-                    暂无滞留邮件
-                  </td>
-                </tr>
-              ) : (
-                stagnantItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-stone-50/80 transition-colors">
-                    <td className="py-2.5 px-3 font-mono text-stone-500 whitespace-nowrap">
-                      {item.last_op_time ?? "-"}
-                    </td>
-                    <td className="py-2.5 px-3 font-medium text-stone-900">
-                      {item.customer_name ?? "未关联客户"}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono font-medium text-[#00703C]">
-                      <button
-                        type="button"
-                        onClick={() => setDetailId(item.id)}
-                        className="hover:underline flex items-center gap-1"
-                      >
-                        {item.waybill_no}
-                        <ExternalLink className="w-3 h-3 text-stone-400" />
-                      </button>
-                    </td>
-                    <td className="py-2.5 px-3 text-stone-700">
-                      {STATUS_LABELS[item.current_status] ?? item.current_status}
-                      {item.current_substatus ? (
-                        <span className="ml-1 text-stone-400">{item.current_substatus}</span>
-                      ) : null}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono text-stone-500 whitespace-nowrap">
-                      {item.started_at ?? "-"}
-                    </td>
-                    <td className="py-2.5 px-3 font-medium text-stone-700">
-                      {formatElapsedHours(item.elapsed_hours)}
-                    </td>
-                    <td className="py-2.5 px-3 font-medium text-amber-700">
-                      {item.stagnant_hours}小时
-                    </td>
-                    <td className="py-2.5 px-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setDetailId(item.id)}
-                        className="text-xs text-[#00703C] hover:text-[#005229] font-medium inline-flex items-center gap-0.5"
-                      >
-                        <span>轨迹</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* 4. 今日异常预警 (Image 2) */}
-      <div className="bg-white rounded-2xl border border-stone-200/80 p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-base font-bold text-stone-900">今日异常预警</h3>
-            <p className="text-xs text-stone-400 mt-0.5">仅展示今日检出的最新异常</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowAllExceptions((prev) => !prev)}
-            className="px-3 py-1 text-xs text-stone-600 border border-stone-200 rounded-md bg-white hover:bg-stone-50 font-medium transition-colors"
-          >
-            {showAllExceptions ? "收起列表" : "查看全部"}
-          </button>
-        </div>
-
-        {/* Exception Table matching Image 2 columns */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-stone-700 border-collapse">
-            <thead>
-              <tr className="border-b border-stone-200 text-stone-500 bg-stone-50/50">
-                <th className="py-2.5 px-3 font-semibold w-24">风险等级</th>
-                <th className="py-2.5 px-3 font-semibold w-48">重点客户</th>
-                <th className="py-2.5 px-3 font-semibold w-36">邮件号</th>
-                <th className="py-2.5 px-3 font-semibold">异常说明</th>
-                <th className="py-2.5 px-3 font-semibold w-36">当前节点</th>
-                <th className="py-2.5 px-3 font-semibold w-24 text-right">发生时间</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {displayedExceptions.map((item) => (
-                <tr key={item.id} className="hover:bg-stone-50/80 transition-colors">
-                  {/* 风险等级 */}
-                  <td className="py-3 px-3">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        item.riskLevel === "高风险"
-                          ? "bg-red-50 text-red-700 border border-red-200"
-                          : item.riskLevel === "中风险"
-                            ? "bg-amber-50 text-amber-700 border border-amber-200"
-                            : "bg-stone-100 text-stone-600"
-                      }`}
-                    >
-                      <Clock className="w-3 h-3 text-stone-400" />
-                      <span>{item.riskLevel}</span>
-                    </span>
-                  </td>
-
-                  {/* 重点客户 */}
-                  <td className="py-3 px-3 font-medium text-stone-900">{item.customer}</td>
-
-                  {/* 邮件号 */}
-                  <td className="py-3 px-3 font-mono text-stone-700">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (item.waybillId) {
-                          setDetailId(item.waybillId);
-                          return;
-                        }
-                        onSelectPackage(item.mailNo);
-                      }}
-                      className="text-[#00703C] hover:underline font-medium flex items-center gap-1"
-                    >
-                      <span>{item.mailNo}</span>
-                      <ExternalLink className="w-3 h-3 text-stone-400" />
-                    </button>
-                  </td>
-
-                  {/* 异常说明 */}
-                  <td className="py-3 px-3 text-stone-600 leading-relaxed">{item.description}</td>
-
-                  {/* 当前节点 */}
-                  <td className="py-3 px-3 text-stone-500">{item.currentNode}</td>
-
-                  {/* 发生时间 */}
-                  <td className="py-3 px-3 text-stone-400 text-right font-mono whitespace-nowrap">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-stone-400" />
-                      <span>{item.occurTime}</span>
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DashboardStagnantTable
+        items={stagnantItems}
+        onOpenDetail={setDetailId}
+        onViewMore={onViewMoreStagnant}
+      />
+      <DashboardAlertsTable
+        items={displayedExceptions}
+        showAll={showAllExceptions}
+        onToggleShowAll={() => setShowAllExceptions((prev) => !prev)}
+        onOpenDetail={setDetailId}
+      />
 
       <WaybillDetailModal
         id={detailId}
@@ -627,4 +362,4 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       />
     </div>
   );
-};
+}
