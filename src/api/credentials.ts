@@ -2,13 +2,16 @@ import { http } from "@/src/lib/request";
 import type {
   CustomerCredentialInput,
   CustomerCredentialRecord,
-} from "@/src/pages/customers/model/credential-types";
+} from "@/src/pages/credentials/model/credential-types";
 
 export const credentialsApi = {
   list() {
     return http.get<{ items: CustomerCredentialRecord[]; total: number }>(
       "/v1/customer-credentials",
     );
+  },
+  get(id: number) {
+    return http.get<CustomerCredentialRecord>(`/v1/customer-credentials/${id}`);
   },
   create(customerId: number, input: CustomerCredentialInput) {
     return http.post<CustomerCredentialRecord>(`/v1/customers/${customerId}/credentials`, input);

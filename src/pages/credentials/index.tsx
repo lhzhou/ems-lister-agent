@@ -7,11 +7,11 @@ meta:
 import { useState } from "react";
 import { credentialsApi } from "@/src/api";
 import { Button, notify } from "@/src/components/Form";
-import { CredentialsForm, type CredentialFormValues } from "../components/credentials-form";
-import { CredentialsSearch } from "../components/credentials-search";
-import { CredentialsTable } from "../components/credentials-table";
-import { useCredentials } from "../hooks/use-credentials";
-import type { CustomerCredentialInput, CustomerCredentialRecord } from "../model/credential-types";
+import { CredentialsForm, type CredentialFormValues } from "./components/credentials-form";
+import { CredentialsSearch } from "./components/credentials-search";
+import { CredentialsTable } from "./components/credentials-table";
+import { useCredentials } from "./hooks/use-credentials";
+import type { CustomerCredentialInput, CustomerCredentialRecord } from "./model/credential-types";
 
 function toInput(values: CredentialFormValues): CustomerCredentialInput {
   const interfaces = values.interfaces ?? [];
@@ -39,14 +39,24 @@ export default function CredentialsPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const openDrawer = (
+  const openDrawer = async (
     nextMode: "create" | "edit" | "view",
     record: CustomerCredentialRecord | null = null,
   ) => {
     setMode(nextMode);
-    setSelected(record);
     setFormError("");
     setOpen(true);
+    if (nextMode === "view" && record) {
+      setSelected(record);
+      try {
+        const detail = await credentialsApi.get(record.id);
+        setSelected({ ...record, ...detail });
+      } catch (cause) {
+        setFormError(cause instanceof Error ? cause.message : "密钥详情加载失败");
+      }
+      return;
+    }
+    setSelected(record);
   };
 
   const submit = async (values: CredentialFormValues) => {
@@ -104,13 +114,13 @@ export default function CredentialsPage() {
         loading={credentials.loading}
         error={credentials.error}
         extra={
-          <Button type="create" onClick={() => openDrawer("create")}>
+          <Button type="create" onClick={() => void openDrawer("create")}>
             新增密钥
           </Button>
         }
         onReload={credentials.reload}
-        onView={(item) => openDrawer("view", item)}
-        onEdit={(item) => openDrawer("edit", item)}
+        onView={(item) => void openDrawer("view", item)}
+        onEdit={(item) => void openDrawer("edit", item)}
         onDelete={remove}
       />
       <CredentialsForm
@@ -123,7 +133,7 @@ export default function CredentialsPage() {
         error={formError}
         onClose={() => setOpen(false)}
         onSubmit={submit}
-        onEdit={selected ? () => openDrawer("edit", selected) : undefined}
+        onEdit={selected ? () => void openDrawer("edit", selected) : undefined}
       />
     </div>
   );

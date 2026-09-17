@@ -9,8 +9,8 @@
 - 产品：邮政重点邮件平台端。Vite + React + Tailwind + Zustand + Bun。开发入口 `bun`/`pnpm` 脚本，Express `server.ts` 托管前端。
 - 浏览器直连 corporation API `8082`（`VITE_API_BASE_URL`），不经 9082 代理。
 - 认证走 `/v1/auth/*`。生产菜单走 `GET /v1/menus`（`server=corporation`），禁止再写死侧栏数组。
-- 已注册业务页：看板 `/dashboard`、订单管理 `/orders`、账号管理 `/accounts`、客服组管理 `/groups`、客户管理 `/customers`、企业管理 `/customers/enterprises`、密钥管理 `/customers/credentials`。动态菜单 `href` 必须命中 `src/routers/route-registry.ts`，未注册不生成页面。
-- 列表/详情契约以 8082 OpenAPI 为准，不凭空造接口。当前稳定接口：`GET /v1/dashboard`、`GET /v1/waybills`、`GET /v1/waybills/{id}/detail`、`GET /v1/stagnant-waybills`、`GET /v1/anomalies`、`GET /v1/menus`、`/v1/accounts`、`/v1/groups`、`/v1/customers`、`GET /v1/customer-credentials`、`POST /v1/customers/{id}/credentials`、`PATCH|DELETE /v1/customer-credentials/{id}`。密钥表单按测试密钥 / 正式密钥分组，不回显授权码和签名密钥。
+- 已注册业务页：看板 `/dashboard`、订单管理 `/orders`、账号管理 `/accounts`、客服组管理 `/groups`、客户管理 `/customers`（`src/pages/customers`）、企业管理 `/customers/enterprises`（`src/pages/enterprises`）、密钥管理 `/customers/credentials`（`src/pages/credentials`）。三个客户相关页各自独立目录，不要再塞进 `customers/`。动态菜单 `href` 必须命中 `src/routers/route-registry.ts`，未注册不生成页面。
+- 列表/详情契约以 8082 OpenAPI 为准，不凭空造接口。当前稳定接口：`GET /v1/dashboard`、`GET /v1/waybills`、`GET /v1/waybills/{id}/detail`、`GET /v1/stagnant-waybills`、`GET /v1/anomalies`、`GET /v1/menus`、`/v1/accounts`、`/v1/groups`、`/v1/customers`、`GET /v1/customer-credentials`、`GET /v1/customer-credentials/{id}`、`POST /v1/customers/{id}/credentials`、`PATCH|DELETE /v1/customer-credentials/{id}`。密钥表单按测试密钥 / 正式密钥分组；列表不回显授权码和签名密钥，查看详情可点开显示明文。路由键展示完整推送 URL。
 
 ## 目标
 
@@ -84,23 +84,24 @@ type RouteMeta = {
 
 1. 先对 8082 契约，不造登录/菜单/业务接口。
 2. 新页：`bun run page:create <name> --dry-run`，确认后再生成；覆盖必须 `--force`。
-3. 列表：搜索 Card + 表格 Card；表格必须用 `src/components/Form/Table.tsx`（封装 Ant Design Table），页面只填列和数据。添加/编辑表单必须用 `src/components/Form/Modal.tsx`（Ant Design Modal，size 小/中/大/超大 416/640/880/1200，默认中）和 `src/components/Form/Form.tsx`（`layout="horizontal"`，标签左、控件右，`labelCol` 120px）；不要 `layout="vertical"`，不要页面直接 `import { Form } from "antd"`。短确认才用 Dialog。轨迹详情用超大。状态只用 `src/components/Form/Status.tsx`（Ant Design Tag：success / processing / warning / error / default），不要手写胶囊，不要直接 `antd Tag`。
+3. 列表：搜索 Card + 表格 Card；表格必须用 `src/components/Form/Table.tsx`（封装 Ant Design Table），页面只填列和数据。添加/编辑表单必须用 `src/components/Form/Modal.tsx`（Ant Design Modal，size 小/中/大/超大 416/640/880/1200，默认中）和 `src/components/Form/Form.tsx`（`layout="horizontal"`，标签左、控件右，`labelCol` 120px）；不要 `layout="vertical"`，不要页面直接 `import { Form } from "antd"`。Input / Select / Password / TextArea / Button / Form 的控件尺寸走 `VITE_FORM_CONTROL_SIZE`（`small` / `middle` / `large`，默认 `large`），页面不要再写死 `size="large"`。短确认才用 Dialog。轨迹详情用超大。状态只用 `src/components/Form/Status.tsx`（Ant Design Tag：success / processing / warning / error / default），不要手写胶囊，不要直接 `antd Tag`。
 4. 必须有 loading / empty / error / retry。
 5. Demo 只在数据层切换，页面不维护两套请求。
 6. 认证只用适配器。菜单只用数据库，映射已注册路由。
 
 当前页对照：
 
-| 菜单 code                      | 路由                     | 页面职责                                        |
-| ------------------------------ | ------------------------ | ----------------------------------------------- |
-| `portal.dashboard`             | `/dashboard`             | 看板                                            |
-| `portal.orders`                | `/orders`                | 订单索引，对齐管理端 `GET /v1/waybills`         |
-| `portal.accounts`              | `/accounts`              | 本机构账号管理，对齐 corporation `/v1/accounts` |
-| `portal.groups`                | `/groups`                | 本机构客服组管理，对齐 corporation `/v1/groups` |
-| `portal.customers`             | 目录                     | 客户管理二级菜单                                |
-| `portal.customers.enterprises` | `/customers/enterprises` | 本机构企业管理                                  |
-| `portal.customers.accounts`    | `/customers`             | 本机构客户账号管理                              |
-| `portal.customers.credentials` | `/customers/credentials` | 本机构客户密钥管理                              |
+| 菜单 code                      | 路由                     | 页面职责                                         |
+| ------------------------------ | ------------------------ | ------------------------------------------------ |
+| `portal.dashboard`             | `/dashboard`             | 看板                                             |
+| `portal.orders`                | `/orders`                | 订单索引，对齐管理端 `GET /v1/waybills`          |
+| `portal.system`                | 目录                     | 系统管理二级菜单                                 |
+| `portal.accounts`              | `/accounts`              | 本机构账号管理，挂在系统管理下                   |
+| `portal.groups`                | `/groups`                | 本机构客服组管理，挂在系统管理下                 |
+| `portal.customers`             | 目录                     | 客户管理二级菜单                                 |
+| `portal.customers.enterprises` | `/customers/enterprises` | 本机构企业管理，页面 `src/pages/enterprises`     |
+| `portal.customers.accounts`    | `/customers`             | 本机构客户账号管理，页面 `src/pages/customers`   |
+| `portal.customers.credentials` | `/customers/credentials` | 本机构客户密钥管理，页面 `src/pages/credentials` |
 
 ## 多标签（壳层能力，不是业务页）
 

@@ -254,7 +254,7 @@ The design system maintains a unified border-radius standard of **6px (Default /
 - **Primary**: Solid China Post Green (`#0F6B3D`) background with white text. Height is `32px` standard (or `40px` large). Hover transitions to `#148A4E`, and active click compresses to `#083B21`.
 - **Default**: White background with `#E5E6EB` border and `#1D2129` text. Hover shifts border and text to `#148A4E`.
 - **Danger**: Red (`#F5222D`) tone for irrevocable operations (e.g., cancelling batch manifests).
-- **Workbench size**: Query forms, table toolbar actions (刷新 / 新建 / 重置 / 重试) inherit the app control size (`large` / `40px`). Do not force `small` on these actions — mixed 24px chips against 40px inputs look off-theme.
+- **Workbench size**: Query forms, table toolbar actions (刷新 / 新建 / 重置 / 重试) inherit `VITE_FORM_CONTROL_SIZE` (`small` / `middle` / `large`, default `large` / `40px`). Do not force a different size on these actions.
 - **Link actions**: Table row 查看 / 编辑 / 删除 stay `link` and follow `body-md` (`14px`), not a separate button size.
 
 ### 2. Input & Select Controls
@@ -267,7 +267,7 @@ The design system maintains a unified border-radius standard of **6px (Default /
 
 - Workbench add/edit forms **always** use Ant Design Form `layout="horizontal"`. Do not use `vertical` or `inline` in Modal forms.
 - Label sits to the **left** of the control, right-aligned, width `120px`, with a colon. The control takes the remaining width (`labelCol={{ flex: "120px" }}`, `wrapperCol={{ flex: "auto" }}`, `labelAlign="right"`, `colon`).
-- Modal forms keep control `size="large"` (`40px`). One field per row — do not drop two `Form.Item`s into a CSS grid that fights the label column.
+- Modal forms inherit `VITE_FORM_CONTROL_SIZE` (default `large` / `40px`). One field per row — do not drop two `Form.Item`s into a CSS grid that fights the label column. Do not hardcode `size="large"` on page forms.
 - Query toolbars are a single row of inputs, not a Form layout. Read-only view uses `ViewFields` (label `112px` left), not a disabled Form.
 - Import Form from `src/components/Form`. Pages must not set `layout="vertical"`.
 
@@ -331,7 +331,7 @@ Pill radius `full`, type `body-sm` (`12px`), height `22px`. VIP remains gold `#F
 - Brand row uses the 7×7 primary mark and `title-sm` (`14px / 600`) label「业务导航目录」. Do not use 12px here.
 - Menu items are `40px` tall, radius `6px`, `body-md` (`14px / 20px`). Icons `16px`.
 - Default: `#1D2129` on white. Hover / selected fill `#EAF6EE`. Selected text and icon `#0F6B3D` at weight 600.
-- Directory parents (客户管理) keep the same type size as leaves. Nested leaves indent; they do not shrink.
+- Directory parents (系统管理、客户管理) keep the same type size as leaves. Nested leaves indent; they do not shrink.
 - Do not force a 13px menu font. Overflow menus use Level 3 elevation.
 
 ### 10. Workspace Tabs

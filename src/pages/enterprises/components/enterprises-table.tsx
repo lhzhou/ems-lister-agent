@@ -1,68 +1,59 @@
 import type { ReactNode } from "react";
 import {
   Button,
-  credentialStatusTone,
+  customerStatusTone,
   Popconfirm,
   Status,
   Table,
   type ColumnsType,
 } from "@/src/components/Form";
-import {
-  credentialInterfaceLabel,
-  credentialStatusLabel,
-  type CustomerCredentialRecord,
-} from "../model/credential-types";
+import { customerStatusLabel, type CustomerRecord } from "@/src/pages/customers/model/types";
 
-export function CredentialsTable({
+export function EnterprisesTable({
   items,
   total,
+  page,
+  size,
   loading,
   error,
   extra,
   onReload,
+  onPageChange,
+  onSizeChange,
   onView,
   onEdit,
   onDelete,
 }: {
-  items: CustomerCredentialRecord[];
+  items: CustomerRecord[];
   total: number;
+  page: number;
+  size: number;
   loading: boolean;
   error: string;
   extra?: ReactNode;
   onReload: () => void;
-  onView: (item: CustomerCredentialRecord) => void;
-  onEdit: (item: CustomerCredentialRecord) => void;
-  onDelete: (item: CustomerCredentialRecord) => void;
+  onPageChange: (page: number) => void;
+  onSizeChange: (size: number) => void;
+  onView: (item: CustomerRecord) => void;
+  onEdit: (item: CustomerRecord) => void;
+  onDelete: (item: CustomerRecord) => void;
 }) {
-  const columns: ColumnsType<CustomerCredentialRecord> = [
-    { title: "客户名称", dataIndex: "customer_name", key: "customer_name", width: 260 },
-    { title: "密钥名称", dataIndex: "name", key: "name", width: 260 },
+  const columns: ColumnsType<CustomerRecord> = [
+    { title: "公司名称", dataIndex: "customer_name", key: "customer_name" },
     {
-      title: "测试-协议号",
-      dataIndex: "test_protocol_no",
-      key: "test_protocol_no",
-      width: 260,
+      title: "客户编号",
+      dataIndex: "customer_no",
+      key: "customer_no",
+      className: "font-mono text-on-surface-variant",
     },
-    {
-      title: "正式-协议号",
-      dataIndex: "production_protocol_no",
-      key: "production_protocol_no",
-      width: 260,
-    },
-
-    {
-      title: "接口",
-      key: "interfaces",
-      width: 160,
-      render: (_value, item) => credentialInterfaceLabel(item),
-    },
+    { title: "联系人", dataIndex: "contact_name", key: "contact_name" },
+    { title: "联系电话", dataIndex: "contact_phone", key: "contact_phone" },
     {
       title: "状态",
       dataIndex: "status",
       key: "status",
-      width: 96,
       render: (value: string) => (
-        <Status tone={credentialStatusTone(value)}>{credentialStatusLabel(value)}</Status>
+        <Status tone={customerStatusTone(value)}>{customerStatusLabel(value)}</Status>
       ),
     },
     {
@@ -79,7 +70,7 @@ export function CredentialsTable({
             编辑
           </Button>
           <Popconfirm
-            title="确定删除该密钥？"
+            title="确定删除该企业？"
             okText="删除"
             cancelText="取消"
             onConfirm={() => onDelete(item)}
@@ -92,21 +83,25 @@ export function CredentialsTable({
   ];
 
   return (
-    <Table<CustomerCredentialRecord>
-      title="密钥管理"
+    <Table<CustomerRecord>
+      title="企业管理"
       extra={extra}
       rowKey="id"
       data={items}
       columns={columns}
       loading={loading}
       error={error}
-      empty="暂无本机构客户密钥"
+      empty="暂无本机构企业"
       onRetry={onReload}
       pagination={{
-        current: 1,
-        pageSize: 20,
+        current: page,
+        pageSize: size,
         total,
-        showSizeChanger: false,
+        showSizeChanger: true,
+        onChange: (nextPage, nextSize) => {
+          if (nextSize !== size) onSizeChange(nextSize);
+          else onPageChange(nextPage);
+        },
       }}
     />
   );

@@ -70,7 +70,6 @@ export function GroupsForm({
       ) : (
         <Form
           form={form}
-          size="large"
           initialValues={
             record
               ? {

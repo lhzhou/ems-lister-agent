@@ -8,6 +8,7 @@ import {
 import { Button as AntButton } from "antd";
 import type { ButtonProps } from "antd";
 import type { ReactNode } from "react";
+import { CONTROL_SIZE } from "@/src/app/control-size";
 
 export type AppButtonType =
   | "create"
@@ -60,7 +61,7 @@ export function Button({
 }: AppButtonProps) {
   const preset = BUTTON_TYPE_PRESETS[type] ?? BUTTON_TYPE_PRESETS.default;
   const resolvedSize =
-    size ?? (preset.antdType === "link" || preset.antdType === "text" ? "middle" : "large");
+    size ?? (preset.antdType === "link" || preset.antdType === "text" ? "middle" : CONTROL_SIZE);
   return (
     <AntButton
       type={preset.antdType}

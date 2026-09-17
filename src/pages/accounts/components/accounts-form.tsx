@@ -79,7 +79,6 @@ export function AccountsForm({
       ) : (
         <Form
           form={form}
-          size="large"
           initialValues={
             record
               ? {

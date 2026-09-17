@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { credentialsApi, customersApi } from "@/src/api";
-import type { CustomerRecord } from "../model/types";
+import type { CustomerRecord } from "@/src/pages/customers/model/types";
 import type { CustomerCredentialRecord } from "../model/credential-types";
 
 export function useCredentials() {

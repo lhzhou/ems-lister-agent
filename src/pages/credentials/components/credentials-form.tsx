@@ -1,4 +1,7 @@
+import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
+import { useState } from "react";
 import {
+  Button,
   Form,
   Input,
   Modal,
@@ -7,14 +10,16 @@ import {
   ViewFields,
   credentialStatusTone,
   formatDateTime,
+  notify,
   statusDot,
 } from "@/src/components/Form";
-import type { CustomerRecord } from "../model/types";
+import { copyText } from "@/src/lib/clipboard";
+import type { CustomerRecord } from "@/src/pages/customers/model/types";
 import {
   CREDENTIAL_STATUS_OPTIONS,
-  credentialConfiguredLabel,
   credentialInterfaceLabel,
   credentialProtocolNo,
+  credentialPublishURL,
   credentialStatusLabel,
   type CustomerCredentialRecord,
 } from "../model/credential-types";
@@ -33,6 +38,48 @@ export type CredentialFormValues = {
   interfaces?: string[];
   status?: "active" | "disabled";
 };
+
+function SecretValue({ value, configured }: { value?: string; configured?: boolean }) {
+  const [visible, setVisible] = useState(false);
+  const secret = String(value ?? "").trim();
+  if (!secret) {
+    return <span>{configured ? "已配置" : "未配置"}</span>;
+  }
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2">
+      <span className="min-w-0 break-all font-mono">{visible ? secret : "••••••••"}</span>
+      <Button
+        type="link"
+        className="app-action-view px-0"
+        icon={visible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+        onClick={() => setVisible((current) => !current)}
+      >
+        {visible ? "隐藏" : "查看"}
+      </Button>
+    </span>
+  );
+}
+
+function CopyableValue({ value }: { value: string }) {
+  if (!value) return <span>—</span>;
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2">
+      <span className="min-w-0 break-all font-mono">{value}</span>
+      <Button
+        type="link"
+        className="app-action-view px-0"
+        onClick={() => {
+          void copyText(value).then((ok) => {
+            if (ok) notify.success("已复制");
+            else notify.error("复制失败");
+          });
+        }}
+      >
+        复制
+      </Button>
+    </span>
+  );
+}
 
 export function CredentialsForm({
   open,
@@ -60,6 +107,7 @@ export function CredentialsForm({
   const [form] = Form.useForm<CredentialFormValues>();
   const readOnly = mode === "view";
   const title = mode === "create" ? "新增密钥" : mode === "edit" ? "编辑密钥" : "查看密钥";
+  const publishURL = credentialPublishURL(record?.gateway_route_key);
 
   return (
     <Modal
@@ -80,21 +128,46 @@ export function CredentialsForm({
             { label: "客户", value: record.customer_name || "—" },
             { label: "密钥名称", value: record.name },
             { label: "描述", value: record.description || "—" },
-            { label: "协议号（兼容）", value: record.postal_customer_no || "—" },
             { label: "测试协议号", value: credentialProtocolNo(record, "testing") || "—" },
-            { label: "测试授权码", value: credentialConfiguredLabel(record.test_configured) },
-            { label: "测试签名密钥", value: credentialConfiguredLabel(record.test_configured) },
+            {
+              label: "测试授权码",
+              value: (
+                <SecretValue
+                  value={record.test_authorization}
+                  configured={record.test_configured}
+                />
+              ),
+            },
+            {
+              label: "测试签名密钥",
+              value: (
+                <SecretValue
+                  value={record.test_signature_key}
+                  configured={record.test_configured}
+                />
+              ),
+            },
             { label: "正式协议号", value: credentialProtocolNo(record, "production") || "—" },
             {
               label: "正式授权码",
-              value: credentialConfiguredLabel(record.production_configured),
+              value: (
+                <SecretValue
+                  value={record.production_authorization}
+                  configured={record.production_configured}
+                />
+              ),
             },
             {
               label: "正式签名密钥",
-              value: credentialConfiguredLabel(record.production_configured),
+              value: (
+                <SecretValue
+                  value={record.production_signature_key}
+                  configured={record.production_configured}
+                />
+              ),
             },
             { label: "接口", value: credentialInterfaceLabel(record) },
-            { label: "路由键", value: record.gateway_route_key || "—" },
+            { label: "路由键", value: <CopyableValue value={publishURL} /> },
             {
               label: "状态",
               value: statusDot(
@@ -110,7 +183,6 @@ export function CredentialsForm({
         <Form
           key={`${mode}-${record?.id ?? "new"}`}
           form={form}
-          size="large"
           initialValues={
             record
               ? {

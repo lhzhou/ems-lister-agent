@@ -3,8 +3,9 @@ import {
   credentialConfiguredLabel,
   credentialInterfaceLabel,
   credentialProtocolNo,
+  credentialPublishURL,
   credentialStatusLabel,
-} from "@/src/pages/customers/model/credential-types";
+} from "@/src/pages/credentials/model/credential-types";
 
 describe("credential labels", () => {
   test("maps credential status", () => {
@@ -28,6 +29,13 @@ describe("credential labels", () => {
     expect(credentialProtocolNo({ postal_customer_no: "C-1" }, "testing")).toBe("C-1");
     expect(credentialConfiguredLabel(true)).toBe("已配置");
     expect(credentialConfiguredLabel(false)).toBe("未配置");
+  });
+
+  test("builds full publish url from route key", () => {
+    expect(credentialPublishURL("abc123")).toBe(
+      "https://ems-api.hnjxwl.com/gateway/ems/publish/abc123",
+    );
+    expect(credentialPublishURL("")).toBe("");
   });
 
   test("joins enabled interfaces", () => {

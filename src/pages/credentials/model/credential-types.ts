@@ -16,6 +16,10 @@ export type CustomerCredentialRecord = {
   supports_tracking_query?: boolean;
   created_at?: string;
   updated_at?: string;
+  test_authorization?: string;
+  test_signature_key?: string;
+  production_authorization?: string;
+  production_signature_key?: string;
 };
 
 export type CustomerCredentialInput = {
@@ -72,4 +76,14 @@ export function credentialInterfaceLabel(record: CustomerCredentialRecord) {
       .filter(Boolean)
       .join("、") || "未配置"
   );
+}
+
+export function credentialPublishURL(routeKey?: string) {
+  const key = String(routeKey ?? "").trim();
+  if (!key) return "";
+  const base = String(
+    (import.meta as { env?: { VITE_EMS_PUSH_BASE_URL?: string } }).env?.VITE_EMS_PUSH_BASE_URL ||
+      "https://ems-api.hnjxwl.com",
+  ).replace(/\/$/, "");
+  return `${base}/gateway/ems/publish/${key}`;
 }

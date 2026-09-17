@@ -143,7 +143,6 @@ export function CustomersForm({
       ) : (
         <Form
           form={form}
-          size="large"
           requiredMark
           initialValues={
             record

@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Package,
   PackageSearch,
+  Settings,
   Users,
   UsersRound,
   type LucideIcon,
@@ -31,6 +32,7 @@ const NAMED_ICONS: Record<string, LucideIcon> = {
   UsersRound,
   Building2,
   KeyRound,
+  Settings,
 };
 
 export function iconForTab(tab: PortalTab): LucideIcon {

@@ -1,6 +1,7 @@
 import { Form as AntForm } from "antd";
 import type { FormProps } from "antd";
 import type { ReactNode } from "react";
+import { CONTROL_SIZE } from "@/src/app/control-size";
 
 export type AppFormProps = Omit<FormProps, "children"> & {
   children?: ReactNode;
@@ -12,6 +13,7 @@ function AppForm({
   wrapperCol = { flex: "auto" },
   labelAlign = "right",
   colon = true,
+  size = CONTROL_SIZE,
   children,
   ...rest
 }: AppFormProps) {
@@ -22,6 +24,7 @@ function AppForm({
       wrapperCol={wrapperCol}
       labelAlign={labelAlign}
       colon={colon}
+      size={size}
       {...rest}
     >
       {children}
