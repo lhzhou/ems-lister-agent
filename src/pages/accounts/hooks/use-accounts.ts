@@ -16,7 +16,6 @@ export function useAccounts() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     void accountsApi
       .list({
         page,
@@ -54,21 +53,25 @@ export function useAccounts() {
     setSize: (next: number) => {
       setLoading(true);
       setSizeState(next);
+      setPageState(1);
     },
     keyword,
     setKeyword: (value: string) => {
       setLoading(true);
       setKeywordState(value);
+      setPageState(1);
     },
     type,
     setType: (value: string) => {
       setLoading(true);
       setTypeState(value);
+      setPageState(1);
     },
     status,
     setStatus: (value: string) => {
       setLoading(true);
       setStatusState(value);
+      setPageState(1);
     },
     items,
     total,

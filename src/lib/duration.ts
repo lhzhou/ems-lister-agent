@@ -40,6 +40,16 @@ function autoLabel(total: number) {
  *   - `≥ 24小时` → `2天4小时`
  *   - `≥ 365天` → `1年3天8小时`
  */
+export function hoursSince(value?: string | null): number | undefined {
+  if (!value) return undefined;
+  const normalized = value.includes("T") ? value : value.replace(" ", "T");
+  const start = Date.parse(normalized);
+  if (!Number.isFinite(start)) return undefined;
+  const hours = (Date.now() - start) / 3_600_000;
+  if (!Number.isFinite(hours) || hours < 0) return undefined;
+  return hours;
+}
+
 export function formatDuration(
   hours: number | null | undefined,
   style: DurationStyle = "auto",
@@ -50,4 +60,8 @@ export function formatDuration(
   const total = Math.floor(hours);
   if (style === "hours") return hoursLabel(total);
   return autoLabel(total);
+}
+
+export function formatDurationFromTime(value?: string | null, fallbackHours?: number | null) {
+  return formatDuration(hoursSince(value) ?? fallbackHours);
 }

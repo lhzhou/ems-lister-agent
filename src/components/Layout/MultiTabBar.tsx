@@ -22,6 +22,11 @@ interface MultiTabBarProps {
   onRefreshTab: (tabId: string) => void;
 }
 
+const iconBtn =
+  "hidden h-7 w-7 shrink-0 items-center justify-center rounded-[6px] border border-transparent text-on-surface-disabled transition-colors hover:border-outline hover:bg-surface hover:text-on-surface sm:flex";
+
+const menuItem = "flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors";
+
 export const MultiTabBar: React.FC<MultiTabBarProps> = ({
   tabs,
   activeTabId,
@@ -41,7 +46,6 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
     tabId: string;
   }>({ visible: false, x: 0, y: 0, tabId: "" });
 
-  // Scroll active tab into view when activeTabId changes
   useEffect(() => {
     if (!scrollContainerRef.current) return;
     const activeEl = scrollContainerRef.current.querySelector(
@@ -52,7 +56,6 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
     }
   }, [activeTabId]);
 
-  // Handle global click to dismiss popups
   useEffect(() => {
     const handleGlobalClick = () => {
       setShowMoreActions(false);
@@ -62,29 +65,15 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
     return () => window.removeEventListener("click", handleGlobalClick);
   }, []);
 
-  // Horizontal scroll step
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
     const scrollAmount = direction === "left" ? -200 : 200;
     scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
-  // Icon mapping for tabs
   const getTabIcon = (tab: AppTab) => {
-    if (tab.tabType === "dashboard") return <LayoutDashboard className="w-3.5 h-3.5" />;
-    return <Package className="w-3.5 h-3.5" />;
-  };
-
-  // Color theme styling matching image.png (soft colored borders and subtle tints)
-  const getTabStyle = (tab: AppTab, isActive: boolean) => {
-    if (isActive) {
-      return "bg-white text-[#00703C] border-2 border-[#00703C] shadow-sm font-semibold z-10";
-    }
-
-    if (tab.colorTheme === "blue") {
-      return "bg-blue-50/60 text-stone-700 border border-blue-200/80 hover:bg-blue-100/70 hover:border-blue-300";
-    }
-    return "bg-emerald-50/60 text-stone-700 border border-emerald-200/80 hover:bg-emerald-100/70 hover:border-emerald-300";
+    if (tab.tabType === "dashboard") return <LayoutDashboard className="h-3.5 w-3.5" />;
+    return <Package className="h-3.5 w-3.5" />;
   };
 
   const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
@@ -99,23 +88,21 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#f4f6f8] border-b border-stone-200 px-2 sm:px-4 py-1.5 flex items-center justify-between gap-1 select-none relative z-20">
-      {/* Scroll Left Button */}
+    <div className="relative z-20 flex h-10 w-full select-none items-center justify-between gap-1 border-b border-outline bg-surface-layout px-2 sm:px-4">
       <button
         type="button"
         onClick={() => handleScroll("left")}
         aria-label="向前滚动标签页"
-        className="hidden sm:flex items-center justify-center w-7 h-7 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-white border border-transparent hover:border-stone-200 transition-all shrink-0"
+        className={iconBtn}
       >
-        <ChevronLeft className="w-4 h-4" />
+        <ChevronLeft className="h-4 w-4" />
       </button>
 
-      {/* Tabs Horizontal List */}
       <div
         ref={scrollContainerRef}
         role="tablist"
         aria-label="已打开页面"
-        className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5"
+        className="no-scrollbar flex flex-1 items-center gap-1.5 overflow-x-auto scroll-smooth"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {tabs.map((tab) => {
@@ -129,20 +116,23 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               tabIndex={isActive ? 0 : -1}
               onClick={() => onSelectTab(tab.id)}
               onContextMenu={(e) => handleContextMenu(e, tab.id)}
-              className={`group flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs cursor-pointer transition-all duration-150 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00703C] ${getTabStyle(tab, isActive)}`}
+              className={`group flex shrink-0 cursor-pointer items-center gap-2 rounded-[6px] px-3 py-1 text-xs transition-colors duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                isActive
+                  ? "z-10 border border-primary bg-surface font-semibold text-primary"
+                  : "border border-primary-border bg-primary-light/70 text-on-surface hover:bg-primary-light"
+              }`}
               title={`${tab.title} (右键打开菜单)`}
             >
               <span
-                className={`shrink-0 ${isActive ? "text-[#00703C]" : "text-stone-500 group-hover:text-stone-800"}`}
+                className={`shrink-0 ${isActive ? "text-primary" : "text-on-surface-variant group-hover:text-on-surface"}`}
               >
                 {getTabIcon(tab)}
               </span>
 
-              <span className="font-medium whitespace-nowrap tracking-tight max-w-[150px] truncate">
+              <span className="max-w-[150px] truncate font-medium tracking-tight whitespace-nowrap">
                 {tab.title}
               </span>
 
-              {/* Close Tab Button */}
               {tab.closable ? (
                 <button
                   type="button"
@@ -151,9 +141,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
                     onCloseTab(tab.id);
                   }}
                   aria-label={`关闭 ${tab.title}`}
-                  className="w-4 h-4 rounded-full flex items-center justify-center text-stone-400 hover:text-rose-600 hover:bg-rose-100 transition-colors ml-0.5"
+                  className="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-on-surface-disabled transition-colors hover:bg-alert-error-bg hover:text-error"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="h-3 w-3" />
                 </button>
               ) : (
                 <span className="w-1.5"></span>
@@ -163,29 +153,25 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
         })}
       </div>
 
-      {/* Scroll Right Button */}
       <button
         type="button"
         onClick={() => handleScroll("right")}
         aria-label="向后滚动标签页"
-        className="hidden sm:flex items-center justify-center w-7 h-7 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-white border border-transparent hover:border-stone-200 transition-all shrink-0"
+        className={iconBtn}
       >
-        <ChevronRight className="w-4 h-4" />
+        <ChevronRight className="h-4 w-4" />
       </button>
 
-      {/* Right Controls: Refresh & More Actions Menu */}
-      <div className="flex items-center gap-1 shrink-0 pl-1">
-        {/* Refresh active tab button */}
+      <div className="flex shrink-0 items-center gap-1 pl-1">
         <button
           type="button"
           onClick={() => onRefreshTab(activeTabId)}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-stone-500 hover:text-[#00703C] hover:bg-white border border-transparent hover:border-stone-200 transition-all"
+          className="flex h-7 w-7 items-center justify-center rounded-[6px] border border-transparent text-on-surface-variant transition-colors hover:border-outline hover:bg-surface hover:text-primary"
           title="刷新当前窗口"
         >
-          <RotateCw className="w-3.5 h-3.5" />
+          <RotateCw className="h-3.5 w-3.5" />
         </button>
 
-        {/* More actions dropdown */}
         <div className="relative">
           <button
             type="button"
@@ -193,18 +179,18 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               e.stopPropagation();
               setShowMoreActions(!showMoreActions);
             }}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-stone-500 hover:text-stone-800 hover:bg-white border border-transparent hover:border-stone-200 transition-all"
+            className="flex h-7 w-7 items-center justify-center rounded-[6px] border border-transparent text-on-surface-variant transition-colors hover:border-outline hover:bg-surface hover:text-on-surface"
             title="窗口管理操作"
           >
-            <MoreHorizontal className="w-4 h-4" />
+            <MoreHorizontal className="h-4 w-4" />
           </button>
 
           {showMoreActions && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 top-full mt-1.5 w-44 bg-white rounded-2xl shadow-xl border border-stone-200 py-1.5 z-50 text-xs text-stone-700 animate-in fade-in zoom-in-95 duration-100"
+              className="absolute top-full right-0 z-50 mt-1.5 w-44 rounded-xl border border-outline bg-surface py-1.5 text-xs text-on-surface shadow-popover"
             >
-              <div className="px-3 py-1 text-[10px] text-stone-400 font-semibold border-b border-stone-100">
+              <div className="border-b border-outline-variant px-3 py-1 text-[10px] font-semibold text-on-surface-disabled">
                 已打开 {tabs.length} 个窗口
               </div>
               <button
@@ -213,9 +199,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
                   onRefreshTab(activeTabId);
                   setShowMoreActions(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-emerald-50 hover:text-[#00703C] text-left transition-colors"
+                className={`${menuItem} hover:bg-primary-light hover:text-primary`}
               >
-                <RotateCw className="w-3.5 h-3.5" />
+                <RotateCw className="h-3.5 w-3.5" />
                 <span>刷新当前窗口</span>
               </button>
               <button
@@ -225,9 +211,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
                   setShowMoreActions(false);
                 }}
                 disabled={!tabs.find((t) => t.id === activeTabId)?.closable}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-700 text-left transition-colors disabled:opacity-40"
+                className={`${menuItem} hover:bg-alert-error-bg hover:text-error disabled:opacity-40`}
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="h-3.5 w-3.5" />
                 <span>关闭当前窗口</span>
               </button>
               <button
@@ -236,9 +222,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
                   onCloseOtherTabs(activeTabId);
                   setShowMoreActions(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-50 text-left transition-colors"
+                className={`${menuItem} hover:bg-surface-container`}
               >
-                <FolderMinus className="w-3.5 h-3.5 text-stone-500" />
+                <FolderMinus className="h-3.5 w-3.5 text-on-surface-variant" />
                 <span>关闭其他窗口</span>
               </button>
               <button
@@ -247,21 +233,21 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
                   onCloseRightTabs(activeTabId);
                   setShowMoreActions(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-50 text-left transition-colors"
+                className={`${menuItem} hover:bg-surface-container`}
               >
-                <ChevronRight className="w-3.5 h-3.5 text-stone-500" />
+                <ChevronRight className="h-3.5 w-3.5 text-on-surface-variant" />
                 <span>关闭右侧窗口</span>
               </button>
-              <div className="border-t border-stone-100 my-1"></div>
+              <div className="my-1 border-t border-outline-variant"></div>
               <button
                 type="button"
                 onClick={() => {
                   onCloseAllTabs();
                   setShowMoreActions(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 text-rose-600 text-left transition-colors"
+                className={`${menuItem} text-error hover:bg-alert-error-bg`}
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="h-3.5 w-3.5" />
                 <span>重置关闭所有</span>
               </button>
             </div>
@@ -269,12 +255,11 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
         </div>
       </div>
 
-      {/* Right-click Context Menu */}
       {contextMenu.visible && (
         <div
           onClick={(e) => e.stopPropagation()}
           style={{ position: "fixed", left: contextMenu.x, top: contextMenu.y }}
-          className="w-40 bg-white rounded-xl shadow-2xl border border-stone-200 py-1.5 z-[100] text-xs text-stone-700 animate-in fade-in zoom-in-95 duration-75"
+          className="z-[100] w-40 rounded-xl border border-outline bg-surface py-1.5 text-xs text-on-surface shadow-modal"
         >
           <button
             type="button"
@@ -282,9 +267,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               onRefreshTab(contextMenu.tabId);
               setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-emerald-50 hover:text-[#00703C] text-left transition-colors"
+            className={`${menuItem} hover:bg-primary-light hover:text-primary`}
           >
-            <RotateCw className="w-3.5 h-3.5" />
+            <RotateCw className="h-3.5 w-3.5" />
             <span>重新加载</span>
           </button>
           <button
@@ -294,9 +279,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
             disabled={!tabs.find((t) => t.id === contextMenu.tabId)?.closable}
-            className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-700 text-left transition-colors disabled:opacity-40"
+            className={`${menuItem} hover:bg-alert-error-bg hover:text-error disabled:opacity-40`}
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="h-3.5 w-3.5" />
             <span>关闭标签页</span>
           </button>
           <button
@@ -305,9 +290,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               onCloseOtherTabs(contextMenu.tabId);
               setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-50 text-left transition-colors"
+            className={`${menuItem} hover:bg-surface-container`}
           >
-            <FolderMinus className="w-3.5 h-3.5 text-stone-500" />
+            <FolderMinus className="h-3.5 w-3.5 text-on-surface-variant" />
             <span>关闭其他</span>
           </button>
           <button
@@ -316,9 +301,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               onCloseRightTabs(contextMenu.tabId);
               setContextMenu((prev) => ({ ...prev, visible: false }));
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-50 text-left transition-colors"
+            className={`${menuItem} hover:bg-surface-container`}
           >
-            <ChevronRight className="w-3.5 h-3.5 text-stone-500" />
+            <ChevronRight className="h-3.5 w-3.5 text-on-surface-variant" />
             <span>关闭右侧</span>
           </button>
         </div>

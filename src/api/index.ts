@@ -6,3 +6,5 @@ export * from "./menus";
 export * from "./waybills";
 export * from "./accounts";
 export * from "./groups";
+export * from "./customers";
+export * from "./credentials";

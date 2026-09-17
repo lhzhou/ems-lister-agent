@@ -1,4 +1,6 @@
-import { Button, Popconfirm, Tag } from "antd";
+import type { ReactNode } from "react";
+import { Tag } from "antd";
+import { Button, Popconfirm } from "@/src/components/Form";
 import { Table, type ColumnsType } from "@/src/components/Form";
 import {
   accountStatusLabel,
@@ -21,6 +23,7 @@ export function AccountsTable({
   onEdit,
   onResetPassword,
   onDelete,
+  extra,
 }: {
   items: AccountRecord[];
   total: number;
@@ -35,6 +38,7 @@ export function AccountsTable({
   onEdit: (item: AccountRecord) => void;
   onResetPassword: (item: AccountRecord) => void;
   onDelete: (item: AccountRecord) => void;
+  extra?: ReactNode;
 }) {
   const columns: ColumnsType<AccountRecord> = [
     { title: "账号", dataIndex: "username", key: "username", className: "font-mono" },
@@ -68,13 +72,13 @@ export function AccountsTable({
         const writable = canManageAccount(item.type);
         return (
           <div className="flex flex-wrap gap-1">
-            <Button type="link" className="px-1" onClick={() => onView(item)}>
+            <Button type="view" onClick={() => onView(item)}>
               查看
             </Button>
-            <Button type="link" className="px-1" disabled={!writable} onClick={() => onEdit(item)}>
+            <Button type="edit" disabled={!writable} onClick={() => onEdit(item)}>
               编辑
             </Button>
-            <Button type="link" className="px-1" disabled={!writable} onClick={() => onResetPassword(item)}>
+            <Button type="edit" disabled={!writable} onClick={() => onResetPassword(item)}>
               重置密码
             </Button>
             <Popconfirm
@@ -84,7 +88,7 @@ export function AccountsTable({
               disabled={!writable}
               onConfirm={() => onDelete(item)}
             >
-              <Button type="link" danger className="px-1" disabled={!writable}>
+              <Button type="delete" disabled={!writable}>
                 删除
               </Button>
             </Popconfirm>
@@ -95,26 +99,26 @@ export function AccountsTable({
   ];
 
   return (
-    <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm">
-      <Table<AccountRecord>
-        rowKey="id"
-        data={items}
-        columns={columns}
-        loading={loading}
-        error={error}
-        empty="暂无公司账号"
-        onRetry={onReload}
-        pagination={{
-          current: page,
-          pageSize: size,
-          total,
-          showSizeChanger: true,
-          onChange: (nextPage, nextSize) => {
-            if (nextSize !== size) onSizeChange(nextSize);
-            else onPageChange(nextPage);
-          },
-        }}
-      />
-    </section>
+    <Table<AccountRecord>
+      title="账号管理"
+      extra={extra}
+      rowKey="id"
+      data={items}
+      columns={columns}
+      loading={loading}
+      error={error}
+      empty="暂无公司账号"
+      onRetry={onReload}
+      pagination={{
+        current: page,
+        pageSize: size,
+        total,
+        showSizeChanger: true,
+        onChange: (nextPage, nextSize) => {
+          if (nextSize !== size) onSizeChange(nextSize);
+          else onPageChange(nextPage);
+        },
+      }}
+    />
   );
 }

@@ -1,14 +1,26 @@
 import type { WorkspaceTab } from "@/types/workspace";
+import { canonicalizePathname } from "@/src/routers/tab-id";
 
 export function tabPathname(id: string): string {
-  return id.split("?")[0] || "/";
+  return canonicalizePathname(id.split("?")[0] || "/");
+}
+
+export function uniqueTabs(tabs: WorkspaceTab[]): WorkspaceTab[] {
+  const seen = new Map<string, WorkspaceTab>();
+  for (const tab of tabs) {
+    const path = tabPathname(tab.id);
+    const searchIndex = tab.id.indexOf("?");
+    const id = searchIndex >= 0 ? `${path}${tab.id.slice(searchIndex)}` : path;
+    seen.set(path, { ...tab, id, href: id });
+  }
+  return [...seen.values()];
 }
 
 export function openTab(tabs: WorkspaceTab[], tab: WorkspaceTab): WorkspaceTab[] {
   const path = tabPathname(tab.id);
-  const index = tabs.findIndex((item) => tabPathname(item.id) === path);
-  if (index < 0) return [...tabs, tab];
-  const next = [...tabs];
+  const next = uniqueTabs(tabs);
+  const index = next.findIndex((item) => tabPathname(item.id) === path);
+  if (index < 0) return [...next, tab];
   next[index] = { ...next[index], ...tab };
   return next;
 }

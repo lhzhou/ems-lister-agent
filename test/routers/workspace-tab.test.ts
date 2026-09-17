@@ -3,6 +3,11 @@ import { appTabFromWorkspace, workspaceTabFromHref } from "@/src/routers/workspa
 
 describe("workspaceTabFromHref", () => {
   test("opens registered dashboard and orders tabs", () => {
+    expect(workspaceTabFromHref("/")).toMatchObject({
+      id: "/dashboard",
+      title: "看板",
+      closable: false,
+    });
     expect(workspaceTabFromHref("/dashboard")).toMatchObject({
       id: "/dashboard",
       title: "看板",
@@ -28,5 +33,6 @@ describe("appTabFromWorkspace", () => {
       tabType: "orders",
       closable: true,
     });
+    expect(appTabFromWorkspace(tab)).not.toHaveProperty("colorTheme");
   });
 });

@@ -12,12 +12,14 @@ export function PageContainer({
   children: ReactNode;
 }) {
   return (
-    <main className="flex-1 w-full px-3 py-4 space-y-4 sm:px-5 lg:px-6">
+    <main className="w-full flex-1 space-y-4 px-4 py-6 sm:px-6">
       {(title || actions) && (
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            {title ? <h1 className="text-base font-bold text-stone-900">{title}</h1> : null}
-            {description ? <p className="mt-0.5 text-xs text-stone-500">{description}</p> : null}
+            {title ? <h1 className="text-lg font-semibold text-on-surface">{title}</h1> : null}
+            {description ? (
+              <p className="mt-0.5 text-xs text-on-surface-variant">{description}</p>
+            ) : null}
           </div>
           {actions}
         </header>

@@ -1,15 +1,19 @@
-import { Button, Empty, Table as AntTable, Typography } from "antd";
+import { Empty, Table as AntTable, Typography } from "antd";
 import type { TablePaginationConfig, TableProps } from "antd";
+import { Button } from "./Button";
 import { useRef, useState, type ReactNode } from "react";
 import { Pagination } from "./Pagination";
 
 export type { ColumnsType } from "antd/es/table";
 
-export type AppTableProps<T extends object> = Omit<TableProps<T>, "locale"> & {
+export type AppTableProps<T extends object> = Omit<TableProps<T>, "locale" | "title"> & {
   data?: T[];
   error?: string;
   empty?: ReactNode;
   onRetry?: () => void;
+  title?: ReactNode;
+  description?: ReactNode;
+  extra?: ReactNode;
 };
 
 function tablePagination(
@@ -45,10 +49,13 @@ export function Table<T extends object>({
   error = "",
   empty = "暂无数据",
   onRetry,
+  title,
+  description,
+  extra,
   loading = false,
   pagination = false,
   footer,
-  size = "small",
+  size = "middle",
   ...rest
 }: AppTableProps<T>) {
   const rows = data ?? dataSource;
@@ -70,7 +77,7 @@ export function Table<T extends object>({
           <Typography.Text type="danger">{error}</Typography.Text>
           {onRetry ? (
             <div>
-              <Button size="small" onClick={onRetry}>
+              <Button type="refresh" onClick={onRetry}>
                 重试
               </Button>
             </div>
@@ -87,25 +94,53 @@ export function Table<T extends object>({
     lockRef.current = true;
     bump((value) => value + 1);
   });
+  const total = typeof pagination === "object" ? pagination.total : undefined;
+  const summary =
+    description ?? (title != null && typeof total === "number" ? `共 ${total} 条` : undefined);
+  const showHeader = title != null || extra != null || Boolean(onRetry);
 
   return (
-    <AntTable<T>
-      {...rest}
-      dataSource={rows}
-      loading={busy}
-      pagination={false}
-      size={size}
-      locale={{ emptyText }}
-      footer={
-        paginationNode
-          ? (currentPageData) => (
-              <>
-                {typeof footer === "function" ? footer(currentPageData) : footer}
-                {paginationNode}
-              </>
-            )
-          : footer
-      }
-    />
+    <section className="app-card">
+      {showHeader ? (
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            {title != null || summary != null ? (
+              <h3 className="flex min-w-0 items-baseline gap-2 text-base font-semibold text-on-surface">
+                {title}
+                {summary != null ? (
+                  <span className="text-xs font-normal text-on-surface-disabled">{summary}</span>
+                ) : null}
+              </h3>
+            ) : null}
+          </div>
+          <div className="flex flex-shrink-0 items-center gap-2">
+            {extra}
+            {onRetry ? (
+              <Button type="refresh" onClick={onRetry} disabled={busy}>
+                刷新
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+      <AntTable<T>
+        {...rest}
+        dataSource={rows}
+        loading={busy}
+        pagination={false}
+        size={size}
+        locale={{ emptyText }}
+        footer={
+          paginationNode
+            ? (currentPageData) => (
+                <>
+                  {typeof footer === "function" ? footer(currentPageData) : footer}
+                  {paginationNode}
+                </>
+              )
+            : footer
+        }
+      />
+    </section>
   );
 }

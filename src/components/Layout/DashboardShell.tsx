@@ -12,7 +12,7 @@ export function DashboardShell({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-stone-100 font-sans text-stone-800 selection:bg-[#00703C] selection:text-white">
+    <div className="flex min-h-screen flex-col bg-surface-layout font-sans text-on-surface">
       {header}
       <div className="relative flex w-full flex-1">
         {sidebar}

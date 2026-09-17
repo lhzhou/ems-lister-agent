@@ -9,14 +9,14 @@
 - 产品：邮政重点邮件平台端。Vite + React + Tailwind + Zustand + Bun。开发入口 `bun`/`pnpm` 脚本，Express `server.ts` 托管前端。
 - 浏览器直连 corporation API `8082`（`VITE_API_BASE_URL`），不经 9082 代理。
 - 认证走 `/v1/auth/*`。生产菜单走 `GET /v1/menus`（`server=corporation`），禁止再写死侧栏数组。
-- 已注册业务页：看板 `/dashboard`、订单管理 `/orders`。动态菜单 `href` 必须命中 `src/routers/route-registry.ts`，未注册不生成页面。
-- 列表/详情契约以 8082 OpenAPI 为准，不凭空造接口。当前稳定接口：`GET /v1/dashboard`、`GET /v1/waybills`、`GET /v1/waybills/{id}/detail`、`GET /v1/stagnant-waybills`、`GET /v1/anomalies`、`GET /v1/menus`。
+- 已注册业务页：看板 `/dashboard`、订单管理 `/orders`、账号管理 `/accounts`、客服组管理 `/groups`、客户管理 `/customers`、企业管理 `/customers/enterprises`、密钥管理 `/customers/credentials`。动态菜单 `href` 必须命中 `src/routers/route-registry.ts`，未注册不生成页面。
+- 列表/详情契约以 8082 OpenAPI 为准，不凭空造接口。当前稳定接口：`GET /v1/dashboard`、`GET /v1/waybills`、`GET /v1/waybills/{id}/detail`、`GET /v1/stagnant-waybills`、`GET /v1/anomalies`、`GET /v1/menus`、`/v1/accounts`、`/v1/groups`、`/v1/customers`、`GET /v1/customer-credentials`。
 
 ## 目标
 
 把现有 `App.tsx` 壳层升级成可复用工作台：侧栏、顶栏、页面容器、多标签、主题、认证/菜单适配器。业务页进 `src/pages`，业务请求进 `src/api`，HTTP 客户端进 `src/lib/request.ts`。参考 Ant Design Pro 的布局和路由元数据思路，实现仍用本仓库技术栈，不引入 Umi / Ant Design Pro。
 
-工程：Vite 构建；Bun 跑脚本和测试；Oxc（`oxfmt` / `oxlint --deny-warnings`）管格式和静态检查。UI 库：Ant Design（`antd`），入口已接 `ConfigProvider` 中文与主色 `#00703C`。可选：`nprogress`、`ali-oss`、Markdown 编辑器。密钥只来自本地 env，不用 `VITE_` 暴露秘密。
+工程：Vite 构建；Bun 跑脚本和测试；Oxc（`oxfmt` / `oxlint --deny-warnings`）管格式和静态检查。UI 库：Ant Design（`antd`），入口已接 `ConfigProvider` 中文与主色 `#0F6B3D`（见 `DESIGN.md`）。可选：`nprogress`、`ali-oss`、Markdown 编辑器。密钥只来自本地 env，不用 `VITE_` 暴露秘密。
 
 非目标：假登录、假接口成功、行业模型进 shared、菜单字符串直接当组件、把本规范抄到其他端。
 
@@ -71,11 +71,11 @@ main.tsx → AppProviders
 
 ```ts
 type RouteMeta = {
-  title: string
-  icon?: React.ComponentType
-  permission?: string
-  tab?: { closable?: boolean; keepAlive?: boolean }
-}
+  title: string;
+  icon?: React.ComponentType;
+  permission?: string;
+  tab?: { closable?: boolean; keepAlive?: boolean };
+};
 ```
 
 `permission` 只做前端展示；真实权限在 8082。`keepAlive` 默认关。
@@ -84,17 +84,23 @@ type RouteMeta = {
 
 1. 先对 8082 契约，不造登录/菜单/业务接口。
 2. 新页：`bun run page:create <name> --dry-run`，确认后再生成；覆盖必须 `--force`。
-3. 列表：搜索 Card + 表格 Card；表格必须用 `src/components/Form/Table.tsx`（封装 Ant Design Table），页面只填列和数据。查看/编辑默认右侧 Drawer；短确认才用 Dialog。
+3. 列表：搜索 Card + 表格 Card；表格必须用 `src/components/Form/Table.tsx`（封装 Ant Design Table），页面只填列和数据。添加/编辑表单必须用 `src/components/Form/Modal.tsx`（Ant Design Modal，size 小/中/大/超大 416/640/880/1200，默认中）；短确认才用 Dialog。轨迹详情用超大。
 4. 必须有 loading / empty / error / retry。
 5. Demo 只在数据层切换，页面不维护两套请求。
 6. 认证只用适配器。菜单只用数据库，映射已注册路由。
 
 当前页对照：
 
-| 菜单 code | 路由 | 页面职责 |
-| --- | --- | --- |
-| `portal.dashboard` | `/dashboard` | 看板 |
-| `portal.orders` | `/orders` | 订单索引，对齐管理端 `GET /v1/waybills` |
+| 菜单 code                      | 路由                     | 页面职责                                        |
+| ------------------------------ | ------------------------ | ----------------------------------------------- |
+| `portal.dashboard`             | `/dashboard`             | 看板                                            |
+| `portal.orders`                | `/orders`                | 订单索引，对齐管理端 `GET /v1/waybills`         |
+| `portal.accounts`              | `/accounts`              | 本机构账号管理，对齐 corporation `/v1/accounts` |
+| `portal.groups`                | `/groups`                | 本机构客服组管理，对齐 corporation `/v1/groups` |
+| `portal.customers`             | 目录                     | 客户管理二级菜单                                |
+| `portal.customers.enterprises` | `/customers/enterprises` | 本机构企业管理                                  |
+| `portal.customers.accounts`    | `/customers`             | 本机构客户账号管理                              |
+| `portal.customers.credentials` | `/customers/credentials` | 本机构客户密钥管理                              |
 
 ## 多标签（壳层能力，不是业务页）
 

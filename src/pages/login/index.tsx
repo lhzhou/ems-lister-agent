@@ -5,14 +5,11 @@ meta:
 */
 
 import React, { useState } from "react";
+import { Checkbox } from "antd";
 import {
   Lock,
   User,
-  Eye,
-  EyeOff,
-  ArrowRight,
   AlertCircle,
-  RefreshCw,
   Truck,
   Shield,
   Server,
@@ -22,6 +19,7 @@ import {
 } from "lucide-react";
 import { UserInfo } from "@/src/types/express";
 import { authApi } from "@/src/api";
+import { Button, Input, Password } from "@/src/components/Form";
 import { removeStoredToken } from "@/src/lib/storage";
 
 interface LoginPageProps {
@@ -32,7 +30,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   // 表单输入
   const [account, setAccount] = useState<string>("商丘-虞城县");
   const [password, setPassword] = useState<string>("123123123");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   // UI 状态
   const [rememberMe, setRememberMe] = useState<boolean>(true);
@@ -167,181 +164,124 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#003819] via-[#005a30] to-[#002410] flex flex-col justify-between text-stone-800 selection:bg-[#00703C] selection:text-white relative overflow-hidden">
-      {/* Background Decorative Circles */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-10">
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full border-[40px] border-white/20"></div>
-        <div className="absolute top-1/2 -left-60 w-[700px] h-[700px] rounded-full border-[60px] border-white/20"></div>
+    <div className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-primary-dark text-on-surface">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-10">
+        <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full border-[40px] border-white/20"></div>
+        <div className="absolute top-1/2 -left-60 h-[700px] w-[700px] rounded-full border-[60px] border-white/20"></div>
       </div>
 
-      {/* Top Navbar */}
-      <header className="w-full px-6 py-4 flex items-center justify-between z-10">
-        <div className="flex items-center gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold text-white tracking-wide drop-shadow-sm">
-                中国邮政
-              </span>
-              <span className="text-xs bg-[#F9B200] text-stone-900 font-bold px-2 py-0.5 rounded-md shadow-xs">
-                公司端
-              </span>
-            </div>
-            <p className="text-[11px] text-emerald-200/90 tracking-wider font-mono">
-              CHINA POST EXPRESS & LOGISTICS
-            </p>
+      <header className="z-10 flex w-full items-center justify-between px-6 py-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold tracking-wide text-white">中国邮政</span>
+            <span className="rounded-full bg-gold-bg px-2 py-0.5 text-xs font-semibold text-gold">
+              公司端
+            </span>
           </div>
+          <p className="font-mono text-[11px] tracking-wider text-white/70">
+            CHINA POST EXPRESS & LOGISTICS
+          </p>
         </div>
-
-        <div className="hidden sm:flex items-center text-xs text-emerald-100/90 font-medium">
-          <span className="text-emerald-100/90 whitespace-nowrap">客服热线: 11183</span>
-        </div>
+        <div className="hidden text-xs font-medium text-white/80 sm:flex">客服热线: 11183</div>
       </header>
 
-      {/* Center Login Box */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8 z-10">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-100 overflow-hidden">
-          {/* Header of Login Card */}
-          <div className="bg-gradient-to-r from-[#005f32] to-[#00703C] px-7 py-6 text-white text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-3 shadow-inner">
-              <Truck className="w-6 h-6 text-[#F9B200]" />
+      <div className="z-10 flex flex-1 items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md overflow-hidden rounded-xl border border-outline bg-surface shadow-modal">
+          <div className="bg-primary px-7 py-6 text-center text-on-primary">
+            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-white/20 bg-white/10">
+              <Truck className="h-6 w-6 text-[#ffb95f]" aria-hidden="true" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight">邮件监控系统</h2>
+            <h2 className="text-xl font-semibold tracking-tight">邮件监控系统</h2>
           </div>
 
-          {/* Form Content */}
-          <div className="p-7">
-            {/* Error Alert */}
+          <div className="p-6">
             {errorMessage && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-500 mt-0.5" />
+              <div className="mb-4 flex items-start gap-2 rounded-lg border border-[#ffccc7] bg-alert-error-bg p-3 text-xs text-error">
+                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 <div className="flex-1">
-                  <div className="font-semibold text-red-800">登录未通过</div>
-                  <div className="text-[11px] text-red-600 mt-0.5 leading-relaxed">
-                    {errorMessage}
-                  </div>
+                  <div className="font-semibold">登录未通过</div>
+                  <div className="mt-0.5 leading-relaxed text-[11px]">{errorMessage}</div>
                 </div>
               </div>
             )}
 
-            {/* Success Alert */}
             {successMessage && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-primary-border bg-alert-success-bg p-3 text-xs text-primary">
+                <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 <span>{successMessage}</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Account / Work ID */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-stone-700 flex items-center justify-between">
-                  <span>登录账号 (login)</span>
-                  <span className="text-[11px] text-stone-400 font-normal">系统账号</span>
+                <label className="flex items-center justify-between text-xs font-semibold text-on-surface">
+                  <span>登录账号</span>
+                  <span className="font-normal text-on-surface-disabled">系统账号</span>
                 </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={account}
-                    onChange={(e) => setAccount(e.target.value)}
-                    placeholder="请输入登录账号"
-                    required
-                    className="w-full pl-10 pr-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#00703C] focus:bg-white transition-all font-mono"
-                  />
-                </div>
+                <Input
+                  value={account}
+                  onChange={(e) => setAccount(e.target.value)}
+                  placeholder="请输入登录账号"
+                  autoComplete="username"
+                  prefix={<User className="h-4 w-4 text-on-surface-disabled" aria-hidden="true" />}
+                />
               </div>
 
-              {/* Password */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-stone-700 flex items-center justify-between">
-                  <span>登录密码 (password)</span>
-                  <span className="text-[11px] text-stone-400 font-normal">安全密文传输</span>
+                <label className="flex items-center justify-between text-xs font-semibold text-on-surface">
+                  <span>登录密码</span>
+                  <span className="font-normal text-on-surface-disabled">安全密文传输</span>
                 </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="请输入登录密码"
-                    required
-                    className="w-full pl-10 pr-10 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#00703C] focus:bg-white transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
-                    title={showPassword ? "隐藏密码" : "显示密码"}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+                <Password
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="请输入登录密码"
+                  autoComplete="current-password"
+                  prefix={<Lock className="h-4 w-4 text-on-surface-disabled" aria-hidden="true" />}
+                />
               </div>
 
-              {/* Remember Me */}
-              <div className="flex items-center justify-between text-xs text-stone-600 pt-1">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded text-[#00703C] focus:ring-[#00703C]"
-                  />
-                  <span>记住账号并保持登录 (Bearer Token)</span>
-                </label>
+              <div className="pt-1 text-xs text-on-surface-variant">
+                <Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}>
+                  记住账号并保持登录
+                </Checkbox>
               </div>
 
-              {/* Login Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3 px-4 bg-[#00703C] hover:bg-[#005a30] text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2"
-              >
-                {isLoading ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>正在验证登录身份...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>登录邮件监控系统</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
+              <Button type="primary" htmlType="submit" loading={isLoading} block className="mt-2">
+                {isLoading ? "正在验证登录身份..." : "登录邮件监控系统"}
+              </Button>
             </form>
 
-            {/* Server & API Config Accordion */}
-            <div className="mt-4 pt-3 border-t border-stone-100">
+            <div className="mt-4 border-t border-outline-variant pt-3">
               <button
                 type="button"
                 onClick={() => setShowServerConfig(!showServerConfig)}
-                className="w-full flex items-center justify-between text-[11px] text-stone-500 hover:text-stone-700 transition-colors py-1"
+                className="flex w-full items-center justify-between py-1 text-[11px] text-on-surface-variant transition-colors hover:text-on-surface"
               >
                 <span className="flex items-center gap-1.5 font-mono">
-                  <Server className="w-3.5 h-3.5 text-[#00703C]" />
+                  <Server className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                   <span>接口服务监听: POST /v1/auth/login</span>
                 </span>
                 {showServerConfig ? (
-                  <ChevronUp className="w-3.5 h-3.5" />
+                  <ChevronUp className="h-3.5 w-3.5" />
                 ) : (
-                  <ChevronDown className="w-3.5 h-3.5" />
+                  <ChevronDown className="h-3.5 w-3.5" />
                 )}
               </button>
 
               {showServerConfig && (
-                <div className="mt-2 p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs space-y-2">
+                <div className="mt-2 space-y-2 rounded-lg border border-outline bg-surface-container p-3 text-xs">
                   <div>
-                    <div className="text-[11px] text-stone-500 font-medium">
+                    <div className="text-[11px] font-medium text-on-surface-variant">
                       服务监听地址 (server.corporation.address)
                     </div>
-                    <div className="font-mono text-[11px] text-stone-800 mt-0.5 p-1.5 bg-white border border-stone-200 rounded">
+                    <div className="mt-0.5 rounded-[6px] border border-outline bg-surface p-1.5 font-mono text-[11px] text-on-surface">
                       {backendUrl}
                     </div>
                   </div>
-                  <div className="text-[10px] text-stone-500 leading-relaxed">
+                  <div className="text-[10px] leading-relaxed text-on-surface-variant">
                     说明：根据文档规范，所有受保护接口使用{" "}
-                    <code className="bg-stone-200 px-1 rounded text-stone-800">
+                    <code className="rounded bg-outline-variant px-1 text-on-surface">
                       Authorization: Bearer &lt;access_token&gt;
                     </code>
                     ；邮政工作平台账号和平台管理员禁止通过公司端登录。
@@ -351,10 +291,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             </div>
           </div>
 
-          {/* Bottom Security Notice */}
-          <div className="px-7 py-3 bg-stone-50 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
+          <div className="flex items-center justify-between border-t border-outline-variant bg-surface-container px-6 py-3 text-[11px] text-on-surface-variant">
             <span className="flex items-center gap-1">
-              <Shield className="w-3.5 h-3.5 text-[#00703C]" />
+              <Shield className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
               <span>TLS 1.3 传输加密 / Bearer Token</span>
             </span>
             <span>中国邮政客户平台</span>
@@ -362,10 +301,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="w-full py-4 text-center text-xs text-emerald-100/70 z-10 border-t border-emerald-800/40">
+      <footer className="z-10 w-full border-t border-white/10 py-4 text-center text-xs text-white/70">
         <p>中国邮政集团有限公司速递物流部 · 重点特快客户平台管理中心</p>
-        <p className="text-[11px] text-emerald-200/50 mt-0.5">
+        <p className="mt-0.5 text-[11px] text-white/40">
           Copyright © 2026 CHINA POST EXPRESS & LOGISTICS. All Rights Reserved.
         </p>
       </footer>

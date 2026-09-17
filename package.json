@@ -18,6 +18,7 @@
     "page:create": "bun scripts/page-create.ts"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.3.4",
     "@antv/g2": "^5.4.8",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",

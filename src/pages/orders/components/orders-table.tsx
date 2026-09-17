@@ -1,6 +1,5 @@
-import { Button, Typography } from "antd";
-import { Clock, ExternalLink, RefreshCw } from "lucide-react";
-import { Table, type ColumnsType } from "@/src/components/Form";
+import { Clock, ExternalLink } from "lucide-react";
+import { Button, Table, type ColumnsType } from "@/src/components/Form";
 import { formatDuration } from "@/src/lib/duration";
 import { coarseStatusClass, waybillStatusLabel } from "@/src/lib/waybill-timeline";
 import {
@@ -43,7 +42,7 @@ export function OrdersTable({
       title: "ID",
       dataIndex: "id",
       key: "id",
-      className: "font-mono text-stone-400",
+      className: "font-mono text-on-surface-disabled",
     },
     {
       title: "订单状态",
@@ -61,20 +60,21 @@ export function OrdersTable({
       dataIndex: "waybill_no",
       key: "waybill_no",
       render: (value: string, item) => (
-        <Typography.Link
+        <Button
+          type="view"
+          className="inline-flex items-center gap-1 px-0 font-mono"
           onClick={() => onOpenDetail(item.id)}
-          className="inline-flex items-center gap-1 font-mono"
         >
           {value}
-          <ExternalLink className="h-3 w-3 text-stone-400" />
-        </Typography.Link>
+          <ExternalLink className="h-3 w-3 text-on-surface-disabled" />
+        </Button>
       ),
     },
     {
       title: "客户",
       dataIndex: "customer_name",
       key: "customer",
-      className: "font-medium text-stone-900",
+      className: "font-medium text-on-surface",
       render: (value: string | undefined) => value || "—",
     },
     {
@@ -88,7 +88,7 @@ export function OrdersTable({
       title: "当前节点",
       dataIndex: "current_node",
       key: "current_node",
-      className: "text-stone-500",
+      className: "text-on-surface-variant",
       render: (value: string | undefined) => value || "—",
     },
 
@@ -100,7 +100,7 @@ export function OrdersTable({
         <span
           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${severityClass(value)}`}
         >
-          <Clock className="h-3 w-3 text-stone-400" />
+          <Clock className="h-3 w-3 text-on-surface-disabled" />
           {severityText(value)}
         </span>
       ),
@@ -108,11 +108,11 @@ export function OrdersTable({
     {
       title: "当前问题",
       key: "issue",
-      className: "leading-relaxed text-stone-600",
+      className: "leading-relaxed text-on-surface-variant",
       render: (_value, item) => (
         <>
           {item.active_issue_summary || "无"}
-          {item.is_stagnant ? <span className="ml-2 text-amber-700">滞留</span> : null}
+          {item.is_stagnant ? <span className="ml-2 text-warning">滞留</span> : null}
         </>
       ),
     },
@@ -121,7 +121,7 @@ export function OrdersTable({
       width: 170,
       dataIndex: "started_at",
       key: "started_at",
-      className: "whitespace-nowrap font-mono text-stone-500",
+      className: "whitespace-nowrap font-mono text-on-surface-variant",
       render: (value: string | undefined) => formatOpTime(value),
     },
     {
@@ -129,7 +129,7 @@ export function OrdersTable({
       width: 170,
       dataIndex: "last_op_time",
       key: "updated",
-      className: "whitespace-nowrap font-mono text-stone-500",
+      className: "whitespace-nowrap font-mono text-on-surface-variant",
       render: (value: string | undefined) => formatOpTime(value),
     },
 
@@ -138,7 +138,7 @@ export function OrdersTable({
       dataIndex: "elapsed_hours",
       key: "elapsed",
       width: 120,
-      className: "font-medium text-stone-700",
+      className: "font-medium text-on-surface",
       render: (value: number | undefined) => formatDuration(value),
     },
     {
@@ -147,59 +147,45 @@ export function OrdersTable({
       align: "right",
       render: (_value, item) => (
         <span className="inline-flex items-center gap-3">
-          <Typography.Link
-            onClick={() => onOpenDetail(item.id)}
-            className="inline-flex items-center gap-0.5"
-          >
+          <Button type="view" onClick={() => onOpenDetail(item.id)}>
             查看轨迹
-          </Typography.Link>
-          <Typography.Link
+          </Button>
+          <Button
+            type="edit"
             disabled={rearchivingId === item.id}
             onClick={() => onRearchive(item.id)}
-            className="inline-flex items-center gap-0.5"
           >
             {rearchivingId === item.id ? "归档中" : "重新归档"}
-          </Typography.Link>
+          </Button>
         </span>
       ),
     },
   ];
 
   return (
-    <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-bold text-stone-900">订单索引</h3>
-          <p className="mt-0.5 text-xs text-stone-400">共 {total} 条</p>
-        </div>
-        <Button size="small" icon={<RefreshCw className="h-3.5 w-3.5" />} onClick={onReload}>
-          刷新
-        </Button>
-      </div>
-
-      <Table
-        rowKey="id"
-        columns={columns}
-        data={items}
-        loading={loading}
-        error={error}
-        empty="当前筛选条件下没有订单索引记录。"
-        onRetry={onReload}
-        pagination={{
-          current: page,
-          pageSize: size,
-          total,
-          showSizeChanger: true,
-          pageSizeOptions: PAGE_SIZES.map(String),
-          onChange: (nextPage, nextSize) => {
-            if (nextSize !== size) {
-              onSizeChange(nextSize);
-              return;
-            }
-            onPageChange(nextPage);
-          },
-        }}
-      />
-    </section>
+    <Table
+      title="订单索引"
+      rowKey="id"
+      columns={columns}
+      data={items}
+      loading={loading}
+      error={error}
+      empty="当前筛选条件下没有订单索引记录。"
+      onRetry={onReload}
+      pagination={{
+        current: page,
+        pageSize: size,
+        total,
+        showSizeChanger: true,
+        pageSizeOptions: PAGE_SIZES.map(String),
+        onChange: (nextPage, nextSize) => {
+          if (nextSize !== size) {
+            onSizeChange(nextSize);
+            return;
+          }
+          onPageChange(nextPage);
+        },
+      }}
+    />
   );
 }

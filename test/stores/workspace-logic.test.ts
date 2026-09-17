@@ -36,6 +36,11 @@ describe("workspace logic", () => {
     expect(openTab([home, orders], extra)).toEqual([home, extra]);
   });
 
+  test("merges slash home with dashboard", () => {
+    const slashHome: WorkspaceTab = { ...home, id: "/", href: "/" };
+    expect(openTab([slashHome], home)).toEqual([home]);
+  });
+
   test("activates the right tab, then the left tab after close", () => {
     expect(getNextTabIdAfterClose([home, orders, extra], orders.id)).toBe(extra.id);
     expect(getNextTabIdAfterClose([home, orders], orders.id)).toBe(home.id);

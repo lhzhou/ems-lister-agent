@@ -9,6 +9,6 @@ describe("normalizeTabLocation", () => {
   });
 
   test("normalizes home path", () => {
-    expect(normalizeTabLocation("/")).toBe("/");
+    expect(normalizeTabLocation("/")).toBe("/dashboard");
   });
 });

@@ -27,16 +27,17 @@ const COLUMNS = [
 
 const COLORS = {
   page: "#ffffff",
-  ink: "#1f2a37",
-  muted: "#667085",
-  faint: "#98a2b3",
-  line: "#d0d5dd",
-  headerFill: "#f2f4f7",
-  stripe: "#f8fafc",
-  primary: "#00703C",
+  ink: "#1D2129",
+  muted: "#666F80",
+  faint: "#9E9E9E",
+  line: "#E5E6EB",
+  headerFill: "#FAFAFA",
+  stripe: "#F4F6F8",
+  primary: "#0F6B3D",
 };
 
-const FONT_FAMILY = "PingFang SC, Hiragino Sans GB, Noto Sans SC, Microsoft YaHei, sans-serif";
+const FONT_FAMILY =
+  "-apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans SC, sans-serif";
 
 type PdfPage = {
   width: number;

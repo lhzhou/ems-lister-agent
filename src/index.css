@@ -1,5 +1,157 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "微软雅黑", "Noto Sans SC", "Alibaba PuHuiTi", sans-serif;
+  --font-mono: "SF Mono", Consolas, "Liberation Mono", Menlo, "Courier New", monospace;
+  --font-serif: "Songti SC", "Source Han Serif SC", "SimSun", "STSong", serif;
+
+  --color-primary: #0f6b3d;
+  --color-primary-hover: #148a4e;
+  --color-primary-active: #083b21;
+  --color-primary-dark: #0b4e2c;
+  --color-primary-light: #eaf6ee;
+  --color-primary-border: #bce2c9;
+  --color-on-primary: #ffffff;
+  --color-success: #00b578;
+  --color-warning: #fa8c16;
+  --color-error: #f5222d;
+  --color-info: #1677ff;
+  --color-gold: #d48806;
+  --color-gold-bg: #fff7e6;
+  --color-surface: #ffffff;
+  --color-surface-layout: #f4f6f8;
+  --color-surface-container: #fafafa;
+  --color-on-surface: #1d2129;
+  --color-on-surface-variant: #666f80;
+  --color-on-surface-disabled: #9e9e9e;
+  --color-outline: #e5e6eb;
+  --color-outline-variant: #f0f2f5;
+  --color-alert-success-bg: #f6ffed;
+  --color-alert-warning-bg: #fffbe6;
+  --color-alert-error-bg: #fff2f0;
+  --color-tag-blue-bg: #e6f4ff;
+
+  --shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-popover: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 6px 24px rgba(0, 0, 0, 0.16);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  font-family: var(--font-sans);
+  color: var(--color-on-surface);
+  background: var(--color-surface-layout);
+}
+
+body {
+  margin: 0;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.tabular-nums,
+.font-mono {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.ant-table {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.ant-table-thead > tr > th {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.ant-table-tbody > tr > td {
+  font-size: 14px;
+  color: var(--color-on-surface);
+}
+
+.ant-pagination .ant-pagination-item {
+  background: var(--color-surface);
+  border-color: var(--color-outline);
+}
+
+.ant-pagination .ant-pagination-item a {
+  color: var(--color-on-surface);
+}
+
+.ant-pagination .ant-pagination-item-active {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+.ant-pagination .ant-pagination-item-active a {
+  color: var(--color-primary);
+}
+
+.ant-pagination .ant-pagination-item-active:hover a {
+  color: var(--color-primary-hover);
+}
+
+.app-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.app-card--kpi {
+  padding: 16px;
+  transition: box-shadow 160ms ease;
+}
+
+.app-card--kpi:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.app-status-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.ant-menu-light.ant-menu-root {
+  border-inline-end: none !important;
+}
+
+.ant-menu-item,
+.ant-menu-submenu-title {
+  font-size: 13px !important;
+}
+
+.ant-menu-item-selected {
+  font-weight: 600;
+}
+
+.ant-modal .ant-modal-content {
+  box-shadow: var(--shadow-modal);
+}
+
+.ant-dropdown .ant-dropdown-menu,
+.ant-select-dropdown,
+.ant-picker-dropdown {
+  box-shadow: var(--shadow-popover);
+  border: 1px solid var(--color-outline);
+}
+
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
@@ -17,6 +169,12 @@
 
 .pulse-dot {
   animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot {
+    animation: none;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {

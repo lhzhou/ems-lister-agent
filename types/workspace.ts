@@ -11,4 +11,5 @@ export type WorkspaceSnapshot = {
   scope: string | null;
   tabs: WorkspaceTab[];
   activeId: string | null;
+  lastHrefs: Record<string, string>;
 };

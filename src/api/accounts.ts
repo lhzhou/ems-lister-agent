@@ -1,5 +1,11 @@
 import { http } from "@/src/lib/request";
-import type { AccountPage, AccountRecord, CreateAccountInput, ResetAccountPasswordInput, UpdateAccountInput } from "@/src/pages/accounts/model/types";
+import type {
+  AccountPage,
+  AccountRecord,
+  CreateAccountInput,
+  ResetAccountPasswordInput,
+  UpdateAccountInput,
+} from "@/src/pages/accounts/model/types";
 
 export const accountsApi = {
   list(params: { page: number; size: number; keyword?: string; type?: string; status?: string }) {

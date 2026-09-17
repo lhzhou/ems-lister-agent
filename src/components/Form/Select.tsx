@@ -3,6 +3,6 @@ import type { SelectProps } from "antd";
 
 export type AppSelectProps = SelectProps;
 
-export function Select({ allowClear = true, ...rest }: AppSelectProps) {
-  return <AntSelect allowClear={allowClear} {...rest} />;
+export function Select({ allowClear = true, size = "large", ...rest }: AppSelectProps) {
+  return <AntSelect allowClear={allowClear} size={size} {...rest} />;
 }

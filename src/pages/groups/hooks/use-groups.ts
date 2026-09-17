@@ -14,7 +14,6 @@ export function useGroups() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     void groupsApi
       .list({ page: 1, size: 100 })
       .then((payload) => {

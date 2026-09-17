@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Volume2,
-  VolumeX,
-  Menu,
-  Clock,
-  User,
-  LogOut,
-  ChevronDown,
-  Shield,
-} from "lucide-react";
+import { Volume2, VolumeX, Menu, Clock, LogOut, ChevronDown, Shield } from "lucide-react";
 import { setAudioEnabled } from "@/src/lib/storage";
 import { playNotificationChime } from "@/src/lib/sound";
 import { UserInfo } from "@/src/types/express";
@@ -32,7 +23,6 @@ export const Header: React.FC<HeaderProps> = ({
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close user dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -71,161 +61,147 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const headerControl =
+    "inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-white/15 bg-white/10 px-2.5 text-xs text-white/90 transition-colors hover:bg-white/16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+
   return (
-    <header className="bg-gradient-to-r from-[#005f32] via-[#00703C] to-[#004f2b] text-white shadow-md sticky top-0 z-40">
-      {/* Main Navigation Bar */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-        {/* Logo and Brand Title */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Menu button to toggle sidebar */}
+    <header className="sticky top-0 z-40 h-16 bg-primary text-on-primary">
+      <div className="flex h-full w-full items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           {onToggleSidebar && (
             <button
               type="button"
               onClick={onToggleSidebar}
-              className="p-2 -ml-1 rounded-lg bg-emerald-800/60 border border-emerald-600/40 text-emerald-100 hover:text-white hover:bg-emerald-700/60 transition-colors"
+              className={`${headerControl} px-2`}
               title="切换侧边栏菜单"
               aria-label="切换侧边栏菜单"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </button>
           )}
 
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg sm:text-xl font-bold tracking-wide text-white flex items-center gap-1.5">
-                邮政重点快递查询系统
-              </h1>
-              <span className="bg-[#F9B200]/20 text-[#ffc634] border border-[#F9B200]/40 text-[11px] px-2 py-0.5 rounded-full font-medium">
-                VIP专属版
-              </span>
-            </div>
-            <p className="text-xs text-emerald-200/80 hidden sm:block">
-              全流程动态节点追踪 · 毫米级温控遥测 · 毫秒级多渠道签收提醒
-            </p>
+          <div className="flex min-w-0 items-center gap-2">
+            <h1 className="truncate text-lg font-semibold tracking-wide text-white">
+              邮政重点快递查询系统
+            </h1>
+            <span className="hidden rounded-full bg-gold-bg px-2 py-0.5 text-[11px] font-medium text-gold sm:inline">
+              VIP专属版
+            </span>
           </div>
         </div>
 
-        {/* Right utility actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* System Clock moved into header */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-800/60 border border-emerald-600/40 text-emerald-100 font-mono text-xs shadow-inner">
-            <Clock className="w-3.5 h-3.5 text-[#F9B200]" />
-            <span className="text-[11px]">系统时钟:</span>
-            <span className="font-semibold text-white">{currentTime}</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5"></span>
+          <div className={`hidden font-mono lg:flex ${headerControl}`}>
+            <Clock className="h-3.5 w-3.5 text-[#ffb95f]" aria-hidden="true" />
+            <span className="text-[11px] text-white/70">系统时钟</span>
+            <span className="font-medium tabular-nums text-white">{currentTime}</span>
+            <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-success" />
           </div>
 
-          {/* Sound Toggle */}
           <button
             type="button"
             onClick={toggleAudio}
             title={audioOn ? "点击静音提醒声音" : "点击开启签收提示音"}
-            className={`p-2 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
-              audioOn
-                ? "bg-emerald-800/60 border-emerald-600/50 text-white hover:bg-emerald-700/60"
-                : "bg-stone-800/40 border-stone-600/40 text-stone-300 hover:bg-stone-800/70"
-            }`}
+            className={headerControl}
           >
             {audioOn ? (
-              <Volume2 className="w-4 h-4 text-[#F9B200]" />
+              <Volume2 className="h-4 w-4 text-[#ffb95f]" aria-hidden="true" />
             ) : (
-              <VolumeX className="w-4 h-4 text-stone-400" />
+              <VolumeX className="h-4 w-4 text-white/60" aria-hidden="true" />
             )}
-            <span className="hidden md:inline text-xs">{audioOn ? "提醒音开" : "静音"}</span>
+            <span className="hidden md:inline">{audioOn ? "提醒音开" : "静音"}</span>
           </button>
 
-          {/* User Profile & Logout Dropdown */}
           {currentUser && (
             <div className="relative" ref={userMenuRef}>
               <button
                 type="button"
                 onClick={() => setUserMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2 pl-2 pr-2.5 py-1.5 rounded-lg bg-emerald-800/60 border border-emerald-600/50 hover:bg-emerald-700/60 text-white transition-all text-xs"
+                className={headerControl}
                 title="用户信息与账户操作"
+                aria-expanded={userMenuOpen}
               >
                 {currentUser.avatarUrl ? (
                   <img
                     src={currentUser.avatarUrl}
-                    alt={currentUser.name}
-                    className="w-6 h-6 rounded-full object-cover border border-emerald-300/50"
+                    alt=""
+                    className="h-6 w-6 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-[11px] font-bold text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-dark text-[11px] font-bold text-white">
                     {currentUser.name.slice(0, 1)}
                   </div>
                 )}
-                <div className="hidden sm:flex flex-col text-left">
-                  <span className="font-bold text-xs leading-tight">{currentUser.name}</span>
-                  <span className="text-[10px] text-emerald-200/90 leading-tight">
+                <div className="hidden text-left sm:flex sm:flex-col">
+                  <span className="text-xs leading-tight font-semibold">{currentUser.name}</span>
+                  <span className="text-[10px] leading-tight text-white/70">
                     {currentUser.role}
                   </span>
                 </div>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-emerald-200 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                  className={`h-3.5 w-3.5 text-white/70 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                  aria-hidden="true"
                 />
               </button>
 
-              {/* Popover Dropdown Menu */}
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-stone-200 text-stone-800 py-3 px-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
+                <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-outline bg-surface p-4 text-on-surface shadow-popover">
+                  <div className="flex items-center gap-3 border-b border-outline-variant pb-3">
                     {currentUser.avatarUrl ? (
                       <img
                         src={currentUser.avatarUrl}
-                        alt={currentUser.name}
-                        className="w-10 h-10 rounded-full object-cover border border-stone-200"
+                        alt=""
+                        className="h-10 w-10 rounded-full object-cover border border-outline"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-bold text-on-primary">
                         {currentUser.name.slice(0, 1)}
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm text-stone-900 truncate">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate text-sm font-semibold text-on-surface">
                           {currentUser.name}
                         </span>
-                        <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
+                        <span className="app-status-tag bg-primary-light text-primary">
                           {currentUser.role}
                         </span>
                       </div>
-                      <p className="text-[11px] text-stone-500 font-mono mt-0.5">
+                      <p className="mt-0.5 font-mono text-[11px] text-on-surface-variant">
                         工号: {currentUser.empId}
                       </p>
                     </div>
                   </div>
 
-                  <div className="py-2.5 space-y-1.5 text-xs text-stone-600 border-b border-stone-100">
-                    <div className="flex justify-between">
-                      <span className="text-stone-400">所属部门:</span>
+                  <div className="space-y-1.5 border-b border-outline-variant py-2.5 text-xs text-on-surface-variant">
+                    <div className="flex justify-between gap-3">
+                      <span className="text-on-surface-disabled">所属部门:</span>
                       <span
-                        className="font-medium text-stone-800 text-right truncate max-w-[140px]"
+                        className="max-w-[140px] truncate text-right font-medium text-on-surface"
                         title={currentUser.department}
                       >
                         {currentUser.department}
                       </span>
                     </div>
                     {currentUser.phone && (
-                      <div className="flex justify-between">
-                        <span className="text-stone-400">登记电话:</span>
-                        <span className="font-mono text-stone-700">{currentUser.phone}</span>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-on-surface-disabled">登记电话:</span>
+                        <span className="font-mono text-on-surface">{currentUser.phone}</span>
                       </div>
                     )}
                     {currentUser.lastLoginTime && (
-                      <div className="flex justify-between">
-                        <span className="text-stone-400">本次登录:</span>
-                        <span className="font-mono text-[11px] text-stone-500">
-                          {currentUser.lastLoginTime}
-                        </span>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-on-surface-disabled">本次登录:</span>
+                        <span className="font-mono text-[11px]">{currentUser.lastLoginTime}</span>
                       </div>
                     )}
-                    <div className="flex justify-between items-center pt-1 border-t border-stone-100/70">
-                      <span className="text-stone-400 flex items-center gap-1">
-                        <Shield className="w-3 h-3 text-[#00703C]" />
+                    <div className="flex items-center justify-between gap-3 border-t border-outline-variant pt-1">
+                      <span className="flex items-center gap-1 text-on-surface-disabled">
+                        <Shield className="h-3 w-3 text-primary" aria-hidden="true" />
                         <span>授权凭证:</span>
                       </span>
                       <span
-                        className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded font-mono font-medium"
+                        className="rounded-full border border-primary-border bg-primary-light px-1.5 py-0.5 font-mono text-[10px] font-medium text-primary"
                         title={currentUser.token || "已颁发长期令牌"}
                       >
                         {currentUser.token
@@ -242,9 +218,9 @@ export const Header: React.FC<HeaderProps> = ({
                         setUserMenuOpen(false);
                         if (onLogout) onLogout();
                       }}
-                      className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                      className="flex w-full items-center justify-center gap-2 rounded-[6px] py-2 text-xs font-semibold text-error transition-colors hover:bg-alert-error-bg"
                     >
-                      <LogOut className="w-3.5 h-3.5" />
+                      <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
                       <span>退出登录 / 切换账号</span>
                     </button>
                   </div>

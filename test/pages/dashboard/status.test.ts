@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { dashboardStatusCoverage, rankedDashboardStatuses } from "@/src/pages/dashboard/model/status";
+import {
+  dashboardStatusCoverage,
+  rankedDashboardStatuses,
+} from "@/src/pages/dashboard/model/status";
 
 describe("rankedDashboardStatuses", () => {
   test("collapses legacy statuses into five coarse buckets", () => {

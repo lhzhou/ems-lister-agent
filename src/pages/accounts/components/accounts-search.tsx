@@ -1,6 +1,5 @@
-import { Button } from "antd";
 import { Search } from "lucide-react";
-import { Input, Select } from "@/src/components/Form";
+import { Button, Card, Input, Select } from "@/src/components/Form";
 import { ACCOUNT_STATUS_OPTIONS, ACCOUNT_TYPE_OPTIONS } from "../model/types";
 
 export function AccountsSearch({
@@ -21,7 +20,7 @@ export function AccountsSearch({
   onReset: () => void;
 }) {
   return (
-    <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm">
+    <Card>
       <div className="grid gap-3 md:grid-cols-4">
         <Input
           value={keyword}
@@ -29,7 +28,7 @@ export function AccountsSearch({
           onClear={() => onKeywordChange("")}
           placeholder="搜索账号或姓名"
           aria-label="搜索账号或姓名"
-          prefix={<Search className="h-4 w-4 text-stone-400" />}
+          prefix={<Search className="h-4 w-4 text-on-surface-disabled" aria-hidden="true" />}
           allowClear
         />
         <Select
@@ -54,8 +53,10 @@ export function AccountsSearch({
           }))}
           allowClear
         />
-        <Button onClick={onReset}>重置筛选</Button>
+        <Button type="reset" onClick={onReset}>
+          重置筛选
+        </Button>
       </div>
-    </section>
+    </Card>
   );
 }

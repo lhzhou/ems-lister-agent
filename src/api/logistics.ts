@@ -47,9 +47,9 @@ export interface WaybillIndexItem {
   current_status: string;
   current_substatus?: string;
   last_op_name?: string;
+  current_node?: string;
   started_at?: string;
   elapsed_hours?: number;
-  current_node?: string;
   last_op_time?: string;
   highest_severity?: string;
   active_issue_summary?: string;
@@ -70,6 +70,7 @@ export interface StagnantWaybill {
   current_status: string;
   current_substatus?: string;
   last_op_name?: string;
+  current_node?: string;
   last_op_time?: string;
   started_at?: string;
   stagnant_hours: number;
@@ -104,7 +105,8 @@ export const logisticsApi = {
       return {
         totalOrders: Number(stats.total_orders ?? 0),
         inTransit: Number(
-          stats.status_counts?.find((item: any) => item.current_status === "in_transit")?.total ?? 0,
+          stats.status_counts?.find((item: any) => item.current_status === "in_transit")?.total ??
+            0,
         ),
         delivering: Number(
           stats.status_counts?.find((item: any) => item.current_status === "out_for_delivery")

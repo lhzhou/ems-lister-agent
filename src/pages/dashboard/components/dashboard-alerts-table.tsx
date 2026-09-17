@@ -1,6 +1,5 @@
-import { Button, Typography } from "antd";
 import { Clock, ExternalLink } from "lucide-react";
-import { Table, type ColumnsType } from "@/src/components/Form";
+import { Button, Table, type ColumnsType } from "@/src/components/Form";
 
 export type DashboardAlertItem = {
   id: string;
@@ -34,13 +33,13 @@ export function DashboardAlertsTable({
         <span
           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
             value === "高风险"
-              ? "bg-red-50 text-red-700 border border-red-200"
+              ? "bg-alert-error-bg text-error border border-[#ffccc7]"
               : value === "中风险"
-                ? "bg-amber-50 text-amber-700 border border-amber-200"
-                : "bg-stone-100 text-stone-600"
+                ? "border border-[#ffe58f] bg-alert-warning-bg text-warning"
+                : "bg-surface-container text-on-surface-variant"
           }`}
         >
-          <Clock className="h-3 w-3 text-stone-400" />
+          <Clock className="h-3 w-3 text-on-surface-disabled" />
           <span>{value}</span>
         </span>
       ),
@@ -50,7 +49,7 @@ export function DashboardAlertsTable({
       dataIndex: "customer",
       key: "customer",
       width: 192,
-      className: "font-medium text-stone-900",
+      className: "font-medium text-on-surface",
     },
     {
       title: "邮件号",
@@ -58,29 +57,30 @@ export function DashboardAlertsTable({
       key: "mailNo",
       width: 200,
       render: (value: string, item) => (
-        <Typography.Link
+        <Button
+          type="view"
+          className="inline-flex items-center gap-1 px-0 font-mono"
           onClick={() => {
             if (item.waybillId) onOpenDetail(item.waybillId);
           }}
-          className="inline-flex items-center gap-1 font-mono"
         >
           {value}
-          <ExternalLink className="h-3 w-3 text-stone-400" />
-        </Typography.Link>
+          <ExternalLink className="h-3 w-3 text-on-surface-disabled" />
+        </Button>
       ),
     },
     {
       title: "异常说明",
       dataIndex: "description",
       key: "description",
-      className: "leading-relaxed text-stone-600",
+      className: "leading-relaxed text-on-surface-variant",
     },
     {
       title: "当前节点",
       dataIndex: "currentNode",
       key: "node",
       width: 144,
-      className: "text-stone-500",
+      className: "text-on-surface-variant",
     },
     {
       title: "发生时间",
@@ -88,10 +88,10 @@ export function DashboardAlertsTable({
       key: "occurTime",
       width: 168,
       align: "right",
-      className: "whitespace-nowrap font-mono text-stone-400",
+      className: "whitespace-nowrap font-mono text-on-surface-disabled",
       render: (value: string) => (
         <span className="inline-flex items-center gap-1">
-          <Clock className="h-3 w-3 text-stone-400" />
+          <Clock className="h-3 w-3 text-on-surface-disabled" />
           <span>{value}</span>
         </span>
       ),
@@ -99,18 +99,18 @@ export function DashboardAlertsTable({
   ];
 
   return (
-    <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-bold text-stone-900">今日异常预警</h3>
-          <p className="mt-0.5 text-xs text-stone-400">仅展示今日检出的最新异常</p>
-        </div>
-        <Button size="small" onClick={onToggleShowAll}>
+    <Table
+      title="今日异常预警"
+      description="仅展示今日检出的最新异常"
+      extra={
+        <Button type="view" onClick={onToggleShowAll}>
           {showAll ? "收起列表" : "查看全部"}
         </Button>
-      </div>
-
-      <Table rowKey="id" columns={columns} data={items} empty="暂无异常预警" />
-    </div>
+      }
+      rowKey="id"
+      columns={columns}
+      data={items}
+      empty="暂无异常预警"
+    />
   );
 }

@@ -22,11 +22,11 @@ export const SEVERITY_OPTIONS = [
 
 export function severityClass(severity?: string) {
   if (severity === "P0" || severity === "P1") {
-    return "bg-red-50 text-red-700 border border-red-200";
+    return "border border-[#ffccc7] bg-alert-error-bg text-error";
   }
-  if (severity === "P2") return "bg-amber-50 text-amber-700 border border-amber-200";
-  if (severity === "P3") return "bg-sky-50 text-sky-700 border border-sky-200";
-  return "bg-stone-100 text-stone-600";
+  if (severity === "P2") return "border border-[#ffe58f] bg-alert-warning-bg text-warning";
+  if (severity === "P3") return "border border-[#91caff] bg-tag-blue-bg text-info";
+  return "bg-surface-container text-on-surface-variant";
 }
 
 export function severityText(severity?: string) {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatDuration } from "@/src/lib/duration";
+import { formatDuration, formatDurationFromTime } from "@/src/lib/duration";
 
 describe("formatDuration", () => {
   test("returns dash for missing values", () => {
@@ -20,5 +20,13 @@ describe("formatDuration", () => {
     expect(formatDuration(48)).toBe("2天");
     expect(formatDuration(365 * 24)).toBe("1年");
     expect(formatDuration(365 * 24 + 3 * 24 + 8)).toBe("1年3天8小时");
+  });
+});
+
+describe("formatDurationFromTime", () => {
+  test("uses the same auto style as current elapsed hours", () => {
+    expect(formatDurationFromTime(undefined, 25)).toBe("1天1小时");
+    expect(formatDurationFromTime(undefined, 43)).toBe("1天19小时");
+    expect(formatDurationFromTime(undefined, 24)).toBe("1天");
   });
 });

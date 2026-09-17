@@ -1,5 +1,5 @@
-import { Button, Drawer, Form } from "antd";
-import { Input, Select } from "@/src/components/Form";
+import { Form } from "antd";
+import { Input, Modal, Select, ViewFields, statusDot } from "@/src/components/Form";
 import type { AccountRecord } from "@/src/pages/accounts/model/types";
 import type { GroupRecord } from "../model/types";
 
@@ -7,7 +7,7 @@ export type GroupFormValues = {
   name: string;
   code?: string;
   leader_account_id: number;
-  enabled?: boolean;
+  enabled?: boolean | number;
 };
 
 export function GroupsForm({
@@ -38,63 +38,63 @@ export function GroupsForm({
     leaders.find((item) => item.id === id)?.display_name ?? String(id);
 
   return (
-    <Drawer
+    <Modal
       title={title}
       open={open}
-      onClose={onClose}
-      width={440}
-      destroyOnClose
-      extra={
-        readOnly ? null : (
-          <Button type="primary" loading={saving} onClick={() => form.submit()}>
-            保存
-          </Button>
-        )
-      }
+      onCancel={onClose}
+      onOk={() => (readOnly ? onClose() : form.validateFields().then(onSubmit))}
+      confirmLoading={saving}
+      okButtonProps={{ style: readOnly ? { display: "none" } : undefined }}
+      cancelText={readOnly ? "关闭" : "取消"}
     >
-      {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mb-4 text-sm text-error">{error}</p> : null}
       {mode === "view" && record ? (
-        <dl className="space-y-3 text-sm">
-          <div>
-            <dt className="text-stone-400">组名称</dt>
-            <dd>{record.name}</dd>
-          </div>
-          <div>
-            <dt className="text-stone-400">组编码</dt>
-            <dd className="font-mono">{record.code}</dd>
-          </div>
-          <div>
-            <dt className="text-stone-400">组长</dt>
-            <dd>{leaderName(record.leader_account_id)}</dd>
-          </div>
-          <div>
-            <dt className="text-stone-400">状态</dt>
-            <dd>{record.enabled ? "启用" : "停用"}</dd>
-          </div>
-        </dl>
+        <ViewFields
+          items={[
+            { label: "组名称", value: record.name },
+            { label: "组编码", value: record.code },
+            { label: "组长", value: leaderName(record.leader_account_id) },
+            {
+              label: "状态",
+              value: statusDot(
+                record.enabled ? "启用" : "停用",
+                record.enabled ? "success" : "warning",
+              ),
+            },
+          ]}
+        />
       ) : (
         <Form
           form={form}
           layout="vertical"
+          size="large"
           initialValues={
             record
               ? {
                   name: record.name,
                   code: record.code,
                   leader_account_id: record.leader_account_id,
-                  enabled: record.enabled,
+                  enabled: record.enabled ? 1 : 0,
                 }
               : { enabled: true }
           }
           onFinish={onSubmit}
         >
-          <Form.Item name="name" label="组名称" rules={[{ required: true, message: "请输入组名称" }]}>
+          <Form.Item
+            name="name"
+            label="组名称"
+            rules={[{ required: true, message: "请输入组名称" }]}
+          >
             <Input maxLength={100} />
           </Form.Item>
           <Form.Item name="code" label="组编码">
             <Input maxLength={50} disabled={mode === "edit"} placeholder="留空则自动生成" />
           </Form.Item>
-          <Form.Item name="leader_account_id" label="组长" rules={[{ required: true, message: "请选择组长" }]}>
+          <Form.Item
+            name="leader_account_id"
+            label="组长"
+            rules={[{ required: true, message: "请选择组长" }]}
+          >
             <Select
               allowClear={false}
               loading={leadersLoading}
@@ -109,14 +109,14 @@ export function GroupsForm({
               <Select
                 allowClear={false}
                 options={[
-                  { value: true, label: "启用" },
-                  { value: false, label: "停用" },
+                  { value: 1, label: "启用" },
+                  { value: 0, label: "停用" },
                 ]}
               />
             </Form.Item>
           ) : null}
         </Form>
       )}
-    </Drawer>
+    </Modal>
   );
 }

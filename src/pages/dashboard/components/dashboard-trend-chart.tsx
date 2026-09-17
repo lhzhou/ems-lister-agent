@@ -69,7 +69,7 @@ export function DashboardTrendChart({
       .axis("y", {
         title: false,
         grid: true,
-        gridStroke: "#f1f5f9",
+        gridStroke: "#F0F2F5",
         gridLineWidth: 1,
       })
       .legend(false)

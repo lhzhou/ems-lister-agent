@@ -5,9 +5,8 @@ meta:
 */
 
 import { useEffect, useState } from "react";
-import { Button, message } from "antd";
-import { Plus } from "lucide-react";
 import { accountsApi, groupsApi } from "@/src/api";
+import { Button, notify } from "@/src/components/Form";
 import type { AccountRecord } from "@/src/pages/accounts/model/types";
 import { GroupsForm, type GroupFormValues } from "./components/groups-form";
 import { GroupsSearch } from "./components/groups-search";
@@ -18,7 +17,7 @@ import type { GroupRecord } from "./model/types";
 export default function GroupsPage() {
   const groups = useGroups();
   const [leaders, setLeaders] = useState<AccountRecord[]>([]);
-  const [leadersLoading, setLeadersLoading] = useState(false);
+  const [leadersLoading, setLeadersLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit" | "view">("create");
   const [selected, setSelected] = useState<GroupRecord | null>(null);
@@ -27,7 +26,6 @@ export default function GroupsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setLeadersLoading(true);
     void accountsApi
       .list({ page: 1, size: 100, type: "service_group_leader", status: "active" })
       .then((payload) => {
@@ -61,19 +59,20 @@ export default function GroupsPage() {
           code: values.code?.trim() || undefined,
           leader_account_id: Number(values.leader_account_id),
         });
-        message.success("客服组已创建");
+        notify.success("客服组已创建");
       } else if (selected) {
         await groupsApi.update(selected.id, {
           name: values.name,
           leader_account_id: Number(values.leader_account_id),
-          enabled: values.enabled,
+          enabled: values.enabled === undefined ? undefined : Boolean(values.enabled),
         });
-        message.success("客服组已更新");
+        notify.success("客服组已更新");
       }
       setOpen(false);
       groups.reload();
     } catch (cause) {
       setFormError(cause instanceof Error ? cause.message : "保存失败");
+      throw cause;
     } finally {
       setSaving(false);
     }
@@ -82,10 +81,10 @@ export default function GroupsPage() {
   const remove = async (item: GroupRecord) => {
     try {
       await groupsApi.remove(item.id);
-      message.success("客服组已删除");
+      notify.success("客服组已删除");
       groups.reload();
     } catch (cause) {
-      message.error(cause instanceof Error ? cause.message : "删除失败");
+      notify.error(cause instanceof Error ? cause.message : "删除失败");
     }
   };
 
@@ -98,11 +97,6 @@ export default function GroupsPage() {
         onEnabledChange={groups.setEnabled}
         onReset={groups.resetFilters}
       />
-      <div className="flex justify-end">
-        <Button type="primary" icon={<Plus className="h-4 w-4" />} onClick={() => openDrawer("create")}>
-          新增客服组
-        </Button>
-      </div>
       <GroupsTable
         items={groups.items}
         total={groups.total}
@@ -111,6 +105,11 @@ export default function GroupsPage() {
         loading={groups.loading}
         error={groups.error}
         leaders={leaders}
+        extra={
+          <Button type="create" onClick={() => openDrawer("create")}>
+            新增客服组
+          </Button>
+        }
         onReload={groups.reload}
         onPageChange={groups.setPage}
         onSizeChange={groups.setSize}

@@ -1,5 +1,5 @@
-import { Button, Drawer, Form, Input as AntInput } from "antd";
-import { Input, Select } from "@/src/components/Form";
+import { Form } from "antd";
+import { Input, Modal, Password, Select, ViewFields, statusDot } from "@/src/components/Form";
 import type { GroupRecord } from "@/src/pages/groups/model/types";
 import {
   ACCOUNT_STATUS_OPTIONS,
@@ -45,48 +45,37 @@ export function AccountsForm({
   const title = mode === "create" ? "新增账号" : mode === "edit" ? "编辑账号" : "查看账号";
 
   return (
-    <Drawer
+    <Modal
       title={title}
       open={open}
-      onClose={onClose}
-      width={460}
-      destroyOnClose
-      extra={
-        readOnly ? null : (
-          <Button type="primary" loading={saving} onClick={() => form.submit()}>
-            保存
-          </Button>
-        )
-      }
+      onCancel={onClose}
+      onOk={() => (readOnly ? onClose() : form.validateFields().then(onSubmit))}
+      confirmLoading={saving}
+      okButtonProps={{ style: readOnly ? { display: "none" } : undefined }}
+      cancelText={readOnly ? "关闭" : "取消"}
     >
-      {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mb-4 text-sm text-error">{error}</p> : null}
       {mode === "view" && record ? (
-        <dl className="space-y-3 text-sm">
-          <div>
-            <dt className="text-stone-400">登录账号</dt>
-            <dd className="font-mono text-stone-900">{record.username}</dd>
-          </div>
-          <div>
-            <dt className="text-stone-400">姓名</dt>
-            <dd>{record.display_name}</dd>
-          </div>
-          <div>
-            <dt className="text-stone-400">岗位</dt>
-            <dd>{accountTypeLabel(record.type)}</dd>
-          </div>
-          <div>
-            <dt className="text-stone-400">客服组</dt>
-            <dd>{record.group_name || "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-stone-400">状态</dt>
-            <dd>{accountStatusLabel(record.status)}</dd>
-          </div>
-        </dl>
+        <ViewFields
+          items={[
+            { label: "登录账号", value: record.username },
+            { label: "姓名", value: record.display_name },
+            { label: "岗位", value: accountTypeLabel(record.type) },
+            { label: "客服组", value: record.group_name || "—" },
+            {
+              label: "状态",
+              value: statusDot(
+                accountStatusLabel(record.status),
+                record.status === "active" ? "success" : "warning",
+              ),
+            },
+          ]}
+        />
       ) : (
         <Form
           form={form}
           layout="vertical"
+          size="large"
           initialValues={
             record
               ? {
@@ -100,10 +89,18 @@ export function AccountsForm({
           }
           onFinish={onSubmit}
         >
-          <Form.Item name="username" label="登录账号" rules={[{ required: true, message: "请输入登录账号" }]}>
+          <Form.Item
+            name="username"
+            label="登录账号"
+            rules={[{ required: true, message: "请输入登录账号" }]}
+          >
             <Input maxLength={100} />
           </Form.Item>
-          <Form.Item name="display_name" label="姓名" rules={[{ required: true, message: "请输入姓名" }]}>
+          <Form.Item
+            name="display_name"
+            label="姓名"
+            rules={[{ required: true, message: "请输入姓名" }]}
+          >
             <Input maxLength={100} />
           </Form.Item>
           {mode === "create" ? (
@@ -112,7 +109,7 @@ export function AccountsForm({
               label="初始密码"
               rules={[{ required: true, min: 8, message: "密码至少 8 位" }]}
             >
-              <AntInput.Password maxLength={256} />
+              <Password maxLength={256} />
             </Form.Item>
           ) : null}
           <Form.Item name="type" label="岗位" rules={[{ required: true, message: "请选择岗位" }]}>
@@ -144,6 +141,6 @@ export function AccountsForm({
           ) : null}
         </Form>
       )}
-    </Drawer>
+    </Modal>
   );
 }

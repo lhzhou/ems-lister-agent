@@ -1,6 +1,6 @@
 import { HOME_TAB, ORDERS_TAB } from "@/src/constants/workspace";
 import { portalTabFromRoute } from "@/src/lib/portal-menu";
-import type { AppTab, TabColorTheme, TabType } from "@/src/types/tabs";
+import type { AppTab, TabType } from "@/src/types/tabs";
 import type { WorkspaceTab } from "@/types/workspace";
 import { getRegisteredRoute } from "./route-registry";
 import { normalizeTabLocation } from "./tab-id";
@@ -13,8 +13,16 @@ export function workspaceTabFromHref(href: string): WorkspaceTab | null {
   const tab = portalTabFromRoute(path);
   if (tab === "orders") return { ...ORDERS_TAB, id, href: id };
   if (tab === "dashboard") return { ...HOME_TAB, id, href: id };
-  if (tab === "accounts") return { id, href: id, title: "账号管理", closable: true, keepAlive: false };
-  if (tab === "groups") return { id, href: id, title: "客服组管理", closable: true, keepAlive: false };
+  if (tab === "accounts")
+    return { id, href: id, title: "账号管理", closable: true, keepAlive: false };
+  if (tab === "groups")
+    return { id, href: id, title: "客服组管理", closable: true, keepAlive: false };
+  if (tab === "customers")
+    return { id, href: id, title: "客户管理", closable: true, keepAlive: false };
+  if (tab === "enterprises")
+    return { id, href: id, title: "企业管理", closable: true, keepAlive: false };
+  if (tab === "credentials")
+    return { id, href: id, title: "密钥管理", closable: true, keepAlive: false };
   return {
     id,
     href: id,
@@ -26,12 +34,10 @@ export function workspaceTabFromHref(href: string): WorkspaceTab | null {
 
 export function appTabFromWorkspace(tab: WorkspaceTab): AppTab {
   const type = (portalTabFromRoute(tab.href) ?? "dashboard") as TabType;
-  const colorTheme: TabColorTheme = type === "orders" ? "blue" : "emerald";
   return {
     id: tab.id,
     title: tab.title,
     tabType: type,
     closable: tab.closable,
-    colorTheme,
   };
 }

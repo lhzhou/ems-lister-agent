@@ -23,9 +23,9 @@ describe("orders query", () => {
     expect(ordersHref(query)).toBe(
       "/orders?waybill_no=9819327665042&status=in_transit&severity=P1&page=3&size=50",
     );
-    expect(parseOrdersQuery("?waybill_no=9819327665042&status=in_transit&severity=P1&page=3&size=50")).toEqual(
-      query,
-    );
+    expect(
+      parseOrdersQuery("?waybill_no=9819327665042&status=in_transit&severity=P1&page=3&size=50"),
+    ).toEqual(query);
   });
 
   test("drops unknown status and invalid size", () => {

@@ -5,7 +5,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { authApi, menusApi } from "@/src/api";
-import { DashboardShell, Header, PageContainer, PageTabs, Sidebar, type SidebarTab } from "@/src/components/Layout";
+import {
+  DashboardShell,
+  Header,
+  PageContainer,
+  PageTabs,
+  Sidebar,
+  type SidebarTab,
+} from "@/src/components/Layout";
 import { HOME_TAB } from "@/src/constants/workspace";
 import {
   replaceBrowserHref,
@@ -20,6 +27,9 @@ import LoginPage from "@/src/pages/login";
 import OrdersPage from "@/src/pages/orders";
 import AccountsPage from "@/src/pages/accounts";
 import GroupsPage from "@/src/pages/groups";
+import CustomersPage from "@/src/pages/customers";
+import EnterprisesPage from "@/src/pages/customers/enterprises";
+import CredentialsPage from "@/src/pages/customers/credentials";
 import { appTabFromWorkspace, workspaceTabFromHref } from "@/src/routers/workspace-tab";
 import { tabPathname } from "@/src/stores/workspace-logic";
 import { useWorkspaceStore } from "@/src/stores/workspace-store";
@@ -37,7 +47,9 @@ export default function App() {
 
   const workspaceTabs = useWorkspaceStore((state) => state.tabs);
   const workspaceActiveId = useWorkspaceStore((state) => state.activeId);
-  const tabs: AppTab[] = (workspaceTabs.length ? workspaceTabs : [HOME_TAB]).map(appTabFromWorkspace);
+  const tabs: AppTab[] = (workspaceTabs.length ? workspaceTabs : [HOME_TAB]).map(
+    appTabFromWorkspace,
+  );
   const activeTabId = workspaceActiveId || tabs[0]?.id || HOME_TAB.id;
 
   useWorkspaceScope(currentUser ? currentUser.empId : null);
@@ -52,6 +64,9 @@ export default function App() {
     if (currentTab?.tabType === "orders" || currentTab?.tabType === "tracking") return "orders";
     if (currentTab?.tabType === "accounts") return "accounts";
     if (currentTab?.tabType === "groups") return "groups";
+    if (currentTab?.tabType === "customers") return "customers";
+    if (currentTab?.tabType === "enterprises") return "enterprises";
+    if (currentTab?.tabType === "credentials") return "credentials";
     return "dashboard";
   }, [currentTab?.tabType]);
 
@@ -85,25 +100,30 @@ export default function App() {
   }, []);
 
   const handleSelectSidebarTab = (tabType: SidebarTab) => {
-    const href =
+    const path =
       tabType === "orders"
         ? "/orders"
         : tabType === "accounts"
           ? "/accounts"
           : tabType === "groups"
             ? "/groups"
-            : "/dashboard";
-    const existing = useWorkspaceStore
-      .getState()
-      .tabs.find((item) => tabPathname(item.id) === href);
+            : tabType === "customers"
+              ? "/customers"
+              : tabType === "enterprises"
+                ? "/customers/enterprises"
+                : tabType === "credentials"
+                  ? "/customers/credentials"
+                  : "/dashboard";
+    const workspace = useWorkspaceStore.getState();
+    const existing = workspace.tabs.find((item) => tabPathname(item.id) === path);
     if (existing) {
-      useWorkspaceStore.getState().activate(existing.id);
+      workspace.activate(existing.id);
       replaceBrowserHref(existing.href);
       return;
     }
-    const tab = workspaceTabFromHref(href);
+    const tab = workspaceTabFromHref(workspace.lastHrefFor(path));
     if (tab) {
-      useWorkspaceStore.getState().open(tab);
+      workspace.open(tab);
       replaceBrowserHref(tab.href);
     }
   };
@@ -193,14 +213,17 @@ export default function App() {
         {(currentTab?.tabType === "orders" || currentTab?.tabType === "tracking") && <OrdersPage />}
         {currentTab?.tabType === "accounts" && <AccountsPage />}
         {currentTab?.tabType === "groups" && <GroupsPage />}
+        {currentTab?.tabType === "customers" && <CustomersPage />}
+        {currentTab?.tabType === "enterprises" && <EnterprisesPage />}
+        {currentTab?.tabType === "credentials" && <CredentialsPage />}
       </PageContainer>
-      <footer className="mt-auto border-t border-stone-200 bg-white py-5 text-center text-xs text-stone-500">
-        <div className="flex w-full flex-col items-center justify-between gap-3 px-4 sm:flex-row sm:px-6 lg:px-8">
+      <footer className="mt-auto border-t border-outline bg-surface py-5 text-center text-xs text-on-surface-variant">
+        <div className="flex w-full flex-col items-center justify-between gap-3 px-4 sm:flex-row sm:px-6">
           <div className="flex items-center gap-2 font-medium">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#00703C]"></span>
+            <span className="h-2.5 w-2.5 rounded-full bg-primary"></span>
             <span>中国邮政重点快递与特快邮件综合管理系统 · 官方运行平台</span>
           </div>
-          <div className="flex items-center gap-4 text-stone-400">
+          <div className="flex items-center gap-4 text-on-surface-disabled">
             <span>全国统一客服：11183</span>
           </div>
         </div>

@@ -18,10 +18,10 @@ export const TREND_DATA: TrendPoint[] = [
 ];
 
 export const TREND_SERIES = [
-  { key: "orderCount", name: "今日新增订单", color: "#00703C", dashed: false },
-  { key: "exceptionCount", name: "今日活动异常", color: "#0284c7", dashed: false },
-  { key: "subscribeCount", name: "今日订阅次数", color: "#d97706", dashed: true },
-  { key: "stagnantCount", name: "当前滞留", color: "#dc2626", dashed: false },
+  { key: "orderCount", name: "今日新增订单", color: "#0F6B3D", dashed: false },
+  { key: "exceptionCount", name: "今日活动异常", color: "#1677FF", dashed: false },
+  { key: "subscribeCount", name: "今日订阅次数", color: "#FA8C16", dashed: true },
+  { key: "stagnantCount", name: "当前滞留", color: "#F5222D", dashed: false },
 ] as const;
 
 export type TrendSeriesRow = {

@@ -1,5 +1,10 @@
 import { http } from "@/src/lib/request";
-import type { CreateGroupInput, GroupPage, GroupRecord, UpdateGroupInput } from "@/src/pages/groups/model/types";
+import type {
+  CreateGroupInput,
+  GroupPage,
+  GroupRecord,
+  UpdateGroupInput,
+} from "@/src/pages/groups/model/types";
 
 export const groupsApi = {
   list(params: { page: number; size: number }) {
