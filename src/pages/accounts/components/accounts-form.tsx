@@ -1,5 +1,13 @@
-import { Form } from "antd";
-import { Input, Modal, Password, Select, ViewFields, statusDot } from "@/src/components/Form";
+import {
+  Form,
+  accountStatusTone,
+  Input,
+  Modal,
+  Password,
+  Select,
+  ViewFields,
+  statusDot,
+} from "@/src/components/Form";
 import type { GroupRecord } from "@/src/pages/groups/model/types";
 import {
   ACCOUNT_STATUS_OPTIONS,
@@ -64,17 +72,13 @@ export function AccountsForm({
             { label: "客服组", value: record.group_name || "—" },
             {
               label: "状态",
-              value: statusDot(
-                accountStatusLabel(record.status),
-                record.status === "active" ? "success" : "warning",
-              ),
+              value: statusDot(accountStatusLabel(record.status), accountStatusTone(record.status)),
             },
           ]}
         />
       ) : (
         <Form
           form={form}
-          layout="vertical"
           size="large"
           initialValues={
             record

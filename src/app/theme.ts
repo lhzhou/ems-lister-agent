@@ -18,6 +18,7 @@ export const colors = {
   warning: "#FA8C16",
   error: "#F5222D",
   info: "#1677FF",
+  infoHover: "#4096FF",
   gold: "#D48806",
   goldBg: "#FFF7E6",
   surface: "#FFFFFF",
@@ -108,7 +109,10 @@ export const antdTheme: ThemeConfig = {
       itemActiveBg: colors.primaryLight,
       itemColor: colors.onSurface,
       itemBorderRadius: 6,
+      itemHeight: 40,
+      fontSize: 14,
       iconSize: 16,
+      collapsedWidth: 64,
     },
     Modal: {
       borderRadiusLG: 12,

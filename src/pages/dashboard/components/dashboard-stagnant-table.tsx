@@ -1,8 +1,8 @@
 import { ChevronRight, ExternalLink } from "lucide-react";
 import type { StagnantWaybill } from "@/src/api";
-import { Button, Table, type ColumnsType } from "@/src/components/Form";
+import { Button, Status, Table, waybillStatusTone, type ColumnsType } from "@/src/components/Form";
 import { formatDurationFromTime } from "@/src/lib/duration";
-import { coarseStatusClass, waybillStatusLabel } from "@/src/lib/waybill-timeline";
+import { waybillStatusLabel } from "@/src/lib/waybill-timeline";
 
 export function DashboardStagnantTable({
   items,
@@ -34,8 +34,8 @@ export function DashboardStagnantTable({
       key: "waybill_no",
       render: (value: string, item) => (
         <Button
-          type="view"
-          className="inline-flex items-center gap-1 px-0 font-mono"
+          type="link"
+          className="app-action-view inline-flex items-center gap-1 px-0 font-mono"
           onClick={() => onOpenDetail(item.id)}
         >
           {value}
@@ -48,11 +48,7 @@ export function DashboardStagnantTable({
       dataIndex: "current_status",
       key: "status",
       render: (value: string) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${coarseStatusClass(value)}`}
-        >
-          {waybillStatusLabel(value)}
-        </span>
+        <Status tone={waybillStatusTone(value)}>{waybillStatusLabel(value)}</Status>
       ),
     },
     {
@@ -88,7 +84,9 @@ export function DashboardStagnantTable({
     {
       title: "操作",
       key: "action",
+      width: 104,
       align: "right",
+      className: "whitespace-nowrap",
       render: (_value, item) => (
         <Button
           type="view"
@@ -107,9 +105,7 @@ export function DashboardStagnantTable({
       title={
         <span className="inline-flex items-center gap-2">
           最新滞留信息
-          <span className="app-status-tag border border-[#ffe58f] bg-alert-warning-bg text-warning">
-            超过24小时未推进
-          </span>
+          <Status tone="warning">超过24小时未推进</Status>
         </span>
       }
       description="按最近轨迹时间倒序，展示当前账号可见的滞留邮件"

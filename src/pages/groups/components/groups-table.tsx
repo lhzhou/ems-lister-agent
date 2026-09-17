@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { Tag } from "antd";
-import { Button, Popconfirm } from "@/src/components/Form";
+import { Button, enabledStatusTone, Popconfirm, Status } from "@/src/components/Form";
 import { Table, type ColumnsType } from "@/src/components/Form";
 import type { AccountRecord } from "@/src/pages/accounts/model/types";
 import type { GroupRecord } from "../model/types";
@@ -58,14 +57,16 @@ export function GroupsTable({
       dataIndex: "enabled",
       key: "enabled",
       render: (value: boolean) => (
-        <Tag color={value ? "green" : "orange"}>{value ? "启用" : "停用"}</Tag>
+        <Status tone={enabledStatusTone(value)}>{value ? "启用" : "停用"}</Status>
       ),
     },
     {
       title: "操作",
       key: "actions",
+      width: 240,
+      className: "whitespace-nowrap",
       render: (_value, item) => (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-nowrap items-center gap-4">
           <Button type="view" onClick={() => onView(item)}>
             查看
           </Button>

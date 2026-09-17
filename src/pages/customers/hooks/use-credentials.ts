@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { credentialsApi } from "@/src/api";
+import { credentialsApi, customersApi } from "@/src/api";
+import type { CustomerRecord } from "../model/types";
 import type { CustomerCredentialRecord } from "../model/credential-types";
 
 export function useCredentials() {
   const [keyword, setKeywordState] = useState("");
+  const [status, setStatusState] = useState("");
   const [items, setItems] = useState<CustomerCredentialRecord[]>([]);
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+  const [customersLoading, setCustomersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
@@ -30,27 +34,61 @@ export function useCredentials() {
     };
   }, [reloadKey]);
 
+  useEffect(() => {
+    let cancelled = false;
+    void customersApi
+      .list({ page: 1, size: 200 })
+      .then((payload) => {
+        if (!cancelled) setCustomers(payload.items ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setCustomers([]);
+      })
+      .finally(() => {
+        if (!cancelled) setCustomersLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     const needle = keyword.trim().toLowerCase();
-    if (!needle) return items;
-    return items.filter((item) =>
-      [item.name, item.postal_customer_no, item.sender_no, item.gateway_route_key]
+    return items.filter((item) => {
+      if (status && item.status !== status) return false;
+      if (!needle) return true;
+      return [
+        item.name,
+        item.customer_name,
+        item.postal_customer_no,
+        item.test_protocol_no,
+        item.production_protocol_no,
+        item.sender_no,
+        item.gateway_route_key,
+      ]
         .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(needle)),
-    );
-  }, [items, keyword]);
+        .some((value) => String(value).toLowerCase().includes(needle));
+    });
+  }, [items, keyword, status]);
 
   return {
     keyword,
     setKeyword: setKeywordState,
+    status,
+    setStatus: setStatusState,
     items: filtered,
     total: filtered.length,
+    customers,
+    customersLoading,
     loading,
     error,
     reload: () => {
       setLoading(true);
       setReloadKey((current) => current + 1);
     },
-    resetFilters: () => setKeywordState(""),
+    resetFilters: () => {
+      setKeywordState("");
+      setStatusState("");
+    },
   };
 }

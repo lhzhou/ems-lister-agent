@@ -8,6 +8,12 @@ describe("Form Button presets", () => {
     expect(BUTTON_TYPE_PRESETS.delete.danger).toBe(true);
     expect(BUTTON_TYPE_PRESETS.cancel.antdType).toBe("default");
     expect(BUTTON_TYPE_PRESETS.view.antdType).toBe("link");
+    expect(BUTTON_TYPE_PRESETS.view.icon).toBeDefined();
+    expect(BUTTON_TYPE_PRESETS.view.className).toContain("app-action-view");
+    expect(BUTTON_TYPE_PRESETS.edit.icon).toBeDefined();
+    expect(BUTTON_TYPE_PRESETS.edit.className).toContain("app-action-edit");
+    expect(BUTTON_TYPE_PRESETS.delete.icon).toBeDefined();
+    expect(BUTTON_TYPE_PRESETS.delete.className).toContain("app-action-delete");
     expect(BUTTON_TYPE_PRESETS.refresh.antdType).toBe("default");
     expect(BUTTON_TYPE_PRESETS.reset.antdType).toBe("default");
   });

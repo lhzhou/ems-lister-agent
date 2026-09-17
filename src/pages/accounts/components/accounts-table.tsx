@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { Tag } from "antd";
-import { Button, Popconfirm } from "@/src/components/Form";
+import { accountStatusTone, Button, Popconfirm, Status } from "@/src/components/Form";
 import { Table, type ColumnsType } from "@/src/components/Form";
 import {
   accountStatusLabel,
@@ -60,18 +59,18 @@ export function AccountsTable({
       dataIndex: "status",
       key: "status",
       render: (value: string) => (
-        <Tag color={value === "active" ? "green" : value === "locked" ? "red" : "orange"}>
-          {accountStatusLabel(value)}
-        </Tag>
+        <Status tone={accountStatusTone(value)}>{accountStatusLabel(value)}</Status>
       ),
     },
     {
       title: "操作",
       key: "actions",
+      width: 300,
+      className: "whitespace-nowrap",
       render: (_value, item) => {
         const writable = canManageAccount(item.type);
         return (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-nowrap items-center gap-4">
             <Button type="view" onClick={() => onView(item)}>
               查看
             </Button>

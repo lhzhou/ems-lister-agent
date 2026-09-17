@@ -1,5 +1,12 @@
-import { Form } from "antd";
-import { Input, Modal, Select, ViewFields, statusDot } from "@/src/components/Form";
+import {
+  Form,
+  enabledStatusTone,
+  Input,
+  Modal,
+  Select,
+  ViewFields,
+  statusDot,
+} from "@/src/components/Form";
 import type { AccountRecord } from "@/src/pages/accounts/model/types";
 import type { GroupRecord } from "../model/types";
 
@@ -56,17 +63,13 @@ export function GroupsForm({
             { label: "组长", value: leaderName(record.leader_account_id) },
             {
               label: "状态",
-              value: statusDot(
-                record.enabled ? "启用" : "停用",
-                record.enabled ? "success" : "warning",
-              ),
+              value: statusDot(record.enabled ? "启用" : "停用", enabledStatusTone(record.enabled)),
             },
           ]}
         />
       ) : (
         <Form
           form={form}
-          layout="vertical"
           size="large"
           initialValues={
             record

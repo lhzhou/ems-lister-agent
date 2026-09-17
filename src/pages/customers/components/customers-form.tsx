@@ -1,6 +1,6 @@
-import { Form } from "antd";
 import { BankOutlined } from "@ant-design/icons";
 import {
+  Form,
   Input,
   Modal,
   Password,
@@ -8,6 +8,7 @@ import {
   TextArea,
   ViewFields,
   formatDateTime,
+  customerStatusTone,
   formatRelativeTime,
   statusDot,
   type ViewField,
@@ -120,7 +121,7 @@ export function CustomersForm({
                 label: "状态",
                 value: statusDot(
                   customerStatusLabel(record.status),
-                  record.status === "frozen" ? "warning" : "success",
+                  customerStatusTone(record.status),
                 ),
               },
               {
@@ -142,7 +143,6 @@ export function CustomersForm({
       ) : (
         <Form
           form={form}
-          layout="vertical"
           size="large"
           requiredMark
           initialValues={

@@ -10,7 +10,7 @@
 - 浏览器直连 corporation API `8082`（`VITE_API_BASE_URL`），不经 9082 代理。
 - 认证走 `/v1/auth/*`。生产菜单走 `GET /v1/menus`（`server=corporation`），禁止再写死侧栏数组。
 - 已注册业务页：看板 `/dashboard`、订单管理 `/orders`、账号管理 `/accounts`、客服组管理 `/groups`、客户管理 `/customers`、企业管理 `/customers/enterprises`、密钥管理 `/customers/credentials`。动态菜单 `href` 必须命中 `src/routers/route-registry.ts`，未注册不生成页面。
-- 列表/详情契约以 8082 OpenAPI 为准，不凭空造接口。当前稳定接口：`GET /v1/dashboard`、`GET /v1/waybills`、`GET /v1/waybills/{id}/detail`、`GET /v1/stagnant-waybills`、`GET /v1/anomalies`、`GET /v1/menus`、`/v1/accounts`、`/v1/groups`、`/v1/customers`、`GET /v1/customer-credentials`。
+- 列表/详情契约以 8082 OpenAPI 为准，不凭空造接口。当前稳定接口：`GET /v1/dashboard`、`GET /v1/waybills`、`GET /v1/waybills/{id}/detail`、`GET /v1/stagnant-waybills`、`GET /v1/anomalies`、`GET /v1/menus`、`/v1/accounts`、`/v1/groups`、`/v1/customers`、`GET /v1/customer-credentials`、`POST /v1/customers/{id}/credentials`、`PATCH|DELETE /v1/customer-credentials/{id}`。密钥表单按测试密钥 / 正式密钥分组，不回显授权码和签名密钥。
 
 ## 目标
 
@@ -30,7 +30,7 @@ src/
   assets/
   components/
     Layout/       顶栏、侧栏、标签栏、页面壳
-    Form/         全局表单控件（Input、Select、Table、Pagination 等）
+    Form/         全局表单控件（Form、Input、Select、Table、Pagination 等）
     Waybill/      跨页运单详情
   constants/
   hooks/
@@ -84,7 +84,7 @@ type RouteMeta = {
 
 1. 先对 8082 契约，不造登录/菜单/业务接口。
 2. 新页：`bun run page:create <name> --dry-run`，确认后再生成；覆盖必须 `--force`。
-3. 列表：搜索 Card + 表格 Card；表格必须用 `src/components/Form/Table.tsx`（封装 Ant Design Table），页面只填列和数据。添加/编辑表单必须用 `src/components/Form/Modal.tsx`（Ant Design Modal，size 小/中/大/超大 416/640/880/1200，默认中）；短确认才用 Dialog。轨迹详情用超大。
+3. 列表：搜索 Card + 表格 Card；表格必须用 `src/components/Form/Table.tsx`（封装 Ant Design Table），页面只填列和数据。添加/编辑表单必须用 `src/components/Form/Modal.tsx`（Ant Design Modal，size 小/中/大/超大 416/640/880/1200，默认中）和 `src/components/Form/Form.tsx`（`layout="horizontal"`，标签左、控件右，`labelCol` 120px）；不要 `layout="vertical"`，不要页面直接 `import { Form } from "antd"`。短确认才用 Dialog。轨迹详情用超大。状态只用 `src/components/Form/Status.tsx`（Ant Design Tag：success / processing / warning / error / default），不要手写胶囊，不要直接 `antd Tag`。
 4. 必须有 loading / empty / error / retry。
 5. Demo 只在数据层切换，页面不维护两套请求。
 6. 认证只用适配器。菜单只用数据库，映射已注册路由。
@@ -113,7 +113,7 @@ type RouteMeta = {
 
 ## 视觉
 
-64px 顶栏 + 其下 40px 标签栏。当前标签用主色或指示线。标题来自元数据，过长截断 + Tooltip。WCAG AA：`role="tablist"/"tab"`、`aria-selected`、可见焦点。
+64px 顶栏 + 其下 40px 标签栏。侧栏展开 256 / 收起 64。菜单与标签统一 `14px`，条目高 40px。未选中白底描边，选中 `#EAF6EE` / 主色。标签图标与侧栏同一路由图标。标题来自元数据，过长截断 + Tooltip。WCAG AA：`role="tablist"/"tab"`、`aria-selected`、可见焦点。
 
 ## 阶段（按序做，不要一次做完）
 

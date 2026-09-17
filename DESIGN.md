@@ -263,35 +263,82 @@ The design system maintains a unified border-radius standard of **6px (Default /
 - On focus, border transitions to `#0F6B3D` and renders a 2px diffuse glow (`rgba(15, 107, 61, 0.2)`).
 - Prefix and suffix icons are rendered in `#9E9E9E`.
 
-### 3. Tables & Data Grids
+### 3. Forms
+
+- Workbench add/edit forms **always** use Ant Design Form `layout="horizontal"`. Do not use `vertical` or `inline` in Modal forms.
+- Label sits to the **left** of the control, right-aligned, width `120px`, with a colon. The control takes the remaining width (`labelCol={{ flex: "120px" }}`, `wrapperCol={{ flex: "auto" }}`, `labelAlign="right"`, `colon`).
+- Modal forms keep control `size="large"` (`40px`). One field per row — do not drop two `Form.Item`s into a CSS grid that fights the label column.
+- Query toolbars are a single row of inputs, not a Form layout. Read-only view uses `ViewFields` (label `112px` left), not a disabled Form.
+- Import Form from `src/components/Form`. Pages must not set `layout="vertical"`.
+
+### 4. Tables & Data Grids
 
 - Use Ant Design Table `middle` density. Header and body share one type size: `body-md` / `14px / 20px`. Do not mix `small` (12px) cells with `large` toolbar controls.
 - Headers use background `#FAFAFA` with `#666F80` semi-bold text (`title-sm`, still `14px / 20px / 600`).
 - Body text is `#1D2129`. Secondary cells (IDs, timestamps, nodes) use `#666F80` at the same `14px` — change color only, never shrink the type.
 - Numeric columns (tracking IDs, postage costs, transit hours) must strictly employ `code` or `number-data` tokens paired with `tabular-nums` to guarantee vertical decimal and digit alignment.
 - Status chips inside cells stay `body-sm` (`12px`, height `22px`); they are the only smaller type in a row.
+- **Row actions**: 查看 / 编辑 / 删除 / 查看轨迹 / 重新归档 are `link` text at `body-md` (`14px`) with a 14px leading icon and a persistent underline (`text-decoration: underline`, offset `2px`). Icon-to-label gap is `4px`; consecutive actions are spaced `16px` apart. Do not render these as chips or solid buttons.
+- **Action colors are fixed** (each verb keeps its own hue; 查看 must not share 编辑’s color):
+  - 查看: Info `#1677FF`, hover `#4096FF`, Eye icon.
+  - 编辑: Primary `#0F6B3D`, hover `#148A4E`, Edit icon.
+  - 删除: Error `#F5222D`, hover `#FF4D4F`, Delete icon.
+- **Action column width is fixed** so rows do not reflow: 1 action `104px`, 2 actions `216px`, 3 actions `240px`, 4 actions `300px`. Right-align, `nowrap`. Never omit `width` on the 操作 column.
 - Row zebra striping is optional; hover row background is `#EAF6EE` at 50% opacity.
 
-### 4. Pagination
+### 5. Pagination
 
 - Use Ant Design Pagination **default** item style. Do not invert the current page into a solid primary fill that hides the page number.
 - Current page: primary border + primary text on white (`#FFFFFF` / `#0F6B3D`). Other pages: `#1D2129` text on white with `#E5E6EB` border.
 - Total count and size changer use `body-md` (`14px`) and `#666F80`. Active number must remain readable (contrast ≥ 4.5:1).
 
-### 5. Chips, Tags & Badges
+### 6. Status Tags
 
-- **Status Tags**: Rounded pill (`full`), font size `12px` (`body-sm`), height `22px`.
-- **Primary / Active Status**: Light green background (`#EAF6EE`), border `#BCE2C9`, text `#0F6B3D`.
-- **VIP & Priority**: Light gold background (`#FFF7E6`), text `#D48806`.
-- **Error / Delay Alert**: Red background (`#FFF2F0`), text `#F5222D`.
+Use the shared Form `Status` wrapper around Ant Design [Tag](https://ant.design/components/tag-cn). Do not hand-roll pills, and do not pass raw `color="green"` / `orange` / `red`. Only these five tones:
 
-### 6. Checkboxes & Radio Buttons
+| Tone           | Ant Design `color` | Use for                           |
+| -------------- | ------------------ | --------------------------------- |
+| **success**    | `success`          | 已签收、启用、正常、密钥启用      |
+| **processing** | `processing`       | 运输中（含揽收后在途）、P3 低异常 |
+| **warning**    | `warning`          | 退回、P2 中异常、中风险、滞留提示 |
+| **error**      | `error`            | 撤单、P0/P1、锁定、冻结、高风险   |
+| **default**    | `default`          | 待揽收、无异常、停用、一般风险    |
+
+Fixed maps:
+
+- **运单**: 待揽收 `default` · 运输中 `processing` · 已签收 `success` · 退回 `warning` · 撤单 `error`
+- **异常等级**: 无/`NONE` `default` · P3 `processing` · P2 `warning` · P0/P1 `error`
+- **账号**: 启用 `success` · 停用 `default` · 锁定 `error`
+- **客户**: 正常 `success` · 冻结 `error`
+- **客服组 / 密钥**: 启用 `success` · 停用 `default`
+
+Pill radius `full`, type `body-sm` (`12px`), height `22px`. VIP remains gold `#FFF7E6` / `#D48806` as a separate badge, not a status tone.
+
+### 7. Checkboxes & Radio Buttons
 
 - Default 16px square/circle with `#E5E6EB` border.
 - When checked, fills with `#0F6B3D` and displays a crisp white mark.
 
-### 7. Cards & Modals
+### 8. Cards & Modals
 
 - **Card**: Surface `#FFFFFF`, border radius `8px`, 1px border `#E5E6EB`, padding `24px`.
 - **Modal**: Surface `#FFFFFF`, border radius `12px`, padding `20px 24px`, title styled with `title-lg` (`18px / 600`). Widths: small `416`, medium `640`, large `880`, xlarge `1200`.
 - **Waybill timeline**: Use the shared Form `Modal` at size `xlarge` (`1200px`). Title `title-lg` (`18px / 600`). Section labels, node titles, org names, timestamps, and descriptions use `body-md` (`14px / 20px`). Status chips and duration capsules stay `body-sm` (`12px`). Do not use 10px or 11px, and do not hand-roll a drawer overlay.
+
+### 9. Sidebar Navigation
+
+- Width `256px` expanded, `64px` collapsed. Surface `#FFFFFF`, right border `#E5E6EB`. Sits under the `64px` header.
+- Brand row uses the 7×7 primary mark and `title-sm` (`14px / 600`) label「业务导航目录」. Do not use 12px here.
+- Menu items are `40px` tall, radius `6px`, `body-md` (`14px / 20px`). Icons `16px`.
+- Default: `#1D2129` on white. Hover / selected fill `#EAF6EE`. Selected text and icon `#0F6B3D` at weight 600.
+- Directory parents (客户管理) keep the same type size as leaves. Nested leaves indent; they do not shrink.
+- Do not force a 13px menu font. Overflow menus use Level 3 elevation.
+
+### 10. Workspace Tabs
+
+- Bar height `40px`, canvas `#F4F6F8`, bottom border `#E5E6EB`. Sits directly under the header.
+- Tab segments use radius `6px` and `body-md` (`14px / 20px`). Icons `16px` and **match the sidebar icon for that route** (看板 `LayoutDashboard`, 订单 `PackageSearch`, 账号 `Users`, 客服组 `UsersRound`, 客户 `Users`, 企业 `Building2`, 密钥 `KeyRound`). Do not paint every extra tab with a generic package icon.
+- Inactive: white (`#FFFFFF`) fill, `#E5E6EB` border, `#1D2129` text. Hover fill `#EAF6EE`.
+- Active: white fill, `#0F6B3D` border and text, weight 600. Do not tint every open tab green — green is the selected state only.
+- Close control is a 16px hit target; hover uses error `#FFF2F0` / `#F5222D`.
+- Overflow / context menus use `body-md` (`14px`) and Level 3 elevation. No 10px captions.

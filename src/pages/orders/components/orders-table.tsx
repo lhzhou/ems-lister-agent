@@ -1,14 +1,15 @@
-import { Clock, ExternalLink } from "lucide-react";
-import { Button, Table, type ColumnsType } from "@/src/components/Form";
-import { formatDuration } from "@/src/lib/duration";
-import { coarseStatusClass, waybillStatusLabel } from "@/src/lib/waybill-timeline";
+import { ExternalLink } from "lucide-react";
 import {
-  PAGE_SIZES,
-  formatOpTime,
-  severityClass,
-  severityText,
-  type WaybillIndexItem,
-} from "../model/types";
+  Button,
+  Status,
+  severityTone,
+  Table,
+  waybillStatusTone,
+  type ColumnsType,
+} from "@/src/components/Form";
+import { formatDuration } from "@/src/lib/duration";
+import { waybillStatusLabel } from "@/src/lib/waybill-timeline";
+import { PAGE_SIZES, formatOpTime, severityText, type WaybillIndexItem } from "../model/types";
 
 export function OrdersTable({
   items,
@@ -48,11 +49,9 @@ export function OrdersTable({
       title: "订单状态",
       key: "status",
       render: (_value, item) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${coarseStatusClass(item.current_status)}`}
-        >
+        <Status tone={waybillStatusTone(item.current_status)}>
           {waybillStatusLabel(item.current_status)}
-        </span>
+        </Status>
       ),
     },
     {
@@ -61,8 +60,8 @@ export function OrdersTable({
       key: "waybill_no",
       render: (value: string, item) => (
         <Button
-          type="view"
-          className="inline-flex items-center gap-1 px-0 font-mono"
+          type="link"
+          className="app-action-view inline-flex items-center gap-1 px-0 font-mono"
           onClick={() => onOpenDetail(item.id)}
         >
           {value}
@@ -97,12 +96,7 @@ export function OrdersTable({
       dataIndex: "highest_severity",
       key: "severity",
       render: (value: string | undefined) => (
-        <span
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${severityClass(value)}`}
-        >
-          <Clock className="h-3 w-3 text-on-surface-disabled" />
-          {severityText(value)}
-        </span>
+        <Status tone={severityTone(value)}>{severityText(value)}</Status>
       ),
     },
     {
@@ -144,9 +138,11 @@ export function OrdersTable({
     {
       title: "操作",
       key: "action",
+      width: 216,
       align: "right",
+      className: "whitespace-nowrap",
       render: (_value, item) => (
-        <span className="inline-flex items-center gap-3">
+        <span className="inline-flex items-center gap-4">
           <Button type="view" onClick={() => onOpenDetail(item.id)}>
             查看轨迹
           </Button>

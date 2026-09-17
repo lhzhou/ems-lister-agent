@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Tag } from "antd";
+import { Status, type AppStatusTone } from "./Status";
 
 export type ViewField = {
   label: string;
@@ -36,15 +36,8 @@ export function formatRelativeTime(value?: string) {
   return formatDateTime(value);
 }
 
-export function statusDot(label: string, tone: "success" | "warning" | "default" = "success") {
-  return (
-    <Tag
-      color={tone === "success" ? "green" : tone === "warning" ? "orange" : "default"}
-      className="m-0 rounded-full px-2.5 py-0.5"
-    >
-      {label}
-    </Tag>
-  );
+export function statusDot(label: string, tone: AppStatusTone = "success") {
+  return <Status tone={tone}>{label}</Status>;
 }
 
 export function ViewFields({ items, footer }: { items: ViewField[]; footer?: ReactNode }) {

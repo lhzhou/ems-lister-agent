@@ -1,15 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
+import { iconForTab } from "@/src/lib/portal-icons";
+import type { PortalTab } from "@/src/lib/portal-menu";
 import { AppTab } from "@/src/types/tabs";
-import {
-  LayoutDashboard,
-  Package,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  MoreHorizontal,
-  RotateCw,
-  FolderMinus,
-} from "lucide-react";
+import { X, ChevronLeft, ChevronRight, MoreHorizontal, RotateCw, FolderMinus } from "lucide-react";
 
 interface MultiTabBarProps {
   tabs: AppTab[];
@@ -25,7 +18,7 @@ interface MultiTabBarProps {
 const iconBtn =
   "hidden h-7 w-7 shrink-0 items-center justify-center rounded-[6px] border border-transparent text-on-surface-disabled transition-colors hover:border-outline hover:bg-surface hover:text-on-surface sm:flex";
 
-const menuItem = "flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors";
+const menuItem = "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors";
 
 export const MultiTabBar: React.FC<MultiTabBarProps> = ({
   tabs,
@@ -72,8 +65,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
   };
 
   const getTabIcon = (tab: AppTab) => {
-    if (tab.tabType === "dashboard") return <LayoutDashboard className="h-3.5 w-3.5" />;
-    return <Package className="h-3.5 w-3.5" />;
+    const type = tab.tabType === "tracking" ? "orders" : tab.tabType;
+    const Icon = iconForTab(type as PortalTab);
+    return <Icon className="h-4 w-4" aria-hidden="true" />;
   };
 
   const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
@@ -116,10 +110,10 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
               tabIndex={isActive ? 0 : -1}
               onClick={() => onSelectTab(tab.id)}
               onContextMenu={(e) => handleContextMenu(e, tab.id)}
-              className={`group flex shrink-0 cursor-pointer items-center gap-2 rounded-[6px] px-3 py-1 text-xs transition-colors duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              className={`group flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-[6px] px-3 text-sm transition-colors duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isActive
                   ? "z-10 border border-primary bg-surface font-semibold text-primary"
-                  : "border border-primary-border bg-primary-light/70 text-on-surface hover:bg-primary-light"
+                  : "border border-outline bg-surface text-on-surface hover:border-primary-border hover:bg-primary-light"
               }`}
               title={`${tab.title} (右键打开菜单)`}
             >
@@ -129,7 +123,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
                 {getTabIcon(tab)}
               </span>
 
-              <span className="max-w-[150px] truncate font-medium tracking-tight whitespace-nowrap">
+              <span className="max-w-[150px] truncate tracking-tight whitespace-nowrap">
                 {tab.title}
               </span>
 
@@ -188,9 +182,9 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
           {showMoreActions && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="absolute top-full right-0 z-50 mt-1.5 w-44 rounded-xl border border-outline bg-surface py-1.5 text-xs text-on-surface shadow-popover"
+              className="absolute top-full right-0 z-50 mt-1.5 w-48 rounded-xl border border-outline bg-surface py-1.5 text-sm text-on-surface shadow-popover"
             >
-              <div className="border-b border-outline-variant px-3 py-1 text-[10px] font-semibold text-on-surface-disabled">
+              <div className="border-b border-outline-variant px-3 py-2 text-sm font-semibold text-on-surface-disabled">
                 已打开 {tabs.length} 个窗口
               </div>
               <button
@@ -259,7 +253,7 @@ export const MultiTabBar: React.FC<MultiTabBarProps> = ({
         <div
           onClick={(e) => e.stopPropagation()}
           style={{ position: "fixed", left: contextMenu.x, top: contextMenu.y }}
-          className="z-[100] w-40 rounded-xl border border-outline bg-surface py-1.5 text-xs text-on-surface shadow-modal"
+          className="z-[100] w-44 rounded-xl border border-outline bg-surface py-1.5 text-sm text-on-surface shadow-popover"
         >
           <button
             type="button"

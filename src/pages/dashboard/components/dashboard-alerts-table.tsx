@@ -1,5 +1,5 @@
 import { Clock, ExternalLink } from "lucide-react";
-import { Button, Table, type ColumnsType } from "@/src/components/Form";
+import { Button, riskStatusTone, Status, Table, type ColumnsType } from "@/src/components/Form";
 
 export type DashboardAlertItem = {
   id: string;
@@ -30,18 +30,7 @@ export function DashboardAlertsTable({
       key: "risk",
       width: 96,
       render: (value: DashboardAlertItem["riskLevel"]) => (
-        <span
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            value === "高风险"
-              ? "bg-alert-error-bg text-error border border-[#ffccc7]"
-              : value === "中风险"
-                ? "border border-[#ffe58f] bg-alert-warning-bg text-warning"
-                : "bg-surface-container text-on-surface-variant"
-          }`}
-        >
-          <Clock className="h-3 w-3 text-on-surface-disabled" />
-          <span>{value}</span>
-        </span>
+        <Status tone={riskStatusTone(value)}>{value}</Status>
       ),
     },
     {
@@ -58,8 +47,8 @@ export function DashboardAlertsTable({
       width: 200,
       render: (value: string, item) => (
         <Button
-          type="view"
-          className="inline-flex items-center gap-1 px-0 font-mono"
+          type="link"
+          className="app-action-view inline-flex items-center gap-1 px-0 font-mono"
           onClick={() => {
             if (item.waybillId) onOpenDetail(item.waybillId);
           }}

@@ -10,15 +10,21 @@ export const MODAL_SIZE_WIDTH: Record<AppModalSize, number> = {
   xlarge: 1200,
 };
 
-export type AppModalProps = Omit<ModalProps, "width"> & {
+export type AppModalProps = Omit<ModalProps, "width" | "maskClosable"> & {
   size?: AppModalSize;
 };
+
+function resolveMask(mask: ModalProps["mask"]) {
+  if (mask === false) return false;
+  if (mask === true || mask == null) return { closable: false };
+  return { closable: false, ...mask };
+}
 
 export function Modal({
   size = "medium",
   centered = true,
   destroyOnHidden = true,
-  maskClosable = false,
+  mask,
   okText = "保存",
   cancelText = "取消",
   ...rest
@@ -27,7 +33,7 @@ export function Modal({
     <AntModal
       centered={centered}
       destroyOnHidden={destroyOnHidden}
-      maskClosable={maskClosable}
+      mask={resolveMask(mask)}
       okText={okText}
       cancelText={cancelText}
       width={MODAL_SIZE_WIDTH[size] ?? MODAL_SIZE_WIDTH.medium}

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Clock, Copy, Download, RefreshCw } from "lucide-react";
 import { logisticsApi, type WaybillDetail } from "@/src/api";
-import { Button, Modal, notify } from "@/src/components/Form";
+import { Button, Modal, notify, Status, waybillStatusTone } from "@/src/components/Form";
 import { copyText } from "@/src/lib/clipboard";
 import { downloadWaybillTimelinePdf } from "@/src/lib/waybill-timeline-pdf";
 import {
@@ -96,9 +96,7 @@ export function WaybillDetailModal({
       title={
         <span className="inline-flex items-center gap-2">
           轨迹详情
-          <span className="app-status-tag border border-primary-border bg-primary-light text-primary">
-            实时更新
-          </span>
+          <Status tone="processing">实时更新</Status>
         </span>
       }
       footer={
@@ -146,8 +144,8 @@ export function WaybillDetailModal({
                 </span>
                 <span className="text-sm text-on-surface-disabled">(中国邮政)</span>
                 <Button
-                  type="view"
-                  className="px-0"
+                  type="link"
+                  className="app-action-view px-0"
                   icon={<Copy className="h-3.5 w-3.5" />}
                   onClick={() => {
                     void copyText(detail.waybill.waybill_no).then((ok) => {
@@ -165,10 +163,12 @@ export function WaybillDetailModal({
                   {copied ? "已复制" : "复制"}
                 </Button>
               </div>
-              <span className="app-status-tag flex-shrink-0 bg-primary text-on-primary">
-                <span className="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-on-primary" />
+              <Status
+                className="flex-shrink-0"
+                tone={waybillStatusTone(detail.waybill.current_status)}
+              >
                 {status}
-              </span>
+              </Status>
             </div>
             <div className="grid grid-cols-1 gap-2 pt-3 text-sm">
               <div className="flex items-center justify-between gap-3 text-on-surface-variant">
@@ -228,26 +228,19 @@ export function WaybillDetailModal({
                           >
                             {node.title}
                           </span>
-                          {node.isLatest ? (
-                            <span className="app-status-tag bg-primary text-on-primary">最新</span>
-                          ) : null}
+                          {node.isLatest ? <Status tone="processing">最新</Status> : null}
                           {node.isOrigin && !node.isLatest ? (
-                            <span className="app-status-tag border border-outline bg-surface-container text-on-surface-variant">
-                              始发
-                            </span>
+                            <Status tone="default">始发</Status>
                           ) : null}
                         </div>
                         {node.durationLabel ? (
-                          <span
-                            className={
-                              node.isLatest
-                                ? "app-status-tag flex-shrink-0 gap-1 border border-primary-border bg-primary-light text-primary"
-                                : "app-status-tag flex-shrink-0 gap-1 border border-outline bg-surface-container text-on-surface-variant"
-                            }
+                          <Status
+                            className="flex-shrink-0"
+                            tone={node.isLatest ? "processing" : "default"}
+                            icon={<Clock className="h-3 w-3" />}
                           >
-                            <Clock className="h-3 w-3" />
-                            <span>{node.durationLabel}</span>
-                          </span>
+                            {node.durationLabel}
+                          </Status>
                         ) : null}
                       </div>
                       <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Volume2, VolumeX, Menu, Clock, LogOut, ChevronDown, Shield } from "lucide-react";
 import { setAudioEnabled } from "@/src/lib/storage";
 import { playNotificationChime } from "@/src/lib/sound";
+import { Status } from "@/src/components/Form";
 import { UserInfo } from "@/src/types/express";
 
 interface HeaderProps {
@@ -163,9 +164,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="truncate text-sm font-semibold text-on-surface">
                           {currentUser.name}
                         </span>
-                        <span className="app-status-tag bg-primary-light text-primary">
-                          {currentUser.role}
-                        </span>
+                        <Status tone="success">{currentUser.role}</Status>
                       </div>
                       <p className="mt-0.5 font-mono text-[11px] text-on-surface-variant">
                         工号: {currentUser.empId}

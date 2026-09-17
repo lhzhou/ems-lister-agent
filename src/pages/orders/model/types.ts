@@ -20,15 +20,6 @@ export const SEVERITY_OPTIONS = [
   { value: "NONE", label: "无异常" },
 ];
 
-export function severityClass(severity?: string) {
-  if (severity === "P0" || severity === "P1") {
-    return "border border-[#ffccc7] bg-alert-error-bg text-error";
-  }
-  if (severity === "P2") return "border border-[#ffe58f] bg-alert-warning-bg text-warning";
-  if (severity === "P3") return "border border-[#91caff] bg-tag-blue-bg text-info";
-  return "bg-surface-container text-on-surface-variant";
-}
-
 export function severityText(severity?: string) {
   return !severity || severity === "NONE" ? "无" : severity;
 }

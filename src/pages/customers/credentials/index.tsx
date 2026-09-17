@@ -4,84 +4,126 @@ meta:
   title: 密钥管理
 */
 
-import { Tag } from "antd";
-import { Button, Card, Input, Table, type ColumnsType } from "@/src/components/Form";
-import { Search } from "lucide-react";
+import { useState } from "react";
+import { credentialsApi } from "@/src/api";
+import { Button, notify } from "@/src/components/Form";
+import { CredentialsForm, type CredentialFormValues } from "../components/credentials-form";
+import { CredentialsSearch } from "../components/credentials-search";
+import { CredentialsTable } from "../components/credentials-table";
 import { useCredentials } from "../hooks/use-credentials";
-import { credentialStatusLabel, type CustomerCredentialRecord } from "../model/credential-types";
+import type { CustomerCredentialInput, CustomerCredentialRecord } from "../model/credential-types";
+
+function toInput(values: CredentialFormValues): CustomerCredentialInput {
+  const interfaces = values.interfaces ?? [];
+  return {
+    name: values.name,
+    description: values.description,
+    sender_no: values.sender_no,
+    test_protocol_no: values.test_protocol_no,
+    production_protocol_no: values.production_protocol_no,
+    test_authorization: values.test_authorization,
+    test_signature_key: values.test_signature_key,
+    production_authorization: values.production_authorization,
+    production_signature_key: values.production_signature_key,
+    status: values.status,
+    supports_tracking_publish: interfaces.includes("publish"),
+    supports_tracking_query: interfaces.includes("query"),
+  };
+}
 
 export default function CredentialsPage() {
   const credentials = useCredentials();
-  const columns: ColumnsType<CustomerCredentialRecord> = [
-    { title: "密钥名称", dataIndex: "name", key: "name" },
-    {
-      title: "协议客户号",
-      dataIndex: "postal_customer_no",
-      key: "postal_customer_no",
-      className: "font-mono",
-    },
-    { title: "协议号", dataIndex: "sender_no", key: "sender_no", className: "font-mono" },
-    {
-      title: "路由键",
-      dataIndex: "gateway_route_key",
-      key: "gateway_route_key",
-      className: "font-mono",
-    },
-    {
-      title: "测试",
-      dataIndex: "test_configured",
-      key: "test_configured",
-      render: (value?: boolean) => (value ? "已配置" : "未配置"),
-    },
-    {
-      title: "生产",
-      dataIndex: "production_configured",
-      key: "production_configured",
-      render: (value?: boolean) => (value ? "已配置" : "未配置"),
-    },
-    {
-      title: "状态",
-      dataIndex: "status",
-      key: "status",
-      render: (value: string) => (
-        <Tag color={value === "active" ? "green" : "orange"}>{credentialStatusLabel(value)}</Tag>
-      ),
-    },
-  ];
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"create" | "edit" | "view">("create");
+  const [selected, setSelected] = useState<CustomerCredentialRecord | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  const openDrawer = (
+    nextMode: "create" | "edit" | "view",
+    record: CustomerCredentialRecord | null = null,
+  ) => {
+    setMode(nextMode);
+    setSelected(record);
+    setFormError("");
+    setOpen(true);
+  };
+
+  const submit = async (values: CredentialFormValues) => {
+    const customerId = values.customer_id || selected?.customer_id;
+    if (!customerId) {
+      setFormError("请选择客户");
+      return;
+    }
+    if (!values.test_protocol_no?.trim() && !values.production_protocol_no?.trim()) {
+      setFormError("请至少填写测试协议号或正式协议号");
+      return;
+    }
+    setSaving(true);
+    setFormError("");
+    try {
+      if (mode === "create") {
+        await credentialsApi.create(customerId, toInput(values));
+        notify.success("密钥已创建");
+      } else if (selected) {
+        await credentialsApi.update(selected.id, toInput(values));
+        notify.success("密钥已更新");
+      }
+      setOpen(false);
+      credentials.reload();
+    } catch (cause) {
+      setFormError(cause instanceof Error ? cause.message : "保存失败");
+      throw cause;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async (item: CustomerCredentialRecord) => {
+    try {
+      await credentialsApi.remove(item.id);
+      notify.success("密钥已删除");
+      credentials.reload();
+    } catch (cause) {
+      notify.error(cause instanceof Error ? cause.message : "删除失败");
+    }
+  };
 
   return (
     <div className="space-y-4">
-      <Card>
-        <div className="grid gap-3 md:grid-cols-3">
-          <Input
-            value={credentials.keyword}
-            onChange={(event) => credentials.setKeyword(event.target.value)}
-            onClear={() => credentials.setKeyword("")}
-            placeholder="搜索密钥名称、协议号或路由键"
-            aria-label="搜索密钥名称、协议号或路由键"
-            prefix={<Search className="h-4 w-4 text-on-surface-disabled" aria-hidden="true" />}
-            allowClear
-          />
-          <Button type="reset" onClick={credentials.resetFilters}>
-            重置筛选
-          </Button>
-        </div>
-      </Card>
-      <Table<CustomerCredentialRecord>
-        title="密钥管理"
-        rowKey="id"
-        data={credentials.items}
-        columns={columns}
+      <CredentialsSearch
+        keyword={credentials.keyword}
+        status={credentials.status}
+        onKeywordChange={credentials.setKeyword}
+        onStatusChange={credentials.setStatus}
+        onReset={credentials.resetFilters}
+      />
+      <CredentialsTable
+        items={credentials.items}
+        total={credentials.total}
         loading={credentials.loading}
         error={credentials.error}
-        empty="暂无本机构客户密钥"
-        onRetry={credentials.reload}
-        pagination={{
-          current: 1,
-          pageSize: 20,
-          total: credentials.total,
-          showSizeChanger: false,
-        }}
+        extra={
+          <Button type="create" onClick={() => openDrawer("create")}>
+            新增密钥
+          </Button>
+        }
+        onReload={credentials.reload}
+        onView={(item) => openDrawer("view", item)}
+        onEdit={(item) => openDrawer("edit", item)}
+        onDelete={remove}
+      />
+      <CredentialsForm
+        open={open}
+        mode={mode}
+        saving={saving}
+        record={selected}
+        customers={credentials.customers}
+        customersLoading={credentials.customersLoading}
+        error={formError}
+        onClose={() => setOpen(false)}
+        onSubmit={submit}
+        onEdit={selected ? () => openDrawer("edit", selected) : undefined}
       />
     </div>
   );

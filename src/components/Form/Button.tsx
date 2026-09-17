@@ -1,4 +1,10 @@
-import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import { Button as AntButton } from "antd";
 import type { ButtonProps } from "antd";
 import type { ReactNode } from "react";
@@ -26,10 +32,15 @@ export const BUTTON_TYPE_PRESETS: Record<
   { antdType: ButtonProps["type"]; danger?: boolean; className?: string; icon?: ReactNode }
 > = {
   create: { antdType: "primary", icon: <PlusOutlined /> },
-  edit: { antdType: "link", className: "px-1" },
-  delete: { antdType: "link", danger: true, className: "px-1" },
+  edit: { antdType: "link", className: "app-action-edit px-1", icon: <EditOutlined /> },
+  delete: {
+    antdType: "link",
+    danger: true,
+    className: "app-action-delete px-1",
+    icon: <DeleteOutlined />,
+  },
   cancel: { antdType: "default" },
-  view: { antdType: "link", className: "px-1" },
+  view: { antdType: "link", className: "app-action-view px-1", icon: <EyeOutlined /> },
   refresh: { antdType: "default", icon: <ReloadOutlined /> },
   reset: { antdType: "default" },
   primary: { antdType: "primary" },

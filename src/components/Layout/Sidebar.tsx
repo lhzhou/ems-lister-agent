@@ -1,40 +1,15 @@
 import React, { useMemo } from "react";
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
-import {
-  Package,
-  ChevronLeft,
-  ChevronRight,
-  Truck,
-  X,
-  LayoutDashboard,
-  CircleGauge,
-  PackageSearch,
-  Users,
-  UsersRound,
-  Building2,
-  KeyRound,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Truck, X } from "lucide-react";
+import { iconForMenu } from "@/src/lib/portal-icons";
 import type { PortalMenu, PortalTab } from "@/src/lib/portal-menu";
 import { portalMenuTree, portalTabFromRoute } from "@/src/lib/portal-menu";
 
 export type SidebarTab = PortalTab;
 
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  CircleGauge,
-  LayoutDashboard,
-  PackageSearch,
-  Package,
-  Users,
-  UsersRound,
-  Building2,
-  KeyRound,
-};
-
 function iconFor(item: PortalMenu) {
-  const Icon =
-    ICONS[item.icon ?? ""] ??
-    (portalTabFromRoute(item.route_path) === "orders" ? Package : LayoutDashboard);
+  const Icon = iconForMenu(item);
   return <Icon className="h-4 w-4" aria-hidden="true" />;
 }
 
@@ -120,7 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {!isCollapsed ? (
           <div className="flex items-center gap-2.5 overflow-hidden">
             {brandMark}
-            <h2 className="truncate text-xs font-semibold text-on-surface">业务导航目录</h2>
+            <h2 className="truncate text-sm font-semibold text-on-surface">业务导航目录</h2>
           </div>
         ) : (
           <div title="业务导航目录">{brandMark}</div>
@@ -145,7 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <nav className="flex-1 overflow-y-auto p-2">
         {menus.length === 0 ? (
           <p
-            className={`px-3 py-2 text-xs text-on-surface-disabled ${isCollapsed ? "hidden" : ""}`}
+            className={`px-3 py-2 text-sm text-on-surface-disabled ${isCollapsed ? "hidden" : ""}`}
           >
             暂无菜单
           </p>
@@ -158,7 +133,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             defaultOpenKeys={isCollapsed ? [] : openKeys}
             items={items}
             onClick={handleClick}
-            className="border-none bg-transparent text-xs [&_.ant-menu-item]:mb-1 [&_.ant-menu-item]:h-10 [&_.ant-menu-item]:leading-10 [&_.ant-menu-submenu-title]:h-10 [&_.ant-menu-submenu-title]:leading-10"
+            className="border-none bg-transparent text-sm [&_.ant-menu-item]:mb-1 [&_.ant-menu-item]:h-10 [&_.ant-menu-item]:leading-10 [&_.ant-menu-submenu-title]:h-10 [&_.ant-menu-submenu-title]:leading-10"
           />
         )}
       </nav>

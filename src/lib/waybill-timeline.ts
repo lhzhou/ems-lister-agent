@@ -62,27 +62,6 @@ export function waybillStatusLabel(status: string) {
   return WAYBILL_STATUS_LABELS[status] ?? status ?? "—";
 }
 
-export function coarseStatusClass(status: string) {
-  switch (status) {
-    case "pending_pickup":
-      return "bg-surface-container text-on-surface-variant";
-    case "delivered":
-      return "border border-primary-border bg-primary-light text-primary";
-    case "returned":
-    case "rejected":
-      return "border border-[#ffe58f] bg-alert-warning-bg text-warning";
-    case "cancelled":
-      return "bg-surface-container text-on-surface-disabled";
-    case "in_transit":
-    case "picked_up":
-    case "arrived_destination":
-    case "out_for_delivery":
-      return "border border-[#91caff] bg-tag-blue-bg text-info";
-    default:
-      return "bg-surface-container text-on-surface-variant";
-  }
-}
-
 export function latestWaybillOpName(detail: WaybillTimelineSource) {
   const latest = [...detail.events].sort((a, b) => {
     const delta = new Date(b.op_time).getTime() - new Date(a.op_time).getTime();
